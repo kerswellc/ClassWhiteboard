@@ -329,14 +329,27 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
+    // Use localStorage so page refresh reuses the exact same clientId instead of duplicating
     function getClientId() {
-      let cid = sessionStorage.getItem('ga_client_id');
+      let cid = localStorage.getItem('ga_client_id');
       if (!cid) {
         cid = 'cid_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        sessionStorage.setItem('ga_client_id', cid);
+        localStorage.setItem('ga_client_id', cid);
       }
       return cid;
     }
+
+    // Tell the server immediately when closing or refreshing the tab
+    function sendDisconnectBeacon() {
+      if (activeRoom && studentClientId) {
+        const payload = JSON.stringify({ clientId: studentClientId });
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(`${RELAY_URL}/${activeRoom}/disconnect`, payload);
+        }
+      }
+    }
+    window.addEventListener('beforeunload', sendDisconnectBeacon);
+    window.addEventListener('pagehide', sendDisconnectBeacon);
 
     // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
@@ -768,7 +781,7 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
     let currentColor = '#000000';
-    let currentTool = 'pen'; // 'pen' | 'eraser' | 'text'
+    let currentTool = 'pen';
 
     function setupCanvas() {
       setTimeout(() => {
@@ -855,7 +868,7 @@
 
       if (currentTool === 'eraser') {
         ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 22;
       } else {
         ctx.strokeStyle = currentColor;
         ctx.lineWidth = 5;
