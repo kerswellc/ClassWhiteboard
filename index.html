@@ -3,83 +3,200 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Live Class Whiteboard</title>
+  <title>Gosforth Academy | Live Whiteboard</title>
   <style>
+    :root {
+      --ga-green-dark: #062316;
+      --ga-green-base: #0f4229;
+      --ga-green-light: #165b39;
+      --ga-gold: #e5a823;
+      --ga-gold-hover: #c98f16;
+      --ga-slate-bg: #0b1410;
+      --ga-panel-bg: #14231c;
+      --ga-panel-border: #1f372c;
+      --ga-text: #f0fdf4;
+      --ga-text-muted: #8fa99c;
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background: #0f172a; color: #f8fafc; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      margin: 0; 
+      padding: 12px; 
+      background: var(--ga-slate-bg); 
+      color: var(--ga-text); 
+    }
 
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
-    .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
-    .btn-ghost:hover { color: #f8fafc; border-color: #475569; }
+    /* Top Navigation Bar */
+    .top-bar { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 12px; 
+      border-bottom: 2px solid var(--ga-panel-border); 
+      padding-bottom: 8px; 
+    }
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      height: 38px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+      color: var(--ga-gold);
+    }
 
-    .card { background: #1e293b; padding: 24px; border-radius: 8px; max-width: 440px; margin: 30px auto; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3); }
-    h2, h3 { margin-top: 0; color: #f8fafc; }
-    label { font-size: 0.85rem; font-weight: 600; color: #94a3b8; display: block; margin-top: 14px; margin-bottom: 6px; }
-    input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 1rem; }
-    input:focus { outline: none; border-color: #38bdf8; }
+    .btn-ghost { 
+      background: transparent; 
+      color: var(--ga-text-muted); 
+      border: 1px solid var(--ga-panel-border); 
+      padding: 6px 14px; 
+      border-radius: 6px; 
+      font-size: 0.85rem; 
+      cursor: pointer; 
+      transition: all 0.15s ease;
+    }
+    .btn-ghost:hover { 
+      color: var(--ga-text); 
+      border-color: var(--ga-gold); 
+    }
 
-    button { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
-    .btn-primary { width: 100%; background: #2563eb; color: white; margin-top: 16px; padding: 12px; }
-    .btn-primary:hover { background: #1d4ed8; }
-    .btn-secondary { background: #334155; color: #f8fafc; }
-    .btn-secondary:hover { background: #475569; }
-    .btn-danger { background: #dc2626; color: white; }
-    .btn-amber { background: #d97706; color: white; }
+    .card { 
+      background: var(--ga-panel-bg); 
+      padding: 24px; 
+      border-radius: 8px; 
+      max-width: 440px; 
+      margin: 30px auto; 
+      border: 1px solid var(--ga-panel-border); 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
+    }
+    h2, h3 { margin-top: 0; color: var(--ga-text); }
+    label { 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      color: var(--ga-text-muted); 
+      display: block; 
+      margin-top: 14px; 
+      margin-bottom: 6px; 
+    }
+    input { 
+      width: 100%; 
+      padding: 10px 12px; 
+      border-radius: 6px; 
+      border: 1px solid var(--ga-panel-border); 
+      background: #08110c; 
+      color: white; 
+      font-size: 1rem; 
+    }
+    input:focus { 
+      outline: none; 
+      border-color: var(--ga-gold); 
+    }
 
-    /* Student Viewport Mode */
-    #student-draw-view { display: none; width: 100%; max-width: 1200px; margin: 0 auto; height: calc(100vh - 55px); flex-direction: column; }
+    button { 
+      padding: 8px 14px; 
+      border-radius: 6px; 
+      border: none; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 0.9rem; 
+      transition: background 0.15s ease;
+    }
+    .btn-primary { 
+      width: 100%; 
+      background: var(--ga-green-light); 
+      color: white; 
+      margin-top: 16px; 
+      padding: 12px; 
+      border: 1px solid #1e7b4e;
+    }
+    .btn-primary:hover { background: #1a6f45; }
+    .btn-secondary { background: #233b30; color: var(--ga-text); }
+    .btn-secondary:hover { background: #2e4d3f; }
+    .btn-danger { background: #b91c1c; color: white; }
+    .btn-danger:hover { background: #991b1b; }
+    .btn-amber { background: var(--ga-gold); color: #062316; font-weight: 700; }
+    .btn-amber:hover { background: var(--ga-gold-hover); }
+
+    /* Student Viewport */
+    #student-draw-view { display: none; width: 100%; max-width: 1200px; margin: 0 auto; height: calc(100vh - 65px); flex-direction: column; }
     .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     
-    /* Student Canvas Toolbar */
-    .tool-bar { display: flex; gap: 8px; align-items: center; background: #1e293b; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #334155; flex-wrap: wrap; }
+    .tool-bar { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+      background: var(--ga-panel-bg); 
+      padding: 6px 12px; 
+      border-radius: 6px; 
+      margin-bottom: 8px; 
+      border: 1px solid var(--ga-panel-border); 
+      flex-wrap: wrap; 
+    }
     .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
-    .color-dot.active { border-color: white; transform: scale(1.15); }
-    .tool-btn { background: #334155; color: #f8fafc; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; }
-    .tool-btn.active { background: #2563eb; }
+    .color-dot.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 0 2px var(--ga-gold); }
+    .tool-btn { background: #233b30; color: var(--ga-text); padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; }
+    .tool-btn.active { background: var(--ga-green-light); border: 1px solid var(--ga-gold); color: white; }
 
-    .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid #475569; }
+    .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid var(--ga-panel-border); }
     canvas { width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
     
-    .lock-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
-    .timer-pill { background: #d97706; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: none; }
+    .lock-overlay { position: absolute; inset: 0; background: rgba(6, 35, 22, 0.92); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
+    .timer-pill { background: var(--ga-gold); color: #062316; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
 
     /* Teacher UI */
     #teacher-view { display: none; max-width: 1400px; margin: 0 auto; }
-    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
-    .room-badge { background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; }
+    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-panel-border); padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
+    .room-badge { background: var(--ga-green-light); color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; border: 1px solid var(--ga-gold); }
     
-    .action-toolbar { background: #1e293b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid #334155; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: white; }
+    .action-toolbar { background: var(--ga-panel-bg); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-panel-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--ga-panel-border); background: #08110c; color: white; }
 
     /* Roster */
-    .roster-panel { background: #1e293b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid #334155; }
-    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: #94a3b8; }
+    .roster-panel { background: var(--ga-panel-bg); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-panel-border); }
+    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: var(--ga-text-muted); }
     .roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
+    .student-chip { background: #08110c; border: 1px solid var(--ga-green-light); color: var(--ga-text); padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
     /* Grid of Boards */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .board-card { background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
-    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
-    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #64748b; font-size: 0.85rem; font-style: italic; border-bottom: 1px solid #334155; }
-    .board-meta { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-    .seat-tag { font-weight: 600; color: #38bdf8; }
-    .btn-wipe-mini { background: #dc2626; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+    .board-card { background: var(--ga-panel-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-panel-border); display: flex; flex-direction: column; }
+    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-panel-border); }
+    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: #08110c; color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-panel-border); }
+    .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; }
+    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px; }
+    
+    .meta-actions { display: flex; gap: 4px; }
+    .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; z-index: 100; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); align-items: center; justify-content: center; z-index: 100; }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
-    <span style="font-weight: 700; color: #38bdf8;">Classroom LiveBoard</span>
+    <div class="brand-container">
+      <img src="https://www.gosforthacademy.org.uk/_site/data/files/images/site/4B374B2C6646A12F6D9C8303DA97BCE4.svg" 
+           alt="Gosforth Academy Logo" 
+           class="brand-logo"
+           onerror="this.style.display='none'">
+      <span class="brand-title">Gosforth Academy</span>
+    </div>
     <button class="btn-ghost" id="teacher-switch-btn" onclick="openTeacherLogin()">Teacher Admin</button>
   </div>
 
   <!-- 1. ENTRY SCREEN -->
   <div id="join-view" class="card">
-    <h2>Join Session</h2>
+    <h2 style="color: var(--ga-gold);">Student Session</h2>
     <label>Room Number</label>
     <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
     <label>Desk / Device Identifier</label>
@@ -91,8 +208,8 @@
   <div id="student-draw-view">
     <div class="board-header">
       <div>
-        <strong id="s-display-seat" style="color: #38bdf8;"></strong>
-        <span style="color: #94a3b8; font-size: 0.85rem;" id="s-room-tag"></span>
+        <strong id="s-display-seat" style="color: var(--ga-gold);"></strong>
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem;" id="s-room-tag"></span>
       </div>
       <div style="display: flex; gap: 8px; align-items: center;">
         <span class="timer-pill" id="s-timer-pill">⏱ 00:00</span>
@@ -100,14 +217,14 @@
       </div>
     </div>
 
-    <!-- Toolbar: Colors, Tools, Clear -->
+    <!-- Toolbar -->
     <div class="tool-bar">
       <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
+      <div class="color-dot" style="background:#0f4229;" onclick="setColor('#0f4229', this)"></div>
       <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
       <div class="color-dot" style="background:#dc2626;" onclick="setColor('#dc2626', this)"></div>
-      <div class="color-dot" style="background:#16a34a;" onclick="setColor('#16a34a', this)"></div>
 
-      <div style="width: 1px; height: 20px; background: #475569; margin: 0 4px;"></div>
+      <div style="width: 1px; height: 20px; background: var(--ga-panel-border); margin: 0 4px;"></div>
 
       <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
       <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Add Text</button>
@@ -120,7 +237,7 @@
       <canvas id="board"></canvas>
       <div class="lock-overlay" id="s-lock-overlay">
         <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
-        <h3 style="margin: 0 0 4px 0;">Board Locked</h3>
+        <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
         <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;">Teacher paused input for class discussion.</p>
       </div>
     </div>
@@ -130,8 +247,8 @@
   <div id="teacher-view">
     <div class="teacher-nav">
       <div>
-        <h2 style="margin: 0 0 4px 0;">Teacher Console</h2>
-        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Currently Connected: 0</span>
+        <h2 style="margin: 0 0 4px 0; color: var(--ga-gold);">Teacher Console</h2>
+        <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">Currently Connected: 0</span>
       </div>
       <div style="display: flex; gap: 8px; align-items: center;">
         <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
@@ -140,7 +257,7 @@
       </div>
     </div>
 
-    <!-- Toolbar: Lock, Timer, Wipe All -->
+    <!-- Toolbar -->
     <div class="action-toolbar">
       <button id="lock-toggle-btn" class="btn-amber" onclick="toggleLockState()">🔒 Lock All Boards</button>
       <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe All Whiteboards</button>
@@ -155,10 +272,10 @@
     <div class="roster-panel">
       <div class="roster-header">
         <span>Active Student Desks</span>
-        <span id="roster-count" style="color: #38bdf8;">0 connected</span>
+        <span id="roster-count" style="color: var(--ga-gold);">0 connected</span>
       </div>
       <div class="roster-tags" id="roster-tags">
-        <span style="color: #64748b; font-size: 0.85rem; font-style: italic;">No students currently connected.</span>
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>
       </div>
     </div>
 
@@ -168,7 +285,7 @@
   <!-- TEACHER PIN MODAL -->
   <div class="modal-overlay" id="login-modal">
     <div class="card" style="margin: 0; width: 320px;">
-      <h3 style="margin-bottom: 8px;">Teacher Verification</h3>
+      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Teacher Verification</h3>
       <label>Room Number</label>
       <input type="text" id="teacher-target-room" placeholder="e.g. 234">
       <label>PIN</label>
@@ -182,8 +299,6 @@
 
   <script>
     const TEACHER_PIN = "1234";
-
-    // PASTE YOUR WORKING CLOUDFLARE WORKER URL HERE:
     const RELAY_URL = "https://class-relay.kerswell-c.workers.dev";
 
     let activeRoom = "";
@@ -194,9 +309,25 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Adaptive Deep-Idle Scheduler state
-    let lastInteractionTime = Date.now();
-    let pingTimeout = null;
+    // Smooth Local Countdown Clock Engine
+    let activeTimerEndEpoch = 0;
+    setInterval(tickClocksLocally, 1000);
+
+    function tickClocksLocally() {
+      const now = Date.now();
+      const sPill = document.getElementById('s-timer-pill');
+      const tPill = document.getElementById('t-timer-pill');
+
+      if (activeTimerEndEpoch > now) {
+        const remaining = Math.ceil((activeTimerEndEpoch - now) / 1000);
+        const formatted = `⏱ ${formatTime(remaining)}`;
+        if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
+        if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
+      } else {
+        if (sPill) sPill.style.display = 'none';
+        if (tPill) tPill.style.display = 'none';
+      }
+    }
 
     function formatTime(totalSecs) {
       const mins = Math.floor(totalSecs / 60);
@@ -204,13 +335,15 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // --- STUDENT ADAPTIVE HEARTBEAT ---
+    // Adaptive Deep-Idle Scheduler
+    let lastInteractionTime = Date.now();
+    let pingTimeout = null;
+
     function markStudentActive() {
       const now = Date.now();
       const wasIdle = (now - lastInteractionTime) > 30000;
       lastInteractionTime = now;
 
-      // Immediate wake if returning from sleep/background tab
       if (wasIdle || document.hidden) {
         scheduleNextPing(50);
       }
@@ -223,24 +356,21 @@
 
         const idleDuration = Date.now() - lastInteractionTime;
         const syncLabel = document.getElementById('s-sync-status');
-        let nextDelay = 4000; // Active draw default: 4 seconds
+        let nextDelay = 3500;
 
         if (document.hidden || idleDuration > 120000) {
-          // Deep Idle: Tab backgrounded or no draw for > 2 mins -> Ping every 4 mins
-          nextDelay = 240000;
+          nextDelay = 240000; // 4 mins
           if (syncLabel) {
             syncLabel.innerText = "● Connected (Standby)";
             syncLabel.style.color = "#64748b";
           }
         } else if (idleDuration > 30000) {
-          // Warm Idle: Viewing board without drawing -> Ping every 15 seconds
           nextDelay = 15000;
           if (syncLabel) {
             syncLabel.innerText = "● Connected (Idle)";
-            syncLabel.style.color = "#94a3b8";
+            syncLabel.style.color = "#8fa99c";
           }
         } else {
-          // Actively drawing
           if (syncLabel) {
             syncLabel.innerText = "● Connected (Active)";
             syncLabel.style.color = "#22c55e";
@@ -251,12 +381,12 @@
       }, delayMs);
     }
 
-    // Native Wake-on-Focus listeners
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) markStudentActive();
     });
     window.addEventListener('focus', markStudentActive);
 
+    // --- STUDENT LOGIC ---
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
       const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 _-]/g, '');
@@ -289,23 +419,30 @@
         });
         if (!res.ok) return;
         const data = await res.json();
-        
-        // Remote wipe handling
+
+        // Eviction handling
+        if (data.status === 'kicked') {
+          clearTimeout(pingTimeout);
+          alert("You have been removed from this room by the teacher.");
+          location.reload();
+          return;
+        }
+
+        // Assigned Rename handling
+        if (data.assignedSeat && data.assignedSeat !== studentSeat) {
+          studentSeat = data.assignedSeat;
+          document.getElementById('s-display-seat').innerText = studentSeat;
+        }
+
+        // Wipe handling
         if (data.shouldWipe && data.wipeCounter > lastWipeHandled) {
           lastWipeHandled = data.wipeCounter;
           wipeCanvasLocal();
         }
 
         updateStudentLockState(data.locked);
-
-        // Countdown timer pill
-        const timerPill = document.getElementById('s-timer-pill');
-        if (data.timerRemaining > 0) {
-          timerPill.style.display = 'inline-block';
-          timerPill.innerText = `⏱ ${formatTime(data.timerRemaining)}`;
-        } else {
-          timerPill.style.display = 'none';
-        }
+        activeTimerEndEpoch = data.timerEnd || 0;
+        tickClocksLocally();
       } catch (e) {}
     }
 
@@ -329,7 +466,7 @@
 
       const statusEl = document.getElementById('s-sync-status');
       statusEl.innerText = "Syncing...";
-      statusEl.style.color = "#f59e0b";
+      statusEl.style.color = "var(--ga-gold)";
 
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(async () => {
@@ -346,7 +483,6 @@
     }
 
     async function sendBoardPayload() {
-      // Export fixed 16:10 ratio (320x200 JPEG, ~8KB)
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
       exportCanvas.height = 200;
@@ -397,7 +533,7 @@
 
       fetchBoards();
       if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(fetchBoards, 1500); // 1.5s refresh rate
+      pollInterval = setInterval(fetchBoards, 1500);
     }
 
     async function toggleLockState() {
@@ -416,6 +552,9 @@
 
       teacherLockFlag = false;
       updateLockBtnUI(false);
+
+      activeTimerEndEpoch = Date.now() + (secs * 1000);
+      tickClocksLocally();
 
       await fetch(`${RELAY_URL}/${activeRoom}/control`, {
         method: 'POST',
@@ -457,22 +596,41 @@
       }
     }
 
+    async function kickStudent(seatId) {
+      if (confirm(`Remove ${seatId} from the session?`)) {
+        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kickSeat: seatId })
+        });
+        fetchBoards();
+      }
+    }
+
+    async function renameStudent(oldSeatId) {
+      const newSeat = prompt(`Rename ${oldSeatId} to:`, oldSeatId);
+      if (newSeat && newSeat.trim() !== "" && newSeat !== oldSeatId) {
+        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 14);
+        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ renameOld: oldSeatId, renameNew: cleanName })
+        });
+        fetchBoards();
+      }
+    }
+
     async function fetchBoards() {
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/poll`);
         if (!res.ok) return;
         const data = await res.json();
-        
+
         teacherLockFlag = data.locked;
         updateLockBtnUI(data.locked);
 
-        const timerPill = document.getElementById('t-timer-pill');
-        if (data.timerRemaining > 0) {
-          timerPill.style.display = 'inline-block';
-          timerPill.innerText = `⏱ ${formatTime(data.timerRemaining)}`;
-        } else {
-          timerPill.style.display = 'none';
-        }
+        activeTimerEndEpoch = data.timerEnd || 0;
+        tickClocksLocally();
 
         renderTeacherDashboard(data.students || []);
       } catch (e) {}
@@ -484,7 +642,7 @@
 
       const rosterEl = document.getElementById('roster-tags');
       if (students.length === 0) {
-        rosterEl.innerHTML = `<span style="color: #64748b; font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
+        rosterEl.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
       } else {
         rosterEl.innerHTML = '';
         students.forEach(s => {
@@ -509,8 +667,12 @@
         card.innerHTML = `
           ${boardContent}
           <div class="board-meta">
-            <span class="seat-tag">${escapeHTML(s.seat)}</span>
-            <button class="btn-wipe-mini" onclick="wipeSingleStudent('${escapeHTML(s.seat)}')">Wipe</button>
+            <span class="seat-tag" title="${escapeHTML(s.seat)}">${escapeHTML(s.seat)}</span>
+            <div class="meta-actions">
+              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(s.seat)}')">Rename</button>
+              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(s.seat)}')">Wipe</button>
+              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(s.seat)}')">Kick</button>
+            </div>
           </div>
         `;
         grid.appendChild(card);
@@ -596,7 +758,7 @@
         const { x, y } = getCoords(e);
         const text = prompt("Enter text (will appear in high-contrast bold):");
         if (text) {
-          ctx.font = "bold 26px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+          ctx.font = "bold 42px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
           ctx.fillStyle = currentColor;
           ctx.fillText(text, x, y);
           queueAutoSync();
