@@ -24,23 +24,45 @@
     .btn-secondary { background: #334155; color: #f8fafc; }
     .btn-secondary:hover { background: #475569; }
     .btn-danger { background: #dc2626; color: white; }
+    .btn-amber { background: #d97706; color: white; }
 
     /* Student Canvas */
     #student-draw-view { display: none; max-width: 500px; margin: 0 auto; }
     .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    canvas { border: 2px solid #475569; border-radius: 8px; background: #ffffff; touch-action: none; display: block; width: 100%; height: 340px; cursor: crosshair; }
+    .canvas-container { position: relative; width: 100%; height: 340px; }
+    canvas { border: 2px solid #475569; border-radius: 8px; background: #ffffff; touch-action: none; display: block; width: 100%; height: 100%; cursor: crosshair; }
+    
+    /* Lock Overlay */
+    .lock-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); border-radius: 8px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; padding: 20px; }
+    .lock-overlay span { font-size: 2.5rem; margin-bottom: 8px; }
+    
     .canvas-actions { margin-top: 12px; display: flex; gap: 10px; }
     .canvas-actions button { flex: 1; }
 
+    /* Countdown Pill */
+    .timer-pill { background: #d97706; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: none; }
+
     /* Teacher View */
     #teacher-view { display: none; max-width: 1200px; margin: 0 auto; }
-    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
     .room-badge { background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; }
-    .teacher-controls { display: flex; gap: 8px; align-items: center; }
+    
+    /* Teacher Action Bar */
+    .action-toolbar { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; border: 1px solid #334155; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .action-toolbar label { margin: 0; }
+    .timer-input { width: 90px; padding: 8px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 0.95rem; }
+
+    /* Roster */
+    .roster-panel { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid #334155; }
+    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #94a3b8; }
+    .roster-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     .board-card { background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
     .board-card img { width: 100%; height: 190px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
+    .board-placeholder { width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #64748b; font-size: 0.85rem; font-style: italic; border-bottom: 1px solid #334155; }
     .board-meta { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
     .seat-tag { font-weight: 600; color: #38bdf8; }
 
@@ -59,8 +81,8 @@
     <h2>Join Session</h2>
     <label>Room Number</label>
     <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
-    <label>Desk / Device Number (GDPR Safe)</label>
-    <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="10">
+    <label>Desk / Device Identifier</label>
+    <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="12">
     <button class="btn-primary" onclick="joinAsStudent()">Enter Room</button>
   </div>
 
@@ -71,12 +93,24 @@
         <strong id="s-display-seat" style="color: #38bdf8;"></strong>
         <span style="color: #94a3b8; font-size: 0.85rem;" id="s-room-tag"></span>
       </div>
-      <span style="color: #22c55e; font-size: 0.85rem;">● Ready</span>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="timer-pill" id="s-timer-pill">⏱ 00:00</span>
+        <span id="s-sync-status" style="color: #22c55e; font-size: 0.85rem;">● Connected</span>
+      </div>
     </div>
-    <canvas id="board"></canvas>
+    
+    <div class="canvas-container">
+      <canvas id="board"></canvas>
+      <div class="lock-overlay" id="s-lock-overlay">
+        <span>🔒</span>
+        <h3 style="margin: 0 0 6px 0;">Board Locked</h3>
+        <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;">Your teacher has paused writing.</p>
+      </div>
+    </div>
+
     <div class="canvas-actions">
-      <button class="btn-secondary" onclick="clearCanvas()">Clear</button>
-      <button class="btn-primary" style="margin-top: 0;" id="send-btn" onclick="sendBoard()">Send to Teacher</button>
+      <button class="btn-secondary" id="s-clear-btn" onclick="clearCanvas()">Clear</button>
+      <button class="btn-primary" style="margin-top: 0;" id="s-force-btn" onclick="sendBoardImmediate()">Force Send</button>
     </div>
   </div>
 
@@ -85,13 +119,36 @@
     <div class="teacher-nav">
       <div>
         <h2 style="margin: 0 0 4px 0;">Teacher Console</h2>
-        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Submissions: 0</span>
+        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Currently Connected: 0</span>
       </div>
-      <div class="teacher-controls">
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
         <span class="room-badge" id="t-room-tag">Room: ---</span>
-        <button class="btn-danger" onclick="clearTeacherBoards()">Clear All Boards</button>
+        <button class="btn-danger" onclick="clearTeacherBoards()">Clear Room</button>
       </div>
     </div>
+
+    <!-- Teacher Controls Toolbar -->
+    <div class="action-toolbar">
+      <button id="lock-toggle-btn" class="btn-amber" onclick="toggleLockState()">🔒 Lock All Boards</button>
+      
+      <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+        <input type="number" id="timer-seconds" class="timer-input" placeholder="Secs" value="60" min="5" max="900">
+        <button class="btn-secondary" onclick="startTimer()">⏱ Start Timer</button>
+      </div>
+    </div>
+
+    <!-- Live Roster -->
+    <div class="roster-panel">
+      <div class="roster-header">
+        <span>Currently Connected Students</span>
+        <span id="roster-count" style="color: #38bdf8;">0 connected</span>
+      </div>
+      <div class="roster-tags" id="roster-tags">
+        <span style="color: #64748b; font-size: 0.85rem; font-style: italic;">No students currently connected.</span>
+      </div>
+    </div>
+
     <div class="grid" id="teacher-grid"></div>
   </div>
 
@@ -113,22 +170,29 @@
   <script>
     const TEACHER_PIN = "1234";
 
-    // PASTE YOUR CLOUDFLARE WORKER URL HERE:
-    const RELAY_URL = "https://class-relay.kerswell-c.workers.dev/";
+    // PASTE YOUR WORKING CLOUDFLARE WORKER URL HERE:
+    const RELAY_URL = "https://class-relay.yourname.workers.dev";
 
     let activeRoom = "";
     let studentSeat = "";
     let pollInterval = null;
+    let streamDebounceTimer = null;
+    let isBoardLocked = false;
+    let teacherLockFlag = false;
+
+    // Format seconds into MM:SS
+    function formatTime(totalSecs) {
+      const mins = Math.floor(totalSecs / 60);
+      const secs = totalSecs % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
 
     // --- STUDENT LOGIC ---
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-      const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 ]/g, '');
+      const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 _-]/g, '');
 
-      if (!room || !seat) {
-        alert("Please enter both the Room Number and Desk ID.");
-        return;
-      }
+      if (!room || !seat) return alert("Please enter Room Number and Desk ID.");
 
       activeRoom = room;
       studentSeat = seat;
@@ -139,14 +203,77 @@
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
       setupCanvas();
+
+      // Start presence & status sync (every 3 seconds)
+      pingRelay();
+      setInterval(pingRelay, 3000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) pingRelay();
+      });
     }
 
-    async function sendBoard() {
-      const btn = document.getElementById('send-btn');
-      btn.innerText = "Sending...";
-      btn.disabled = true;
+    async function pingRelay() {
+      try {
+        const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seat: studentSeat })
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Handle Lock overlay
+        updateStudentLockState(data.locked);
 
-      // Downscale to 320x220 JPEG (<12 KB)
+        // Handle Countdown timer
+        const timerPill = document.getElementById('s-timer-pill');
+        if (data.timerRemaining > 0) {
+          timerPill.style.display = 'inline-block';
+          timerPill.innerText = `⏱ ${formatTime(data.timerRemaining)}`;
+        } else {
+          timerPill.style.display = 'none';
+        }
+      } catch (e) {}
+    }
+
+    function updateStudentLockState(locked) {
+      isBoardLocked = locked;
+      const overlay = document.getElementById('s-lock-overlay');
+      const clearBtn = document.getElementById('s-clear-btn');
+      const forceBtn = document.getElementById('s-force-btn');
+
+      if (locked) {
+        overlay.style.display = 'flex';
+        clearBtn.disabled = true;
+        forceBtn.disabled = true;
+      } else {
+        overlay.style.display = 'none';
+        clearBtn.disabled = false;
+        forceBtn.disabled = false;
+      }
+    }
+
+    function queueAutoSync() {
+      if (isBoardLocked) return;
+      const statusEl = document.getElementById('s-sync-status');
+      statusEl.innerText = "Syncing...";
+      statusEl.style.color = "#f59e0b";
+
+      clearTimeout(streamDebounceTimer);
+      streamDebounceTimer = setTimeout(async () => {
+        await sendBoardPayload();
+        statusEl.innerText = "● Connected";
+        statusEl.style.color = "#22c55e";
+      }, 800);
+    }
+
+    function sendBoardImmediate() {
+      if (isBoardLocked) return;
+      sendBoardPayload();
+    }
+
+    async function sendBoardPayload() {
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
       exportCanvas.height = 220;
@@ -158,24 +285,12 @@
       const imgData = exportCanvas.toDataURL('image/jpeg', 0.55);
 
       try {
-        const res = await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
+        await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seat: studentSeat, image: imgData })
         });
-
-        if (res.ok) {
-          btn.innerText = "Send to Teacher";
-          btn.disabled = false;
-          alert("Board sent to teacher!");
-        } else {
-          throw new Error("Relay error");
-        }
-      } catch (err) {
-        btn.innerText = "Send to Teacher";
-        btn.disabled = false;
-        alert("Could not send. Check internet connection.");
-      }
+      } catch (err) {}
     }
 
     // --- TEACHER LOGIC ---
@@ -207,36 +322,103 @@
       document.getElementById('teacher-view').style.display = 'block';
       document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
 
-      // Poll Worker every 2.5 seconds over standard HTTPS
       fetchBoards();
       if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(fetchBoards, 2500);
+      pollInterval = setInterval(fetchBoards, 2000);
+    }
+
+    async function toggleLockState() {
+      teacherLockFlag = !teacherLockFlag;
+      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locked: teacherLockFlag })
+      });
+      updateLockBtnUI(teacherLockFlag);
+    }
+
+    async function startTimer() {
+      const secs = parseInt(document.getElementById('timer-seconds').value, 10);
+      if (isNaN(secs) || secs <= 0) return alert("Please specify valid seconds.");
+
+      teacherLockFlag = false;
+      updateLockBtnUI(false);
+
+      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timerSeconds: secs })
+      });
+    }
+
+    function updateLockBtnUI(locked) {
+      const btn = document.getElementById('lock-toggle-btn');
+      if (locked) {
+        btn.innerText = "🔓 Unlock All Boards";
+        btn.className = "btn-secondary";
+      } else {
+        btn.innerText = "🔒 Lock All Boards";
+        btn.className = "btn-amber";
+      }
     }
 
     async function fetchBoards() {
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/poll`);
         if (!res.ok) return;
-        const boards = await res.json();
-        renderTeacherGrid(boards);
-      } catch (e) {
-        console.error("Poll failed:", e);
-      }
+        const data = await res.json();
+        
+        teacherLockFlag = data.locked;
+        updateLockBtnUI(data.locked);
+
+        // Update Teacher Timer Display
+        const timerPill = document.getElementById('t-timer-pill');
+        if (data.timerRemaining > 0) {
+          timerPill.style.display = 'inline-block';
+          timerPill.innerText = `⏱ ${formatTime(data.timerRemaining)}`;
+        } else {
+          timerPill.style.display = 'none';
+        }
+
+        renderTeacherDashboard(data.students || []);
+      } catch (e) {}
     }
 
-    function renderTeacherGrid(boards) {
+    function renderTeacherDashboard(students) {
+      document.getElementById('sub-counter').innerText = `Currently Connected: ${students.length}`;
+      document.getElementById('roster-count').innerText = `${students.length} connected`;
+
+      // Update Roster Chips
+      const rosterEl = document.getElementById('roster-tags');
+      if (students.length === 0) {
+        rosterEl.innerHTML = `<span style="color: #64748b; font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
+      } else {
+        rosterEl.innerHTML = '';
+        students.forEach(s => {
+          const chip = document.createElement('div');
+          chip.className = 'student-chip';
+          chip.innerHTML = `<span class="status-dot"></span><span>${escapeHTML(s.seat)}</span>`;
+          rosterEl.appendChild(chip);
+        });
+      }
+
+      // Update Live Boards
       const grid = document.getElementById('teacher-grid');
       grid.innerHTML = '';
-      document.getElementById('sub-counter').innerText = `Submissions: ${boards.length}`;
 
-      boards.forEach(b => {
+      students.forEach(s => {
         const card = document.createElement('div');
         card.className = 'board-card';
+
+        const boardContent = s.image
+          ? `<img src="${s.image}" alt="Board">`
+          : `<div class="board-placeholder">Waiting for student to draw...</div>`;
+
         card.innerHTML = `
-          <img src="${b.image}" alt="Board">
+          ${boardContent}
           <div class="board-meta">
-            <span class="seat-tag">${escapeHTML(b.seat)}</span>
-            <span style="color:#22c55e;">● Live</span>
+            <span class="seat-tag">${escapeHTML(s.seat)}</span>
+            <span style="color:#22c55e; font-size:0.75rem;">● Connected</span>
           </div>
         `;
         grid.appendChild(card);
@@ -244,10 +426,11 @@
     }
 
     async function clearTeacherBoards() {
-      if (confirm("Clear all active boards from this room?")) {
+      if (confirm("Clear all boards in this room?")) {
         await fetch(`${RELAY_URL}/${activeRoom}/clear`, { method: 'DELETE' });
         document.getElementById('teacher-grid').innerHTML = '';
-        document.getElementById('sub-counter').innerText = 'Submissions: 0';
+        document.getElementById('roster-tags').innerHTML = '';
+        document.getElementById('sub-counter').innerText = 'Currently Connected: 0';
       }
     }
 
@@ -255,7 +438,7 @@
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
-    // --- CANVAS DRAWING ---
+    // --- CANVAS ENGINE ---
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
     let drawing = false;
@@ -281,6 +464,7 @@
     }
 
     function startDraw(e) {
+      if (isBoardLocked) return;
       drawing = true;
       const { x, y } = getCoords(e);
       ctx.beginPath();
@@ -288,12 +472,15 @@
     }
 
     function stopDraw() {
-      drawing = false;
-      ctx.beginPath();
+      if (drawing) {
+        drawing = false;
+        ctx.beginPath();
+        queueAutoSync();
+      }
     }
 
     function draw(e) {
-      if (!drawing) return;
+      if (!drawing || isBoardLocked) return;
       e.preventDefault();
       const { x, y } = getCoords(e);
       ctx.lineTo(x, y);
@@ -308,9 +495,11 @@
     canvas.addEventListener('touchmove', draw, { passive: false });
 
     function clearCanvas() {
+      if (isBoardLocked) return;
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
+      queueAutoSync();
     }
   </script>
 </body>
