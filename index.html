@@ -324,11 +324,10 @@
     let studentClientId = "";
     let pollInterval = null;
     let streamDebounceTimer = null;
-    let isBoardLocked = true; // Strict default lock
+    let isBoardLocked = true; // Secure by default: locked until authoritative teacher check
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Persistent Unique Client ID (for deduplication and renames)
     function getClientId() {
       let cid = sessionStorage.getItem('ga_client_id');
       if (!cid) {
@@ -354,7 +353,7 @@
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
         } else {
-          // Timer naturally elapsed
+          // Timer naturally finished
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
@@ -372,23 +371,27 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Idle Scheduler
+    // Adaptive Deep-Idle Scheduler
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
-    function markStudentActive() {
-      const now = Date.now();
-      const wasIdle = (now - lastInteractionTime) > 30000;
-      lastInteractionTime = now;
+    // Direct Wake Handshake
+    async function wakeAndSyncAuthoritative() {
+      lastInteractionTime = Date.now();
+      
+      // Immediately freeze client until the relay handshake confirms room permission
+      updateStudentLockState(true);
 
-      // Lock if timer has expired
-      if (activeTimerEndEpoch > 0 && now >= activeTimerEndEpoch) {
-        updateStudentLockState(true);
+      const statusEl = document.getElementById('s-sync-status');
+      if (statusEl) {
+        statusEl.innerText = "● Checking...";
+        statusEl.style.color = "var(--ga-gold)";
       }
 
-      if (wasIdle || document.hidden) {
-        scheduleNextPing(10);
-      }
+      await pingRelay();
+
+      // Resume regular polling loop
+      scheduleNextPing(3500);
     }
 
     function scheduleNextPing(delayMs) {
@@ -423,15 +426,17 @@
       }, delayMs);
     }
 
+    // Hard wake handlers: Tab returning from sleep or background MUST re-verify
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
-          updateStudentLockState(true);
-        }
-        markStudentActive();
+      if (!document.hidden && activeRoom && studentClientId) {
+        wakeAndSyncAuthoritative();
       }
     });
-    window.addEventListener('focus', markStudentActive);
+    window.addEventListener('focus', () => {
+      if (activeRoom && studentClientId) {
+        wakeAndSyncAuthoritative();
+      }
+    });
 
     // --- STUDENT LOGIC ---
     function joinAsStudent() {
@@ -453,18 +458,20 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      // Lock by default until relay returns room state
+      // Hard lock immediately upon joining until server responds
       updateStudentLockState(true);
       setupCanvas();
 
       lastInteractionTime = Date.now();
-      scheduleNextPing(10);
+      pingRelay().then(() => {
+        scheduleNextPing(3500);
+      });
 
       window.addEventListener('resize', resizeCanvasPreserve);
     }
 
     async function pingRelay() {
-      if (!studentClientId || !studentSeat) return;
+      if (!studentClientId || !studentSeat || !activeRoom) return;
 
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
@@ -482,7 +489,6 @@
           return;
         }
 
-        // Automatic Deduplicated Name or Teacher Rename Assignment
         if (data.assignedSeat && data.assignedSeat !== studentSeat) {
           studentSeat = data.assignedSeat;
           document.getElementById('s-display-seat').innerText = studentSeat;
@@ -493,20 +499,25 @@
           wipeCanvasLocal();
         }
 
-        // Master Lock Decision
-        activeTimerEndEpoch = data.timerEnd || 0;
+        // Master Lock Resolution
+        activeTimerEndEpoch = Number(data.timerEnd) || 0;
+        const now = Date.now();
+
         if (activeTimerEndEpoch > 0) {
-          if (Date.now() >= activeTimerEndEpoch) {
-            updateStudentLockState(true);
+          if (now < activeTimerEndEpoch) {
+            updateStudentLockState(false); // Valid timer running -> Unlocked
           } else {
-            updateStudentLockState(false);
+            updateStudentLockState(true);  // Timer expired -> Locked
           }
         } else {
-          // If no timer, obey the teacher's master manual lock state
+          // No timer running: Teacher's explicit toggle is master authority
           updateStudentLockState(Boolean(data.locked));
         }
+
         tickClocksLocally();
-      } catch (e) {}
+      } catch (e) {
+        console.error("Ping error:", e);
+      }
     }
 
     function updateStudentLockState(locked) {
@@ -525,28 +536,30 @@
 
     function queueAutoSync() {
       if (isBoardLocked) return;
-      markStudentActive();
 
       const statusEl = document.getElementById('s-sync-status');
-      statusEl.innerText = "Syncing...";
-      statusEl.style.color = "var(--ga-gold)";
+      if (statusEl) {
+        statusEl.innerText = "Syncing...";
+        statusEl.style.color = "var(--ga-gold)";
+      }
 
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(async () => {
         await sendBoardPayload();
-        statusEl.innerText = "● Connected (Active)";
-        statusEl.style.color = "#22c55e";
+        if (statusEl) {
+          statusEl.innerText = "● Connected (Active)";
+          statusEl.style.color = "#22c55e";
+        }
       }, 700);
     }
 
     function sendBoardImmediate() {
       if (isBoardLocked) return;
-      markStudentActive();
       sendBoardPayload();
     }
 
     async function sendBoardPayload() {
-      if (!studentClientId || !studentSeat) return;
+      if (!studentClientId || !studentSeat || isBoardLocked) return;
 
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
@@ -694,7 +707,7 @@
         teacherLockFlag = Boolean(data.locked);
         updateLockBtnUI(teacherLockFlag);
 
-        activeTimerEndEpoch = data.timerEnd || 0;
+        activeTimerEndEpoch = Number(data.timerEnd) || 0;
         tickClocksLocally();
 
         renderTeacherDashboard(data.students || []);
@@ -799,14 +812,12 @@
       currentColor = color;
       document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
       element.classList.add('active');
-      markStudentActive();
     }
 
     function setTool(tool) {
       currentTool = tool;
       document.getElementById('pen-tool-btn').classList.toggle('active', tool === 'pen');
       document.getElementById('text-tool-btn').classList.toggle('active', tool === 'text');
-      markStudentActive();
     }
 
     function getCoords(e) {
@@ -816,6 +827,7 @@
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
+    // Synchronous input gate
     function isOperationBlocked() {
       if (isBoardLocked) return true;
       if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
@@ -827,7 +839,6 @@
 
     function startDraw(e) {
       if (isOperationBlocked()) return;
-      markStudentActive();
 
       if (currentTool === 'text') {
         e.preventDefault();
@@ -876,7 +887,6 @@
 
     function clearCanvas() {
       if (isOperationBlocked()) return;
-      markStudentActive();
       wipeCanvasLocal();
       queueAutoSync();
     }
