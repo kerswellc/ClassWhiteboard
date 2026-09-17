@@ -27,7 +27,6 @@
       color: var(--ga-white); 
     }
 
-    /* Crisp White Top Navigation Bar */
     .top-bar { 
       display: flex; 
       justify-content: space-between; 
@@ -131,7 +130,6 @@
       margin-top: 16px; 
       padding: 12px; 
       font-weight: 700;
-      border: none;
     }
     .btn-primary:hover { background: var(--ga-gold-light); }
     .btn-secondary { background: var(--ga-navy-card); color: var(--ga-white); border: 1px solid var(--ga-navy-border); }
@@ -156,7 +154,7 @@
       border: 1px solid var(--ga-navy-border); 
       flex-wrap: wrap; 
     }
-    .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+    .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
     .color-dot.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 0 2px var(--ga-gold); }
     .tool-btn { background: var(--ga-navy-card); color: var(--ga-white); padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; border: 1px solid var(--ga-navy-border); }
     .tool-btn.active { background: var(--ga-gold); color: #04142d; font-weight: 700; border-color: var(--ga-gold); }
@@ -198,7 +196,6 @@
 </head>
 <body>
 
-  <!-- Top Bar with White Theme and Crest -->
   <div class="top-bar">
     <div class="brand-container">
       <img src="https://www.gosforthacademy.org.uk/_site/data/files/images/site/4B374B2C6646A12F6D9C8303DA97BCE4.svg" 
@@ -215,7 +212,7 @@
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
       <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Session</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and desk identifier to connect.</p>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and desk number (e.g. Desk 04).</p>
       <label>Room Number</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
       <label>Desk / Device Identifier</label>
@@ -236,17 +233,20 @@
         </div>
       </div>
 
-      <!-- Canvas Toolbar -->
+      <!-- Color Palette: Black, Navy, Gold, Red, Green, Blue, Purple -->
       <div class="tool-bar">
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
         <div class="color-dot" style="background:#04142d;" onclick="setColor('#04142d', this)"></div>
         <div class="color-dot" style="background:#df9b35;" onclick="setColor('#df9b35', this)"></div>
-        <div class="color-dot" style="background:#b91c1c;" onclick="setColor('#b91c1c', this)"></div>
+        <div class="color-dot" style="background:#dc2626;" onclick="setColor('#dc2626', this)"></div>
+        <div class="color-dot" style="background:#16a34a;" onclick="setColor:#16a34a', this)"></div>
+        <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
+        <div class="color-dot" style="background:#9333ea;" onclick="setColor('#9333ea', this)"></div>
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
-        <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Add Text</button>
+        <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Text (60px)</button>
 
         <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">Wipe Board</button>
         <button class="btn-secondary" onclick="sendBoardImmediate()">Sync Now</button>
@@ -276,7 +276,6 @@
         </div>
       </div>
 
-      <!-- Teacher Controls Toolbar -->
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe All Whiteboards</button>
@@ -287,7 +286,6 @@
         </div>
       </div>
 
-      <!-- Live Roster -->
       <div class="roster-panel">
         <div class="roster-header">
           <span>Active Student Desks</span>
@@ -329,7 +327,7 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Smooth Local Countdown Clock Engine
+    // Smooth Local Countdown Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -338,11 +336,20 @@
       const sPill = document.getElementById('s-timer-pill');
       const tPill = document.getElementById('t-timer-pill');
 
-      if (activeTimerEndEpoch > now) {
-        const remaining = Math.ceil((activeTimerEndEpoch - now) / 1000);
-        const formatted = `⏱ ${formatTime(remaining)}`;
-        if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
-        if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
+      if (activeTimerEndEpoch > 0) {
+        if (now < activeTimerEndEpoch) {
+          const remaining = Math.ceil((activeTimerEndEpoch - now) / 1000);
+          const formatted = `⏱ ${formatTime(remaining)}`;
+          if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
+          if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
+        } else {
+          // Timer naturally elapsed locally
+          activeTimerEndEpoch = 0;
+          if (sPill) sPill.style.display = 'none';
+          if (tPill) tPill.style.display = 'none';
+          // Immediately enforce lock locally even before next ping returns
+          updateStudentLockState(true);
+        }
       } else {
         if (sPill) sPill.style.display = 'none';
         if (tPill) tPill.style.display = 'none';
@@ -363,6 +370,11 @@
       const now = Date.now();
       const wasIdle = (now - lastInteractionTime) > 30000;
       lastInteractionTime = now;
+
+      // Check if timer expired while tab was away
+      if (activeTimerEndEpoch > 0 && now >= activeTimerEndEpoch) {
+        updateStudentLockState(true);
+      }
 
       if (wasIdle || document.hidden) {
         scheduleNextPing(50);
@@ -409,9 +421,13 @@
     // --- STUDENT LOGIC ---
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-      const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 _-]/g, '');
+      const rawSeat = document.getElementById('join-seat').value.trim();
+      const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '');
 
-      if (!room || !seat) return alert("Please enter Room Number and Desk ID.");
+      // Guard: Explicitly reject blank or generic "Desk"
+      if (!room || !seat || seat.toLowerCase() === 'desk') {
+        return alert("Please enter both the Room Number and a unique Desk identifier (e.g., 'Desk 04').");
+      }
 
       activeRoom = room;
       studentSeat = seat;
@@ -431,6 +447,8 @@
     }
 
     async function pingRelay() {
+      if (!studentSeat || studentSeat.toLowerCase() === 'desk') return;
+
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
           method: 'POST',
@@ -457,8 +475,13 @@
           wipeCanvasLocal();
         }
 
-        updateStudentLockState(data.locked);
+        // Timer and Lock Sync
         activeTimerEndEpoch = data.timerEnd || 0;
+        if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
+          updateStudentLockState(true);
+        } else {
+          updateStudentLockState(data.locked);
+        }
         tickClocksLocally();
       } catch (e) {}
     }
@@ -500,6 +523,8 @@
     }
 
     async function sendBoardPayload() {
+      if (!studentSeat || studentSeat.toLowerCase() === 'desk') return;
+
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
       exportCanvas.height = 200;
@@ -773,9 +798,10 @@
       if (currentTool === 'text') {
         e.preventDefault();
         const { x, y } = getCoords(e);
-        const text = prompt("Enter text (will appear in high-contrast bold):");
+        const text = prompt("Enter text (will appear in bold 60px):");
         if (text) {
-          ctx.font = "bold 42px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+          // Increased font size to bold 60px
+          ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
           ctx.fillStyle = currentColor;
           ctx.fillText(text, x, y);
           queueAutoSync();
@@ -788,7 +814,7 @@
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 5;
     }
 
     function stopDraw() {
