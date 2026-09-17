@@ -130,6 +130,7 @@
       margin-top: 16px; 
       padding: 12px; 
       font-weight: 700;
+      border: none;
     }
     .btn-primary:hover { background: var(--ga-gold-light); }
     .btn-secondary { background: var(--ga-navy-card); color: var(--ga-white); border: 1px solid var(--ga-navy-border); }
@@ -233,13 +234,13 @@
         </div>
       </div>
 
-      <!-- Color Palette: Black, Navy, Gold, Red, Green, Blue, Purple -->
+      <!-- Color Palette -->
       <div class="tool-bar">
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
         <div class="color-dot" style="background:#04142d;" onclick="setColor('#04142d', this)"></div>
         <div class="color-dot" style="background:#df9b35;" onclick="setColor('#df9b35', this)"></div>
         <div class="color-dot" style="background:#dc2626;" onclick="setColor('#dc2626', this)"></div>
-        <div class="color-dot" style="background:#16a34a;" onclick="setColor:#16a34a', this)"></div>
+        <div class="color-dot" style="background:#16a34a;" onclick="setColor('#16a34a', this)"></div>
         <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
         <div class="color-dot" style="background:#9333ea;" onclick="setColor('#9333ea', this)"></div>
 
@@ -323,11 +324,11 @@
     let studentSeat = "";
     let pollInterval = null;
     let streamDebounceTimer = null;
-    let isBoardLocked = false;
+    let isBoardLocked = true; // Secure by default: locked until authoritative relay sync
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Smooth Local Countdown Engine
+    // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -347,7 +348,6 @@
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
-          // Immediately enforce lock locally even before next ping returns
           updateStudentLockState(true);
         }
       } else {
@@ -371,13 +371,13 @@
       const wasIdle = (now - lastInteractionTime) > 30000;
       lastInteractionTime = now;
 
-      // Check if timer expired while tab was away
+      // Hard enforcement on wake
       if (activeTimerEndEpoch > 0 && now >= activeTimerEndEpoch) {
         updateStudentLockState(true);
       }
 
       if (wasIdle || document.hidden) {
-        scheduleNextPing(50);
+        scheduleNextPing(10);
       }
     }
 
@@ -414,7 +414,13 @@
     }
 
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) markStudentActive();
+      if (!document.hidden) {
+        // Enforce timer check immediately on tab wake
+        if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
+          updateStudentLockState(true);
+        }
+        markStudentActive();
+      }
     });
     window.addEventListener('focus', markStudentActive);
 
@@ -424,7 +430,6 @@
       const rawSeat = document.getElementById('join-seat').value.trim();
       const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '');
 
-      // Guard: Explicitly reject blank or generic "Desk"
       if (!room || !seat || seat.toLowerCase() === 'desk') {
         return alert("Please enter both the Room Number and a unique Desk identifier (e.g., 'Desk 04').");
       }
@@ -438,10 +443,12 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
+      // Lock canvas by default until relay returns room state
+      updateStudentLockState(true);
       setupCanvas();
 
       lastInteractionTime = Date.now();
-      scheduleNextPing(100);
+      scheduleNextPing(10);
 
       window.addEventListener('resize', resizeCanvasPreserve);
     }
@@ -475,10 +482,14 @@
           wipeCanvasLocal();
         }
 
-        // Timer and Lock Sync
+        // Authoritative Timer and Lock Sync
         activeTimerEndEpoch = data.timerEnd || 0;
-        if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
-          updateStudentLockState(true);
+        if (activeTimerEndEpoch > 0) {
+          if (Date.now() >= activeTimerEndEpoch) {
+            updateStudentLockState(true);
+          } else {
+            updateStudentLockState(false);
+          }
         } else {
           updateStudentLockState(data.locked);
         }
@@ -791,8 +802,18 @@
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
+    // Direct, synchronous gate to prevent drawing during lock or expired timer
+    function isOperationBlocked() {
+      if (isBoardLocked) return true;
+      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
+        updateStudentLockState(true);
+        return true;
+      }
+      return false;
+    }
+
     function startDraw(e) {
-      if (isBoardLocked) return;
+      if (isOperationBlocked()) return;
       markStudentActive();
 
       if (currentTool === 'text') {
@@ -800,7 +821,7 @@
         const { x, y } = getCoords(e);
         const text = prompt("Enter text (will appear in bold 60px):");
         if (text) {
-          // Increased font size to bold 60px
+          if (isOperationBlocked()) return; // Re-verify in case teacher locked while prompt was open
           ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
           ctx.fillStyle = currentColor;
           ctx.fillText(text, x, y);
@@ -826,7 +847,7 @@
     }
 
     function draw(e) {
-      if (!drawing || isBoardLocked || currentTool === 'text') return;
+      if (!drawing || isOperationBlocked() || currentTool === 'text') return;
       e.preventDefault();
       const { x, y } = getCoords(e);
       ctx.lineTo(x, y);
@@ -841,7 +862,7 @@
     canvas.addEventListener('touchmove', draw, { passive: false });
 
     function clearCanvas() {
-      if (isBoardLocked) return;
+      if (isOperationBlocked()) return;
       markStudentActive();
       wipeCanvasLocal();
       queueAutoSync();
