@@ -6,9 +6,9 @@
   <title>Live Class Whiteboard</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background: #0f172a; color: #f8fafc; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 12px; background: #0f172a; color: #f8fafc; }
 
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #334155; padding-bottom: 8px; }
     .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
     .btn-ghost:hover { color: #f8fafc; border-color: #475569; }
 
@@ -18,53 +18,54 @@
     input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 1rem; }
     input:focus { outline: none; border-color: #38bdf8; }
 
-    button { padding: 10px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
-    .btn-primary { width: 100%; background: #2563eb; color: white; margin-top: 16px; }
+    button { padding: 8px 14px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+    .btn-primary { width: 100%; background: #2563eb; color: white; margin-top: 16px; padding: 12px; }
     .btn-primary:hover { background: #1d4ed8; }
     .btn-secondary { background: #334155; color: #f8fafc; }
     .btn-secondary:hover { background: #475569; }
     .btn-danger { background: #dc2626; color: white; }
     .btn-amber { background: #d97706; color: white; }
 
-    /* Student Canvas */
-    #student-draw-view { display: none; max-width: 500px; margin: 0 auto; }
-    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .canvas-container { position: relative; width: 100%; height: 340px; }
-    canvas { border: 2px solid #475569; border-radius: 8px; background: #ffffff; touch-action: none; display: block; width: 100%; height: 100%; cursor: crosshair; }
+    /* Student Viewport Mode */
+    #student-draw-view { display: none; width: 100%; max-width: 1200px; margin: 0 auto; height: calc(100vh - 55px); flex-direction: column; }
+    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     
-    /* Lock Overlay */
-    .lock-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.85); border-radius: 8px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; padding: 20px; }
-    .lock-overlay span { font-size: 2.5rem; margin-bottom: 8px; }
-    
-    .canvas-actions { margin-top: 12px; display: flex; gap: 10px; }
-    .canvas-actions button { flex: 1; }
+    /* Student Canvas Toolbar */
+    .tool-bar { display: flex; gap: 8px; align-items: center; background: #1e293b; padding: 6px 12px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #334155; flex-wrap: wrap; }
+    .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+    .color-dot.active { border-color: white; transform: scale(1.15); }
+    .tool-btn { background: #334155; color: #f8fafc; padding: 6px 12px; border-radius: 4px; font-size: 0.85rem; }
+    .tool-btn.active { background: #2563eb; }
 
-    /* Countdown Pill */
+    .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid #475569; }
+    canvas { width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
+    
+    .lock-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: #d97706; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; display: none; }
 
-    /* Teacher View */
-    #teacher-view { display: none; max-width: 1200px; margin: 0 auto; }
-    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    /* Teacher UI */
+    #teacher-view { display: none; max-width: 1400px; margin: 0 auto; }
+    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
     .room-badge { background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; }
     
-    /* Teacher Action Bar */
-    .action-toolbar { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; border: 1px solid #334155; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .action-toolbar label { margin: 0; }
-    .timer-input { width: 90px; padding: 8px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 0.95rem; }
+    .action-toolbar { background: #1e293b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid #334155; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid #475569; background: #0f172a; color: white; }
 
     /* Roster */
-    .roster-panel { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid #334155; }
-    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #94a3b8; }
-    .roster-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
+    .roster-panel { background: #1e293b; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid #334155; }
+    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: #94a3b8; }
+    .roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    /* Grid of Boards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
     .board-card { background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
-    .board-card img { width: 100%; height: 190px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
-    .board-placeholder { width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #64748b; font-size: 0.85rem; font-style: italic; border-bottom: 1px solid #334155; }
-    .board-meta { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
+    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #64748b; font-size: 0.85rem; font-style: italic; border-bottom: 1px solid #334155; }
+    .board-meta { padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
     .seat-tag { font-weight: 600; color: #38bdf8; }
+    .btn-wipe-mini { background: #dc2626; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; z-index: 100; }
   </style>
@@ -82,11 +83,11 @@
     <label>Room Number</label>
     <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
     <label>Desk / Device Identifier</label>
-    <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="12">
+    <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="14">
     <button class="btn-primary" onclick="joinAsStudent()">Enter Room</button>
   </div>
 
-  <!-- 2. STUDENT CANVAS VIEW -->
+  <!-- 2. STUDENT FULL-CANVAS VIEW -->
   <div id="student-draw-view">
     <div class="board-header">
       <div>
@@ -98,23 +99,34 @@
         <span id="s-sync-status" style="color: #22c55e; font-size: 0.85rem;">● Connected</span>
       </div>
     </div>
+
+    <!-- Toolbar: Colors, Tools, Clear -->
+    <div class="tool-bar">
+      <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
+      <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
+      <div class="color-dot" style="background:#dc2626;" onclick="setColor('#dc2626', this)"></div>
+      <div class="color-dot" style="background:#16a34a;" onclick="setColor('#16a34a', this)"></div>
+
+      <div style="width: 1px; height: 20px; background: #475569; margin: 0 4px;"></div>
+
+      <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
+      <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Add Text</button>
+
+      <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">Wipe Board</button>
+      <button class="btn-secondary" onclick="sendBoardImmediate()">Sync Now</button>
+    </div>
     
     <div class="canvas-container">
       <canvas id="board"></canvas>
       <div class="lock-overlay" id="s-lock-overlay">
-        <span>🔒</span>
-        <h3 style="margin: 0 0 6px 0;">Board Locked</h3>
-        <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;">Your teacher has paused writing.</p>
+        <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
+        <h3 style="margin: 0 0 4px 0;">Board Locked</h3>
+        <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;">Teacher paused input for class discussion.</p>
       </div>
-    </div>
-
-    <div class="canvas-actions">
-      <button class="btn-secondary" id="s-clear-btn" onclick="clearCanvas()">Clear</button>
-      <button class="btn-primary" style="margin-top: 0;" id="s-force-btn" onclick="sendBoardImmediate()">Force Send</button>
     </div>
   </div>
 
-  <!-- 3. TEACHER VIEW -->
+  <!-- 3. TEACHER DASHBOARD VIEW -->
   <div id="teacher-view">
     <div class="teacher-nav">
       <div>
@@ -124,13 +136,14 @@
       <div style="display: flex; gap: 8px; align-items: center;">
         <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
         <span class="room-badge" id="t-room-tag">Room: ---</span>
-        <button class="btn-danger" onclick="clearTeacherBoards()">Clear Room</button>
+        <button class="btn-danger" onclick="clearTeacherRoom()">Clear Room</button>
       </div>
     </div>
 
-    <!-- Teacher Controls Toolbar -->
+    <!-- Toolbar: Lock, Timer, Wipe All -->
     <div class="action-toolbar">
       <button id="lock-toggle-btn" class="btn-amber" onclick="toggleLockState()">🔒 Lock All Boards</button>
+      <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe All Whiteboards</button>
       
       <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
         <input type="number" id="timer-seconds" class="timer-input" placeholder="Secs" value="60" min="5" max="900">
@@ -141,7 +154,7 @@
     <!-- Live Roster -->
     <div class="roster-panel">
       <div class="roster-header">
-        <span>Currently Connected Students</span>
+        <span>Active Student Desks</span>
         <span id="roster-count" style="color: #38bdf8;">0 connected</span>
       </div>
       <div class="roster-tags" id="roster-tags">
@@ -179,15 +192,71 @@
     let streamDebounceTimer = null;
     let isBoardLocked = false;
     let teacherLockFlag = false;
+    let lastWipeHandled = 0;
 
-    // Format seconds into MM:SS
+    // Adaptive Deep-Idle Scheduler state
+    let lastInteractionTime = Date.now();
+    let pingTimeout = null;
+
     function formatTime(totalSecs) {
       const mins = Math.floor(totalSecs / 60);
       const secs = totalSecs % 60;
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // --- STUDENT LOGIC ---
+    // --- STUDENT ADAPTIVE HEARTBEAT ---
+    function markStudentActive() {
+      const now = Date.now();
+      const wasIdle = (now - lastInteractionTime) > 30000;
+      lastInteractionTime = now;
+
+      // Immediate wake if returning from sleep/background tab
+      if (wasIdle || document.hidden) {
+        scheduleNextPing(50);
+      }
+    }
+
+    function scheduleNextPing(delayMs) {
+      clearTimeout(pingTimeout);
+      pingTimeout = setTimeout(async () => {
+        await pingRelay();
+
+        const idleDuration = Date.now() - lastInteractionTime;
+        const syncLabel = document.getElementById('s-sync-status');
+        let nextDelay = 4000; // Active draw default: 4 seconds
+
+        if (document.hidden || idleDuration > 120000) {
+          // Deep Idle: Tab backgrounded or no draw for > 2 mins -> Ping every 4 mins
+          nextDelay = 240000;
+          if (syncLabel) {
+            syncLabel.innerText = "● Connected (Standby)";
+            syncLabel.style.color = "#64748b";
+          }
+        } else if (idleDuration > 30000) {
+          // Warm Idle: Viewing board without drawing -> Ping every 15 seconds
+          nextDelay = 15000;
+          if (syncLabel) {
+            syncLabel.innerText = "● Connected (Idle)";
+            syncLabel.style.color = "#94a3b8";
+          }
+        } else {
+          // Actively drawing
+          if (syncLabel) {
+            syncLabel.innerText = "● Connected (Active)";
+            syncLabel.style.color = "#22c55e";
+          }
+        }
+
+        scheduleNextPing(nextDelay);
+      }, delayMs);
+    }
+
+    // Native Wake-on-Focus listeners
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) markStudentActive();
+    });
+    window.addEventListener('focus', markStudentActive);
+
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
       const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 _-]/g, '');
@@ -198,19 +267,17 @@
       studentSeat = seat;
 
       document.getElementById('join-view').style.display = 'none';
-      document.getElementById('student-draw-view').style.display = 'block';
+      const drawView = document.getElementById('student-draw-view');
+      drawView.style.display = 'flex';
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
       setupCanvas();
 
-      // Start presence & status sync (every 3 seconds)
-      pingRelay();
-      setInterval(pingRelay, 3000);
+      lastInteractionTime = Date.now();
+      scheduleNextPing(100);
 
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) pingRelay();
-      });
+      window.addEventListener('resize', resizeCanvasPreserve);
     }
 
     async function pingRelay() {
@@ -223,10 +290,15 @@
         if (!res.ok) return;
         const data = await res.json();
         
-        // Handle Lock overlay
+        // Remote wipe handling
+        if (data.shouldWipe && data.wipeCounter > lastWipeHandled) {
+          lastWipeHandled = data.wipeCounter;
+          wipeCanvasLocal();
+        }
+
         updateStudentLockState(data.locked);
 
-        // Handle Countdown timer
+        // Countdown timer pill
         const timerPill = document.getElementById('s-timer-pill');
         if (data.timerRemaining > 0) {
           timerPill.style.display = 'inline-block';
@@ -241,21 +313,20 @@
       isBoardLocked = locked;
       const overlay = document.getElementById('s-lock-overlay');
       const clearBtn = document.getElementById('s-clear-btn');
-      const forceBtn = document.getElementById('s-force-btn');
 
       if (locked) {
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
-        forceBtn.disabled = true;
       } else {
         overlay.style.display = 'none';
         clearBtn.disabled = false;
-        forceBtn.disabled = false;
       }
     }
 
     function queueAutoSync() {
       if (isBoardLocked) return;
+      markStudentActive();
+
       const statusEl = document.getElementById('s-sync-status');
       statusEl.innerText = "Syncing...";
       statusEl.style.color = "#f59e0b";
@@ -263,26 +334,28 @@
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(async () => {
         await sendBoardPayload();
-        statusEl.innerText = "● Connected";
+        statusEl.innerText = "● Connected (Active)";
         statusEl.style.color = "#22c55e";
-      }, 800);
+      }, 700);
     }
 
     function sendBoardImmediate() {
       if (isBoardLocked) return;
+      markStudentActive();
       sendBoardPayload();
     }
 
     async function sendBoardPayload() {
+      // Export fixed 16:10 ratio (320x200 JPEG, ~8KB)
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
-      exportCanvas.height = 220;
+      exportCanvas.height = 200;
       const expCtx = exportCanvas.getContext('2d');
       expCtx.fillStyle = '#ffffff';
-      expCtx.fillRect(0, 0, 320, 220);
-      expCtx.drawImage(canvas, 0, 0, 320, 220);
+      expCtx.fillRect(0, 0, 320, 200);
+      expCtx.drawImage(canvas, 0, 0, 320, 200);
 
-      const imgData = exportCanvas.toDataURL('image/jpeg', 0.55);
+      const imgData = exportCanvas.toDataURL('image/jpeg', 0.5);
 
       try {
         await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
@@ -324,7 +397,7 @@
 
       fetchBoards();
       if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(fetchBoards, 2000);
+      pollInterval = setInterval(fetchBoards, 1500); // 1.5s refresh rate
     }
 
     async function toggleLockState() {
@@ -339,7 +412,7 @@
 
     async function startTimer() {
       const secs = parseInt(document.getElementById('timer-seconds').value, 10);
-      if (isNaN(secs) || secs <= 0) return alert("Please specify valid seconds.");
+      if (isNaN(secs) || secs <= 0) return alert("Specify valid seconds.");
 
       teacherLockFlag = false;
       updateLockBtnUI(false);
@@ -362,6 +435,28 @@
       }
     }
 
+    async function wipeAllStudentBoards() {
+      if (confirm("Wipe all student whiteboards clean?")) {
+        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wipe: 'ALL' })
+        });
+        fetchBoards();
+      }
+    }
+
+    async function wipeSingleStudent(seatId) {
+      if (confirm(`Wipe board for ${seatId}?`)) {
+        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wipe: seatId })
+        });
+        fetchBoards();
+      }
+    }
+
     async function fetchBoards() {
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/poll`);
@@ -371,7 +466,6 @@
         teacherLockFlag = data.locked;
         updateLockBtnUI(data.locked);
 
-        // Update Teacher Timer Display
         const timerPill = document.getElementById('t-timer-pill');
         if (data.timerRemaining > 0) {
           timerPill.style.display = 'inline-block';
@@ -388,7 +482,6 @@
       document.getElementById('sub-counter').innerText = `Currently Connected: ${students.length}`;
       document.getElementById('roster-count').innerText = `${students.length} connected`;
 
-      // Update Roster Chips
       const rosterEl = document.getElementById('roster-tags');
       if (students.length === 0) {
         rosterEl.innerHTML = `<span style="color: #64748b; font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
@@ -402,7 +495,6 @@
         });
       }
 
-      // Update Live Boards
       const grid = document.getElementById('teacher-grid');
       grid.innerHTML = '';
 
@@ -418,15 +510,15 @@
           ${boardContent}
           <div class="board-meta">
             <span class="seat-tag">${escapeHTML(s.seat)}</span>
-            <span style="color:#22c55e; font-size:0.75rem;">● Connected</span>
+            <button class="btn-wipe-mini" onclick="wipeSingleStudent('${escapeHTML(s.seat)}')">Wipe</button>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    async function clearTeacherBoards() {
-      if (confirm("Clear all boards in this room?")) {
+    async function clearTeacherRoom() {
+      if (confirm("Reset the entire room and remove all student sessions?")) {
         await fetch(`${RELAY_URL}/${activeRoom}/clear`, { method: 'DELETE' });
         document.getElementById('teacher-grid').innerHTML = '';
         document.getElementById('roster-tags').innerHTML = '';
@@ -442,18 +534,50 @@
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
     let drawing = false;
+    let currentColor = '#000000';
+    let currentTool = 'pen';
 
     function setupCanvas() {
       setTimeout(() => {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = 340;
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#000000';
       }, 50);
+    }
+
+    function resizeCanvasPreserve() {
+      const container = canvas.parentElement;
+      if (!container || container.clientWidth === 0) return;
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(canvas, 0, 0);
+
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+    }
+
+    function setColor(color, element) {
+      currentColor = color;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+      element.classList.add('active');
+      markStudentActive();
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.getElementById('pen-tool-btn').classList.toggle('active', tool === 'pen');
+      document.getElementById('text-tool-btn').classList.toggle('active', tool === 'text');
+      markStudentActive();
     }
 
     function getCoords(e) {
@@ -465,10 +589,27 @@
 
     function startDraw(e) {
       if (isBoardLocked) return;
+      markStudentActive();
+
+      if (currentTool === 'text') {
+        e.preventDefault();
+        const { x, y } = getCoords(e);
+        const text = prompt("Enter text (will appear in high-contrast bold):");
+        if (text) {
+          ctx.font = "bold 26px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+          ctx.fillStyle = currentColor;
+          ctx.fillText(text, x, y);
+          queueAutoSync();
+        }
+        return;
+      }
+
       drawing = true;
       const { x, y } = getCoords(e);
       ctx.beginPath();
       ctx.moveTo(x, y);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 4;
     }
 
     function stopDraw() {
@@ -480,7 +621,7 @@
     }
 
     function draw(e) {
-      if (!drawing || isBoardLocked) return;
+      if (!drawing || isBoardLocked || currentTool === 'text') return;
       e.preventDefault();
       const { x, y } = getCoords(e);
       ctx.lineTo(x, y);
@@ -496,10 +637,15 @@
 
     function clearCanvas() {
       if (isBoardLocked) return;
+      markStudentActive();
+      wipeCanvasLocal();
+      queueAutoSync();
+    }
+
+    function wipeCanvasLocal() {
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
-      queueAutoSync();
     }
   </script>
 </body>
