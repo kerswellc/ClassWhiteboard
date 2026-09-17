@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Live Class Whiteboard</title>
-  <!-- Native WebRTC PeerJS Client -->
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background: #0f172a; color: #f8fafc; }
@@ -40,20 +38,11 @@
     .room-badge { background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; }
     .teacher-controls { display: flex; gap: 8px; align-items: center; }
 
-    /* Roster */
-    .roster-panel { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid #334155; }
-    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: #94a3b8; }
-    .roster-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
-    .chip-submitted { border-color: #22c55e; background: #143528; }
-    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; display: inline-block; }
-    .status-dot.green { background: #22c55e; }
-
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     .board-card { background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
     .board-card img { width: 100%; height: 190px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
     .board-meta { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
-    .student-tag { font-weight: 600; color: #38bdf8; }
+    .seat-tag { font-weight: 600; color: #38bdf8; }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; z-index: 100; }
   </style>
@@ -68,22 +57,21 @@
   <!-- 1. ENTRY SCREEN -->
   <div id="join-view" class="card">
     <h2>Join Session</h2>
-    <label>Room Number / Code</label>
+    <label>Room Number</label>
     <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
-    <label>Your Name (or Initials)</label>
-    <input type="text" id="join-name" placeholder="e.g. Alex" maxlength="20">
-    <button class="btn-primary" id="join-btn" onclick="joinAsStudent()">Enter Room</button>
-    <div id="join-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 10px; display: none;"></div>
+    <label>Desk / Device Number (GDPR Safe)</label>
+    <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="10">
+    <button class="btn-primary" onclick="joinAsStudent()">Enter Room</button>
   </div>
 
   <!-- 2. STUDENT CANVAS VIEW -->
   <div id="student-draw-view">
     <div class="board-header">
       <div>
-        <strong id="s-display-name" style="color: #38bdf8;"></strong>
+        <strong id="s-display-seat" style="color: #38bdf8;"></strong>
         <span style="color: #94a3b8; font-size: 0.85rem;" id="s-room-tag"></span>
       </div>
-      <span id="s-status" style="color: #22c55e; font-size: 0.85rem;">● Connected</span>
+      <span style="color: #22c55e; font-size: 0.85rem;">● Ready</span>
     </div>
     <canvas id="board"></canvas>
     <div class="canvas-actions">
@@ -92,31 +80,18 @@
     </div>
   </div>
 
-  <!-- 3. TEACHER DASHBOARD VIEW -->
+  <!-- 3. TEACHER VIEW -->
   <div id="teacher-view">
     <div class="teacher-nav">
       <div>
         <h2 style="margin: 0 0 4px 0;">Teacher Console</h2>
-        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Connected: 0 | Submissions: 0</span>
+        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Submissions: 0</span>
       </div>
       <div class="teacher-controls">
         <span class="room-badge" id="t-room-tag">Room: ---</span>
-        <button class="btn-secondary" onclick="toggleNames()" id="toggle-name-btn">Hide Names (Projector)</button>
-        <button class="btn-danger" onclick="clearTeacherBoards()">Clear Boards</button>
+        <button class="btn-danger" onclick="clearTeacherBoards()">Clear All Boards</button>
       </div>
     </div>
-
-    <!-- Live Connected Users Roster -->
-    <div class="roster-panel">
-      <div class="roster-header">
-        <span>Connected Class Roster</span>
-        <span id="roster-count" style="font-size:0.8rem; color:#38bdf8;">0 students present</span>
-      </div>
-      <div class="roster-tags" id="roster-tags">
-        <span style="color:#64748b; font-size:0.85rem; font-style:italic;">No students connected yet.</span>
-      </div>
-    </div>
-
     <div class="grid" id="teacher-grid"></div>
   </div>
 
@@ -124,9 +99,9 @@
   <div class="modal-overlay" id="login-modal">
     <div class="card" style="margin: 0; width: 320px;">
       <h3 style="margin-bottom: 8px;">Teacher Verification</h3>
-      <label>Target Room Number</label>
+      <label>Room Number</label>
       <input type="text" id="teacher-target-room" placeholder="e.g. 234">
-      <label>Teacher PIN</label>
+      <label>PIN</label>
       <input type="password" id="teacher-pin" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') unlockTeacher()">
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
@@ -138,106 +113,40 @@
   <script>
     const TEACHER_PIN = "1234";
 
+    // PASTE YOUR CLOUDFLARE WORKER URL HERE:
+    const RELAY_URL = "https://class-relay.yourname.workers.dev";
+
     let activeRoom = "";
-    let studentName = "";
-    let hideNames = false;
-
-    // Teacher state
-    let teacherPeer = null;
-    let students = {};    // { peerId: { name: string, image: string|null, conn: object } }
-
-    // Student state
-    let studentPeer = null;
-    let studentConn = null;
-
-    // Clean room helper
-    function getRoomHostId(roomNum) {
-      return "cls-room-hub-" + roomNum.toLowerCase().replace(/[^a-z0-9]/g, '');
-    }
+    let studentSeat = "";
+    let pollInterval = null;
 
     // --- STUDENT LOGIC ---
     function joinAsStudent() {
-      const room = document.getElementById('join-room').value.trim();
-      const name = document.getElementById('join-name').value.trim();
-      const errEl = document.getElementById('join-error');
-      const joinBtn = document.getElementById('join-btn');
+      const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
+      const seat = document.getElementById('join-seat').value.trim().replace(/[^a-zA-Z0-9 ]/g, '');
 
-      errEl.style.display = 'none';
-
-      if (!room || !name) {
-        alert("Please enter both the Room Number and your Name.");
+      if (!room || !seat) {
+        alert("Please enter both the Room Number and Desk ID.");
         return;
       }
 
       activeRoom = room;
-      studentName = name;
-      joinBtn.innerText = "Connecting to room...";
-      joinBtn.disabled = true;
+      studentSeat = seat;
 
-      // Start client peer
-      studentPeer = new Peer({
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
-        }
-      });
+      document.getElementById('join-view').style.display = 'none';
+      document.getElementById('student-draw-view').style.display = 'block';
+      document.getElementById('s-display-seat').innerText = studentSeat;
+      document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      studentPeer.on('open', () => {
-        const hostPeerId = getRoomHostId(activeRoom);
-        studentConn = studentPeer.connect(hostPeerId, { reliable: true });
-
-        studentConn.on('open', () => {
-          // Handshake payload
-          studentConn.send({ type: 'join', name: studentName });
-
-          document.getElementById('join-view').style.display = 'none';
-          document.getElementById('student-draw-view').style.display = 'block';
-          document.getElementById('s-display-name').innerText = studentName;
-          document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
-          setupCanvas();
-        });
-
-        studentConn.on('close', () => {
-          const sStatus = document.getElementById('s-status');
-          if (sStatus) {
-            sStatus.innerText = '● Disconnected';
-            sStatus.style.color = '#ef4444';
-          }
-        });
-
-        // Timeout fallback if teacher has not started room yet
-        setTimeout(() => {
-          if (!studentConn || !studentConn.open) {
-            joinBtn.innerText = "Enter Room";
-            joinBtn.disabled = false;
-            errEl.innerText = "Teacher hasn't opened Room " + activeRoom + " yet. Ask your teacher to open the room first, then click Enter Room.";
-            errEl.style.display = 'block';
-          }
-        }, 4000);
-      });
-
-      studentPeer.on('error', (err) => {
-        console.error("Peer error:", err);
-        joinBtn.innerText = "Enter Room";
-        joinBtn.disabled = false;
-        errEl.innerText = "Connection failed. Please check the room code.";
-        errEl.style.display = 'block';
-      });
+      setupCanvas();
     }
 
-    function sendBoard() {
-      if (!studentConn || !studentConn.open) {
-        alert("Not connected to teacher. Please re-enter the room.");
-        return;
-      }
-
+    async function sendBoard() {
       const btn = document.getElementById('send-btn');
       btn.innerText = "Sending...";
       btn.disabled = true;
 
-      // Export drawing to image
+      // Downscale to 320x220 JPEG (<12 KB)
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
       exportCanvas.height = 220;
@@ -246,19 +155,27 @@
       expCtx.fillRect(0, 0, 320, 220);
       expCtx.drawImage(canvas, 0, 0, 320, 220);
 
-      const imgData = exportCanvas.toDataURL('image/jpeg', 0.6);
+      const imgData = exportCanvas.toDataURL('image/jpeg', 0.55);
 
-      studentConn.send({
-        type: 'submit-board',
-        name: studentName,
-        image: imgData
-      });
+      try {
+        const res = await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seat: studentSeat, image: imgData })
+        });
 
-      setTimeout(() => {
+        if (res.ok) {
+          btn.innerText = "Send to Teacher";
+          btn.disabled = false;
+          alert("Board sent to teacher!");
+        } else {
+          throw new Error("Relay error");
+        }
+      } catch (err) {
         btn.innerText = "Send to Teacher";
         btn.disabled = false;
-        alert("Board sent to teacher!");
-      }, 200);
+        alert("Could not send. Check internet connection.");
+      }
     }
 
     // --- TEACHER LOGIC ---
@@ -275,11 +192,11 @@
     }
 
     function unlockTeacher() {
-      const room = document.getElementById('teacher-target-room').value.trim();
+      const room = document.getElementById('teacher-target-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
       const pin = document.getElementById('teacher-pin').value.trim();
 
       if (!room) return alert("Please enter the Room Number.");
-      if (pin !== TEACHER_PIN) return alert("Incorrect Teacher PIN.");
+      if (pin !== TEACHER_PIN) return alert("Incorrect PIN.");
 
       closeTeacherLogin();
       activeRoom = room;
@@ -290,118 +207,55 @@
       document.getElementById('teacher-view').style.display = 'block';
       document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
 
-      // Claim room host ID
-      const hostPeerId = getRoomHostId(activeRoom);
-      
-      teacherPeer = new Peer(hostPeerId, {
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:global.stun.twilio.com:3478' }
-          ]
-        }
-      });
-
-      teacherPeer.on('connection', (conn) => {
-        conn.on('data', (data) => {
-          if (data.type === 'join') {
-            students[conn.peer] = { name: data.name, image: null, conn: conn };
-            renderRoster();
-          }
-
-          if (data.type === 'submit-board') {
-            if (!students[conn.peer]) students[conn.peer] = { name: data.name, conn: conn };
-            students[conn.peer].image = data.image;
-            renderRoster();
-            renderTeacherGrid();
-          }
-        });
-
-        conn.on('close', () => {
-          delete students[conn.peer];
-          renderRoster();
-          renderTeacherGrid();
-        });
-      });
-
-      teacherPeer.on('error', (err) => {
-        if (err.type === 'unavailable-id') {
-          alert("Room " + activeRoom + " is already hosted elsewhere. Please pick another room number.");
-        } else {
-          console.error("Teacher Peer error:", err);
-        }
-      });
+      // Poll Worker every 2.5 seconds over standard HTTPS
+      fetchBoards();
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(fetchBoards, 2500);
     }
 
-    function renderRoster() {
-      const rosterEl = document.getElementById('roster-tags');
-      const studentKeys = Object.keys(students);
-      const subCount = studentKeys.filter(k => !!students[k].image).length;
-
-      document.getElementById('sub-counter').innerText = `Connected: ${studentKeys.length} | Submissions: ${subCount}`;
-      document.getElementById('roster-count').innerText = `${studentKeys.length} present`;
-
-      if (studentKeys.length === 0) {
-        rosterEl.innerHTML = `<span style="color:#64748b; font-size:0.85rem; font-style:italic;">No students connected yet.</span>`;
-        return;
+    async function fetchBoards() {
+      try {
+        const res = await fetch(`${RELAY_URL}/${activeRoom}/poll`);
+        if (!res.ok) return;
+        const boards = await res.json();
+        renderTeacherGrid(boards);
+      } catch (e) {
+        console.error("Poll failed:", e);
       }
-
-      rosterEl.innerHTML = '';
-      studentKeys.forEach(k => {
-        const student = students[k];
-        const hasSubmitted = !!student.image;
-        const chip = document.createElement('div');
-        chip.className = `student-chip ${hasSubmitted ? 'chip-submitted' : ''}`;
-        chip.innerHTML = `
-          <span class="status-dot ${hasSubmitted ? 'green' : ''}"></span>
-          <span>${escapeHTML(student.name)}</span>
-          ${hasSubmitted ? '<span style="font-size:0.7rem; color:#4ade80;">✓</span>' : ''}
-        `;
-        rosterEl.appendChild(chip);
-      });
     }
 
-    function renderTeacherGrid() {
+    function renderTeacherGrid(boards) {
       const grid = document.getElementById('teacher-grid');
       grid.innerHTML = '';
-      const studentKeys = Object.keys(students);
+      document.getElementById('sub-counter').innerText = `Submissions: ${boards.length}`;
 
-      studentKeys.forEach(k => {
-        const student = students[k];
-        if (!student.image) return;
-
+      boards.forEach(b => {
         const card = document.createElement('div');
         card.className = 'board-card';
         card.innerHTML = `
-          <img src="${student.image}" alt="Board">
+          <img src="${b.image}" alt="Board">
           <div class="board-meta">
-            <span class="student-tag">${hideNames ? 'Student' : escapeHTML(student.name)}</span>
-            <span style="color:#22c55e;">● Submitted</span>
+            <span class="seat-tag">${escapeHTML(b.seat)}</span>
+            <span style="color:#22c55e;">● Live</span>
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
-    function toggleNames() {
-      hideNames = !hideNames;
-      document.getElementById('toggle-name-btn').innerText = hideNames ? "Show Names" : "Hide Names (Projector)";
-      renderTeacherGrid();
-    }
-
-    function clearTeacherBoards() {
-      Object.keys(students).forEach(k => {
-        if (students[k]) students[k].image = null;
-      });
-      renderRoster();
-      renderTeacherGrid();
+    async function clearTeacherBoards() {
+      if (confirm("Clear all active boards from this room?")) {
+        await fetch(`${RELAY_URL}/${activeRoom}/clear`, { method: 'DELETE' });
+        document.getElementById('teacher-grid').innerHTML = '';
+        document.getElementById('sub-counter').innerText = 'Submissions: 0';
+      }
     }
 
     function escapeHTML(str) {
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
-    // --- CANVAS ENGINE ---
+    // --- CANVAS DRAWING ---
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
     let drawing = false;
