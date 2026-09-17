@@ -246,6 +246,7 @@
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
+        <button class="tool-btn" id="eraser-tool-btn" onclick="setTool('eraser')">🧹 Eraser</button>
         <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Text (60px)</button>
 
         <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">Wipe Board</button>
@@ -324,7 +325,7 @@
     let studentClientId = "";
     let pollInterval = null;
     let streamDebounceTimer = null;
-    let isBoardLocked = true; // Secure by default: locked until authoritative teacher check
+    let isBoardLocked = true;
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
@@ -353,7 +354,6 @@
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
         } else {
-          // Timer naturally finished
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
@@ -371,15 +371,12 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Deep-Idle Scheduler
+    // Adaptive Idle Scheduler
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
-    // Direct Wake Handshake
     async function wakeAndSyncAuthoritative() {
       lastInteractionTime = Date.now();
-      
-      // Immediately freeze client until the relay handshake confirms room permission
       updateStudentLockState(true);
 
       const statusEl = document.getElementById('s-sync-status');
@@ -389,8 +386,6 @@
       }
 
       await pingRelay();
-
-      // Resume regular polling loop
       scheduleNextPing(3500);
     }
 
@@ -404,7 +399,7 @@
         let nextDelay = 3500;
 
         if (document.hidden || idleDuration > 120000) {
-          nextDelay = 240000; // 4 mins
+          nextDelay = 240000;
           if (syncLabel) {
             syncLabel.innerText = "● Connected (Standby)";
             syncLabel.style.color = "#64748b";
@@ -426,7 +421,6 @@
       }, delayMs);
     }
 
-    // Hard wake handlers: Tab returning from sleep or background MUST re-verify
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && activeRoom && studentClientId) {
         wakeAndSyncAuthoritative();
@@ -458,7 +452,6 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      // Hard lock immediately upon joining until server responds
       updateStudentLockState(true);
       setupCanvas();
 
@@ -499,18 +492,16 @@
           wipeCanvasLocal();
         }
 
-        // Master Lock Resolution
         activeTimerEndEpoch = Number(data.timerEnd) || 0;
         const now = Date.now();
 
         if (activeTimerEndEpoch > 0) {
           if (now < activeTimerEndEpoch) {
-            updateStudentLockState(false); // Valid timer running -> Unlocked
+            updateStudentLockState(false);
           } else {
-            updateStudentLockState(true);  // Timer expired -> Locked
+            updateStudentLockState(true);
           }
         } else {
-          // No timer running: Teacher's explicit toggle is master authority
           updateStudentLockState(Boolean(data.locked));
         }
 
@@ -777,7 +768,7 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
     let currentColor = '#000000';
-    let currentTool = 'pen';
+    let currentTool = 'pen'; // 'pen' | 'eraser' | 'text'
 
     function setupCanvas() {
       setTimeout(() => {
@@ -812,11 +803,15 @@
       currentColor = color;
       document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
       element.classList.add('active');
+      if (currentTool === 'eraser') {
+        setTool('pen');
+      }
     }
 
     function setTool(tool) {
       currentTool = tool;
       document.getElementById('pen-tool-btn').classList.toggle('active', tool === 'pen');
+      document.getElementById('eraser-tool-btn').classList.toggle('active', tool === 'eraser');
       document.getElementById('text-tool-btn').classList.toggle('active', tool === 'text');
     }
 
@@ -827,7 +822,6 @@
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    // Synchronous input gate
     function isOperationBlocked() {
       if (isBoardLocked) return true;
       if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
@@ -858,8 +852,14 @@
       const { x, y } = getCoords(e);
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 5;
+
+      if (currentTool === 'eraser') {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 20;
+      } else {
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = 5;
+      }
     }
 
     function stopDraw() {
