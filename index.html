@@ -213,11 +213,11 @@
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
       <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Session</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and desk number (e.g. Desk 04).</p>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and name/desk number.</p>
       <label>Room Number</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
-      <label>Desk / Device Identifier</label>
-      <input type="text" id="join-seat" placeholder="e.g. Desk 12" maxlength="14">
+      <label>Your Name / Desk Identifier</label>
+      <input type="text" id="join-seat" placeholder="e.g. Alex" maxlength="16">
       <button class="btn-primary" onclick="joinAsStudent()">Enter Room</button>
     </div>
 
@@ -234,7 +234,6 @@
         </div>
       </div>
 
-      <!-- Color Palette -->
       <div class="tool-bar">
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
         <div class="color-dot" style="background:#04142d;" onclick="setColor('#04142d', this)"></div>
@@ -289,7 +288,7 @@
 
       <div class="roster-panel">
         <div class="roster-header">
-          <span>Active Student Desks</span>
+          <span>Active Students</span>
           <span id="roster-count" style="color: var(--ga-gold);">0 connected</span>
         </div>
         <div class="roster-tags" id="roster-tags">
@@ -322,11 +321,22 @@
 
     let activeRoom = "";
     let studentSeat = "";
+    let studentClientId = "";
     let pollInterval = null;
     let streamDebounceTimer = null;
-    let isBoardLocked = true; // Secure by default: locked until authoritative relay sync
+    let isBoardLocked = true; // Strict default lock
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
+
+    // Persistent Unique Client ID (for deduplication and renames)
+    function getClientId() {
+      let cid = sessionStorage.getItem('ga_client_id');
+      if (!cid) {
+        cid = 'cid_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+        sessionStorage.setItem('ga_client_id', cid);
+      }
+      return cid;
+    }
 
     // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
@@ -344,7 +354,7 @@
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
         } else {
-          // Timer naturally elapsed locally
+          // Timer naturally elapsed
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
@@ -362,7 +372,7 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Deep-Idle Scheduler
+    // Adaptive Idle Scheduler
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
@@ -371,7 +381,7 @@
       const wasIdle = (now - lastInteractionTime) > 30000;
       lastInteractionTime = now;
 
-      // Hard enforcement on wake
+      // Lock if timer has expired
       if (activeTimerEndEpoch > 0 && now >= activeTimerEndEpoch) {
         updateStudentLockState(true);
       }
@@ -415,7 +425,6 @@
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        // Enforce timer check immediately on tab wake
         if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
           updateStudentLockState(true);
         }
@@ -428,14 +437,15 @@
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
       const rawSeat = document.getElementById('join-seat').value.trim();
-      const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '');
+      const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
 
-      if (!room || !seat || seat.toLowerCase() === 'desk') {
-        return alert("Please enter both the Room Number and a unique Desk identifier (e.g., 'Desk 04').");
+      if (!room || !seat) {
+        return alert("Please enter both the Room Number and your Name.");
       }
 
       activeRoom = room;
       studentSeat = seat;
+      studentClientId = getClientId();
 
       document.getElementById('join-view').style.display = 'none';
       const drawView = document.getElementById('student-draw-view');
@@ -443,7 +453,7 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      // Lock canvas by default until relay returns room state
+      // Lock by default until relay returns room state
       updateStudentLockState(true);
       setupCanvas();
 
@@ -454,13 +464,13 @@
     }
 
     async function pingRelay() {
-      if (!studentSeat || studentSeat.toLowerCase() === 'desk') return;
+      if (!studentClientId || !studentSeat) return;
 
       try {
         const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ seat: studentSeat })
+          body: JSON.stringify({ clientId: studentClientId, seat: studentSeat })
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -472,6 +482,7 @@
           return;
         }
 
+        // Automatic Deduplicated Name or Teacher Rename Assignment
         if (data.assignedSeat && data.assignedSeat !== studentSeat) {
           studentSeat = data.assignedSeat;
           document.getElementById('s-display-seat').innerText = studentSeat;
@@ -482,7 +493,7 @@
           wipeCanvasLocal();
         }
 
-        // Authoritative Timer and Lock Sync
+        // Master Lock Decision
         activeTimerEndEpoch = data.timerEnd || 0;
         if (activeTimerEndEpoch > 0) {
           if (Date.now() >= activeTimerEndEpoch) {
@@ -491,18 +502,19 @@
             updateStudentLockState(false);
           }
         } else {
-          updateStudentLockState(data.locked);
+          // If no timer, obey the teacher's master manual lock state
+          updateStudentLockState(Boolean(data.locked));
         }
         tickClocksLocally();
       } catch (e) {}
     }
 
     function updateStudentLockState(locked) {
-      isBoardLocked = locked;
+      isBoardLocked = Boolean(locked);
       const overlay = document.getElementById('s-lock-overlay');
       const clearBtn = document.getElementById('s-clear-btn');
 
-      if (locked) {
+      if (isBoardLocked) {
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
       } else {
@@ -534,7 +546,7 @@
     }
 
     async function sendBoardPayload() {
-      if (!studentSeat || studentSeat.toLowerCase() === 'desk') return;
+      if (!studentClientId || !studentSeat) return;
 
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
@@ -550,7 +562,7 @@
         await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ seat: studentSeat, image: imgData })
+          body: JSON.stringify({ clientId: studentClientId, image: imgData })
         });
       } catch (err) {}
     }
@@ -597,6 +609,7 @@
         body: JSON.stringify({ locked: teacherLockFlag })
       });
       updateLockBtnUI(teacherLockFlag);
+      fetchBoards();
     }
 
     async function startTimer() {
@@ -614,6 +627,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timerSeconds: secs })
       });
+      fetchBoards();
     }
 
     function updateLockBtnUI(locked) {
@@ -638,36 +652,34 @@
       }
     }
 
-    async function wipeSingleStudent(seatId) {
-      if (confirm(`Wipe board for ${seatId}?`)) {
+    async function wipeSingleStudent(clientId) {
+      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wipe: clientId })
+      });
+      fetchBoards();
+    }
+
+    async function kickStudent(clientId, seatName) {
+      if (confirm(`Remove ${seatName} from the session?`)) {
         await fetch(`${RELAY_URL}/${activeRoom}/control`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wipe: seatId })
+          body: JSON.stringify({ kickClientId: clientId })
         });
         fetchBoards();
       }
     }
 
-    async function kickStudent(seatId) {
-      if (confirm(`Remove ${seatId} from the session?`)) {
+    async function renameStudent(clientId, currentName) {
+      const newSeat = prompt(`Rename ${currentName} to:`, currentName);
+      if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
+        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
         await fetch(`${RELAY_URL}/${activeRoom}/control`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kickSeat: seatId })
-        });
-        fetchBoards();
-      }
-    }
-
-    async function renameStudent(oldSeatId) {
-      const newSeat = prompt(`Rename ${oldSeatId} to:`, oldSeatId);
-      if (newSeat && newSeat.trim() !== "" && newSeat !== oldSeatId) {
-        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 14);
-        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ renameOld: oldSeatId, renameNew: cleanName })
+          body: JSON.stringify({ renameClientId: clientId, renameNew: cleanName })
         });
         fetchBoards();
       }
@@ -679,14 +691,16 @@
         if (!res.ok) return;
         const data = await res.json();
 
-        teacherLockFlag = data.locked;
-        updateLockBtnUI(data.locked);
+        teacherLockFlag = Boolean(data.locked);
+        updateLockBtnUI(teacherLockFlag);
 
         activeTimerEndEpoch = data.timerEnd || 0;
         tickClocksLocally();
 
         renderTeacherDashboard(data.students || []);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Poll error:", e);
+      }
     }
 
     function renderTeacherDashboard(students) {
@@ -722,9 +736,9 @@
           <div class="board-meta">
             <span class="seat-tag" title="${escapeHTML(s.seat)}">${escapeHTML(s.seat)}</span>
             <div class="meta-actions">
-              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(s.seat)}')">Rename</button>
-              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(s.seat)}')">Wipe</button>
-              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(s.seat)}')">Kick</button>
+              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(s.clientId)}', '${escapeHTML(s.seat)}')">Rename</button>
+              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(s.clientId)}')">Wipe</button>
+              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(s.clientId)}', '${escapeHTML(s.seat)}')">Kick</button>
             </div>
           </div>
         `;
@@ -802,7 +816,6 @@
       return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    // Direct, synchronous gate to prevent drawing during lock or expired timer
     function isOperationBlocked() {
       if (isBoardLocked) return true;
       if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
@@ -821,7 +834,7 @@
         const { x, y } = getCoords(e);
         const text = prompt("Enter text (will appear in bold 60px):");
         if (text) {
-          if (isOperationBlocked()) return; // Re-verify in case teacher locked while prompt was open
+          if (isOperationBlocked()) return;
           ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
           ctx.fillStyle = currentColor;
           ctx.fillText(text, x, y);
