@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Live Class Whiteboard</title>
+  <!-- Native WebRTC PeerJS Client -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; background: #0f172a; color: #f8fafc; }
+
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+    .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+    .btn-ghost:hover { color: #f8fafc; border-color: #475569; }
+
+    .card { background: #1e293b; padding: 24px; border-radius: 8px; max-width: 440px; margin: 30px auto; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3); }
+    h2, h3 { margin-top: 0; color: #f8fafc; }
+    label { font-size: 0.85rem; font-weight: 600; color: #94a3b8; display: block; margin-top: 14px; margin-bottom: 6px; }
+    input { width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 1rem; }
+    input:focus { outline: none; border-color: #38bdf8; }
+
+    button { padding: 10px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+    .btn-primary { width: 100%; background: #2563eb; color: white; margin-top: 16px; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #334155; color: #f8fafc; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-danger { background: #dc2626; color: white; }
+
+    /* Student Canvas */
+    #student-draw-view { display: none; max-width: 500px; margin: 0 auto; }
+    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    canvas { border: 2px solid #475569; border-radius: 8px; background: #ffffff; touch-action: none; display: block; width: 100%; height: 340px; cursor: crosshair; }
+    .canvas-actions { margin-top: 12px; display: flex; gap: 10px; }
+    .canvas-actions button { flex: 1; }
+
+    /* Teacher View */
+    #teacher-view { display: none; max-width: 1200px; margin: 0 auto; }
+    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 16px; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .room-badge { background: #0284c7; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; }
+    .teacher-controls { display: flex; gap: 8px; align-items: center; }
+
+    /* Roster */
+    .roster-panel { background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; border: 1px solid #334155; }
+    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: #94a3b8; }
+    .roster-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .student-chip { background: #0f172a; border: 1px solid #38bdf8; color: #f8fafc; padding: 4px 10px; border-radius: 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
+    .chip-submitted { border-color: #22c55e; background: #143528; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; display: inline-block; }
+    .status-dot.green { background: #22c55e; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .board-card { background: #1e293b; border-radius: 8px; overflow: hidden; border: 1px solid #334155; display: flex; flex-direction: column; }
+    .board-card img { width: 100%; height: 190px; object-fit: contain; background: #ffffff; border-bottom: 1px solid #334155; }
+    .board-meta { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+    .student-tag { font-weight: 600; color: #38bdf8; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; z-index: 100; }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <span style="font-weight: 700; color: #38bdf8;">Classroom LiveBoard</span>
+    <button class="btn-ghost" id="teacher-switch-btn" onclick="openTeacherLogin()">Teacher Admin</button>
+  </div>
+
+  <!-- 1. ENTRY SCREEN -->
+  <div id="join-view" class="card">
+    <h2>Join Session</h2>
+    <label>Room Number / Code</label>
+    <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
+    <label>Your Name (or Initials)</label>
+    <input type="text" id="join-name" placeholder="e.g. Alex" maxlength="20">
+    <button class="btn-primary" id="join-btn" onclick="joinAsStudent()">Enter Room</button>
+    <div id="join-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 10px; display: none;"></div>
+  </div>
+
+  <!-- 2. STUDENT CANVAS VIEW -->
+  <div id="student-draw-view">
+    <div class="board-header">
+      <div>
+        <strong id="s-display-name" style="color: #38bdf8;"></strong>
+        <span style="color: #94a3b8; font-size: 0.85rem;" id="s-room-tag"></span>
+      </div>
+      <span id="s-status" style="color: #22c55e; font-size: 0.85rem;">● Connected</span>
+    </div>
+    <canvas id="board"></canvas>
+    <div class="canvas-actions">
+      <button class="btn-secondary" onclick="clearCanvas()">Clear</button>
+      <button class="btn-primary" style="margin-top: 0;" id="send-btn" onclick="sendBoard()">Send to Teacher</button>
+    </div>
+  </div>
+
+  <!-- 3. TEACHER DASHBOARD VIEW -->
+  <div id="teacher-view">
+    <div class="teacher-nav">
+      <div>
+        <h2 style="margin: 0 0 4px 0;">Teacher Console</h2>
+        <span id="sub-counter" style="color: #94a3b8; font-size: 0.85rem;">Connected: 0 | Submissions: 0</span>
+      </div>
+      <div class="teacher-controls">
+        <span class="room-badge" id="t-room-tag">Room: ---</span>
+        <button class="btn-secondary" onclick="toggleNames()" id="toggle-name-btn">Hide Names (Projector)</button>
+        <button class="btn-danger" onclick="clearTeacherBoards()">Clear Boards</button>
+      </div>
+    </div>
+
+    <!-- Live Connected Users Roster -->
+    <div class="roster-panel">
+      <div class="roster-header">
+        <span>Connected Class Roster</span>
+        <span id="roster-count" style="font-size:0.8rem; color:#38bdf8;">0 students present</span>
+      </div>
+      <div class="roster-tags" id="roster-tags">
+        <span style="color:#64748b; font-size:0.85rem; font-style:italic;">No students connected yet.</span>
+      </div>
+    </div>
+
+    <div class="grid" id="teacher-grid"></div>
+  </div>
+
+  <!-- TEACHER PIN MODAL -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="card" style="margin: 0; width: 320px;">
+      <h3 style="margin-bottom: 8px;">Teacher Verification</h3>
+      <label>Target Room Number</label>
+      <input type="text" id="teacher-target-room" placeholder="e.g. 234">
+      <label>Teacher PIN</label>
+      <input type="password" id="teacher-pin" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') unlockTeacher()">
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="unlockTeacher()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEACHER_PIN = "1234";
+
+    let activeRoom = "";
+    let studentName = "";
+    let hideNames = false;
+
+    // Teacher state
+    let teacherPeer = null;
+    let students = {};    // { peerId: { name: string, image: string|null, conn: object } }
+
+    // Student state
+    let studentPeer = null;
+    let studentConn = null;
+
+    // Clean room helper
+    function getRoomHostId(roomNum) {
+      return "cls-room-hub-" + roomNum.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    // --- STUDENT LOGIC ---
+    function joinAsStudent() {
+      const room = document.getElementById('join-room').value.trim();
+      const name = document.getElementById('join-name').value.trim();
+      const errEl = document.getElementById('join-error');
+      const joinBtn = document.getElementById('join-btn');
+
+      errEl.style.display = 'none';
+
+      if (!room || !name) {
+        alert("Please enter both the Room Number and your Name.");
+        return;
+      }
+
+      activeRoom = room;
+      studentName = name;
+      joinBtn.innerText = "Connecting to room...";
+      joinBtn.disabled = true;
+
+      // Start client peer
+      studentPeer = new Peer({
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' }
+          ]
+        }
+      });
+
+      studentPeer.on('open', () => {
+        const hostPeerId = getRoomHostId(activeRoom);
+        studentConn = studentPeer.connect(hostPeerId, { reliable: true });
+
+        studentConn.on('open', () => {
+          // Handshake payload
+          studentConn.send({ type: 'join', name: studentName });
+
+          document.getElementById('join-view').style.display = 'none';
+          document.getElementById('student-draw-view').style.display = 'block';
+          document.getElementById('s-display-name').innerText = studentName;
+          document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
+          setupCanvas();
+        });
+
+        studentConn.on('close', () => {
+          const sStatus = document.getElementById('s-status');
+          if (sStatus) {
+            sStatus.innerText = '● Disconnected';
+            sStatus.style.color = '#ef4444';
+          }
+        });
+
+        // Timeout fallback if teacher has not started room yet
+        setTimeout(() => {
+          if (!studentConn || !studentConn.open) {
+            joinBtn.innerText = "Enter Room";
+            joinBtn.disabled = false;
+            errEl.innerText = "Teacher hasn't opened Room " + activeRoom + " yet. Ask your teacher to open the room first, then click Enter Room.";
+            errEl.style.display = 'block';
+          }
+        }, 4000);
+      });
+
+      studentPeer.on('error', (err) => {
+        console.error("Peer error:", err);
+        joinBtn.innerText = "Enter Room";
+        joinBtn.disabled = false;
+        errEl.innerText = "Connection failed. Please check the room code.";
+        errEl.style.display = 'block';
+      });
+    }
+
+    function sendBoard() {
+      if (!studentConn || !studentConn.open) {
+        alert("Not connected to teacher. Please re-enter the room.");
+        return;
+      }
+
+      const btn = document.getElementById('send-btn');
+      btn.innerText = "Sending...";
+      btn.disabled = true;
+
+      // Export drawing to image
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = 320;
+      exportCanvas.height = 220;
+      const expCtx = exportCanvas.getContext('2d');
+      expCtx.fillStyle = '#ffffff';
+      expCtx.fillRect(0, 0, 320, 220);
+      expCtx.drawImage(canvas, 0, 0, 320, 220);
+
+      const imgData = exportCanvas.toDataURL('image/jpeg', 0.6);
+
+      studentConn.send({
+        type: 'submit-board',
+        name: studentName,
+        image: imgData
+      });
+
+      setTimeout(() => {
+        btn.innerText = "Send to Teacher";
+        btn.disabled = false;
+        alert("Board sent to teacher!");
+      }, 200);
+    }
+
+    // --- TEACHER LOGIC ---
+    function openTeacherLogin() {
+      document.getElementById('login-modal').style.display = 'flex';
+      const existingRoom = document.getElementById('join-room').value.trim();
+      if (existingRoom) document.getElementById('teacher-target-room').value = existingRoom;
+      document.getElementById('teacher-pin').focus();
+    }
+
+    function closeTeacherLogin() {
+      document.getElementById('login-modal').style.display = 'none';
+      document.getElementById('teacher-pin').value = '';
+    }
+
+    function unlockTeacher() {
+      const room = document.getElementById('teacher-target-room').value.trim();
+      const pin = document.getElementById('teacher-pin').value.trim();
+
+      if (!room) return alert("Please enter the Room Number.");
+      if (pin !== TEACHER_PIN) return alert("Incorrect Teacher PIN.");
+
+      closeTeacherLogin();
+      activeRoom = room;
+
+      document.getElementById('join-view').style.display = 'none';
+      document.getElementById('student-draw-view').style.display = 'none';
+      document.getElementById('teacher-switch-btn').style.display = 'none';
+      document.getElementById('teacher-view').style.display = 'block';
+      document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
+
+      // Claim room host ID
+      const hostPeerId = getRoomHostId(activeRoom);
+      
+      teacherPeer = new Peer(hostPeerId, {
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:global.stun.twilio.com:3478' }
+          ]
+        }
+      });
+
+      teacherPeer.on('connection', (conn) => {
+        conn.on('data', (data) => {
+          if (data.type === 'join') {
+            students[conn.peer] = { name: data.name, image: null, conn: conn };
+            renderRoster();
+          }
+
+          if (data.type === 'submit-board') {
+            if (!students[conn.peer]) students[conn.peer] = { name: data.name, conn: conn };
+            students[conn.peer].image = data.image;
+            renderRoster();
+            renderTeacherGrid();
+          }
+        });
+
+        conn.on('close', () => {
+          delete students[conn.peer];
+          renderRoster();
+          renderTeacherGrid();
+        });
+      });
+
+      teacherPeer.on('error', (err) => {
+        if (err.type === 'unavailable-id') {
+          alert("Room " + activeRoom + " is already hosted elsewhere. Please pick another room number.");
+        } else {
+          console.error("Teacher Peer error:", err);
+        }
+      });
+    }
+
+    function renderRoster() {
+      const rosterEl = document.getElementById('roster-tags');
+      const studentKeys = Object.keys(students);
+      const subCount = studentKeys.filter(k => !!students[k].image).length;
+
+      document.getElementById('sub-counter').innerText = `Connected: ${studentKeys.length} | Submissions: ${subCount}`;
+      document.getElementById('roster-count').innerText = `${studentKeys.length} present`;
+
+      if (studentKeys.length === 0) {
+        rosterEl.innerHTML = `<span style="color:#64748b; font-size:0.85rem; font-style:italic;">No students connected yet.</span>`;
+        return;
+      }
+
+      rosterEl.innerHTML = '';
+      studentKeys.forEach(k => {
+        const student = students[k];
+        const hasSubmitted = !!student.image;
+        const chip = document.createElement('div');
+        chip.className = `student-chip ${hasSubmitted ? 'chip-submitted' : ''}`;
+        chip.innerHTML = `
+          <span class="status-dot ${hasSubmitted ? 'green' : ''}"></span>
+          <span>${escapeHTML(student.name)}</span>
+          ${hasSubmitted ? '<span style="font-size:0.7rem; color:#4ade80;">✓</span>' : ''}
+        `;
+        rosterEl.appendChild(chip);
+      });
+    }
+
+    function renderTeacherGrid() {
+      const grid = document.getElementById('teacher-grid');
+      grid.innerHTML = '';
+      const studentKeys = Object.keys(students);
+
+      studentKeys.forEach(k => {
+        const student = students[k];
+        if (!student.image) return;
+
+        const card = document.createElement('div');
+        card.className = 'board-card';
+        card.innerHTML = `
+          <img src="${student.image}" alt="Board">
+          <div class="board-meta">
+            <span class="student-tag">${hideNames ? 'Student' : escapeHTML(student.name)}</span>
+            <span style="color:#22c55e;">● Submitted</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleNames() {
+      hideNames = !hideNames;
+      document.getElementById('toggle-name-btn').innerText = hideNames ? "Show Names" : "Hide Names (Projector)";
+      renderTeacherGrid();
+    }
+
+    function clearTeacherBoards() {
+      Object.keys(students).forEach(k => {
+        if (students[k]) students[k].image = null;
+      });
+      renderRoster();
+      renderTeacherGrid();
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+    }
+
+    // --- CANVAS ENGINE ---
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    function setupCanvas() {
+      setTimeout(() => {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 340;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#000000';
+      }, 50);
+    }
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+      drawing = true;
+      const { x, y } = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    function stopDraw() {
+      drawing = false;
+      ctx.beginPath();
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const { x, y } = getCoords(e);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+    canvas.addEventListener('touchmove', draw, { passive: false });
+
+    function clearCanvas() {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+    }
+  </script>
+</body>
+</html>
