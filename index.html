@@ -19,6 +19,9 @@
       --ga-gold-light: #f5b453;
       --ga-white: #ffffff;
       --ga-text-muted: #8ca5cf;
+      --ga-green: #22c55e;
+      --ga-red: #ef4444;
+      --ga-blue: #3b82f6;
     }
 
     * { box-sizing: border-box; }
@@ -103,7 +106,7 @@
       margin-top: 14px; 
       margin-bottom: 6px; 
     }
-    input { 
+    input, select { 
       width: 100%; 
       padding: 10px 12px; 
       border-radius: 6px; 
@@ -112,7 +115,7 @@
       color: white; 
       font-size: 1rem; 
     }
-    input:focus { 
+    input:focus, select:focus { 
       outline: none; 
       border-color: var(--ga-gold); 
     }
@@ -168,6 +171,64 @@
     
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
+    .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
+
+    /* Student Hinge Question Overlay */
+    .hinge-student-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 20, 45, 0.96);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 24px;
+      text-align: center;
+    }
+    .hinge-question-box {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      padding: 16px 24px;
+      max-width: 800px;
+      width: 100%;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    .hinge-btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 260px));
+      gap: 16px;
+      width: 100%;
+      max-width: 560px;
+    }
+    .btn-hinge-choice {
+      height: 90px;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--ga-navy-card);
+      border: 2px solid var(--ga-navy-border);
+      color: var(--ga-white);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .btn-hinge-choice:hover {
+      border-color: var(--ga-gold);
+      background: #14356f;
+      transform: translateY(-2px);
+    }
+    .btn-hinge-choice.selected {
+      background: var(--ga-gold) !important;
+      color: #04142d !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(223, 155, 53, 0.6);
+      transform: scale(1.03);
+    }
 
     /* Student Showcase Fullscreen Canvas Replica */
     .showcase-overlay { 
@@ -220,7 +281,7 @@
       display: block;
     }
 
-    /* Floating In-Page Text Modal (Non-Blocking) */
+    /* Floating Text Modal */
     .text-modal-overlay { 
       position: absolute; 
       inset: 0; 
@@ -248,6 +309,63 @@
     .action-toolbar { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--ga-navy-border); background: var(--ga-navy-input); color: white; }
 
+    /* Teacher Live Hinge Stats Panel */
+    .hinge-stats-panel {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .stats-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .stats-bar-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .stat-col {
+      background: var(--ga-navy-input);
+      border: 1px solid var(--ga-navy-border);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+    }
+    .stat-col.correct-key {
+      border: 2px solid var(--ga-green);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    .stat-col-letter {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--ga-gold);
+    }
+    .stat-col-count {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 4px 0;
+    }
+    .stat-col-percent {
+      font-size: 0.8rem;
+      color: var(--ga-text-muted);
+    }
+    .stat-roster-list {
+      font-size: 0.75rem;
+      color: var(--ga-text-muted);
+      margin-top: 6px;
+      max-height: 80px;
+      overflow-y: auto;
+      text-align: left;
+      line-height: 1.4;
+    }
+
     /* Class Roster */
     .roster-panel { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); }
     .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: var(--ga-text-muted); }
@@ -267,7 +385,7 @@
     .meta-actions { display: flex; gap: 4px; }
     .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
 
-    /* Zoom / Spotlight Modal (Maximised Display) */
+    /* Zoom / Spotlight Modal */
     .spotlight-modal {
       position: fixed;
       inset: 0;
@@ -308,7 +426,6 @@
       justify-content: center;
       overflow: hidden;
       padding: 8px;
-      position: relative;
     }
     .spotlight-body img {
       width: 100%;
@@ -327,6 +444,48 @@
       background: var(--ga-navy-card);
       border-top: 1px solid var(--ga-navy-border);
     }
+
+    /* Leaderboard Modal */
+    .leaderboard-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 11, 26, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 160;
+      padding: 20px;
+    }
+    .leaderboard-box {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      padding: 20px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .leaderboard-list {
+      overflow-y: auto;
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--ga-navy-input);
+      border: 1px solid var(--ga-navy-border);
+      border-radius: 6px;
+    }
+    .leaderboard-row.rank-1 { border-color: var(--ga-gold); font-weight: 800; color: var(--ga-gold); }
+    .leaderboard-row.rank-2 { border-color: #cbd5e1; }
+    .leaderboard-row.rank-3 { border-color: #b45309; }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(2, 11, 26, 0.85); align-items: center; justify-content: center; z-index: 100; }
   </style>
@@ -360,9 +519,10 @@
     <!-- 2. STUDENT FULL-CANVAS VIEW -->
     <div id="student-draw-view">
       <div class="board-header">
-        <div>
+        <div style="display: flex; gap: 8px; align-items: center;">
           <strong id="s-display-seat" style="color: var(--ga-gold);"></strong>
           <span style="color: var(--ga-text-muted); font-size: 0.85rem;" id="s-room-tag"></span>
+          <span class="points-pill" id="s-points-pill">🏆 0 pts</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <span class="timer-pill" id="s-timer-pill">⏱ 00:00</span>
@@ -419,6 +579,22 @@
             <img id="s-showcase-img" src="" alt="Showcased Whiteboard">
           </div>
         </div>
+
+        <!-- PHASE 2: Student Hinge Question Overlay -->
+        <div class="hinge-student-overlay" id="s-hinge-overlay">
+          <div class="hinge-question-box" id="s-hinge-qbox" style="display: none;">
+            <h3 id="s-hinge-qtext" style="color: var(--ga-gold); margin: 0; font-size: 1.3rem;">Question text</h3>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <span class="timer-pill" id="s-hinge-timer-pill" style="display: inline-block; font-size: 1.1rem; padding: 6px 18px;">⏱ 00:00</span>
+          </div>
+          <div class="hinge-btn-grid" id="s-hinge-grid">
+            <button class="btn-hinge-choice" onclick="selectHingeAnswer('A')">A</button>
+            <button class="btn-hinge-choice" onclick="selectHingeAnswer('B')">B</button>
+            <button class="btn-hinge-choice" onclick="selectHingeAnswer('C')">C</button>
+            <button class="btn-hinge-choice" onclick="selectHingeAnswer('D')">D</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -440,11 +616,34 @@
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
-        <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe All Whiteboards</button>
+        
+        <!-- PHASE 2 BUTTONS -->
+        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openHingeModal()">🎯 Hinge Question</button>
+        <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
+
+        <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
           <input type="number" id="timer-seconds" class="timer-input" placeholder="Secs" value="60" min="5" max="900">
           <button class="btn-secondary" onclick="startTimer()">⏱ Start Timer</button>
+        </div>
+      </div>
+
+      <!-- PHASE 2: Live Hinge Stats Visualisation Bar -->
+      <div class="hinge-stats-panel" id="t-hinge-stats-panel">
+        <div class="stats-header">
+          <div>
+            <strong style="color: var(--ga-gold); font-size: 1.1rem;">Live Hinge Question Analytics</strong>
+            <span id="t-hinge-status" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Active</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-gold btn-action-mini" id="t-award-pts-btn" onclick="awardHingePoints()">⭐ Award Points</button>
+            <button class="btn-secondary btn-action-mini" onclick="endHingeSession()">Close Hinge</button>
+          </div>
+        </div>
+        <p id="t-hinge-qdisplay" style="font-size: 0.95rem; margin: 0 0 12px 0; color: #ffffff;"></p>
+        <div class="stats-bar-container" id="t-stats-bars">
+          <!-- Populated by JS for A, B, C, D -->
         </div>
       </div>
 
@@ -473,6 +672,68 @@
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
         <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: HINGE QUESTION LAUNCHER MODAL -->
+  <div class="modal-overlay" id="hinge-modal">
+    <div class="card" style="margin: 0; max-width: 480px; width: 95%;">
+      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Launch Hinge Question</h3>
+      <label>Question Prompt (Optional - leave blank if verbal or on screen)</label>
+      <input type="text" id="hinge-prompt-input" placeholder="e.g. What is the value of x after line 4?">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>Options Layout</label>
+          <select id="hinge-layout-select" onchange="adjustHingeLayoutChoices()">
+            <option value="ABCD">A, B, C, D</option>
+            <option value="TF">True / False</option>
+          </select>
+        </div>
+        <div>
+          <label>Correct Answer</label>
+          <select id="hinge-correct-select">
+            <option value="NONE">Don't Score (Survey)</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>Duration (Seconds)</label>
+          <input type="number" id="hinge-duration-input" value="30" min="5" max="300">
+        </div>
+        <div>
+          <label>Points to Award</label>
+          <input type="number" id="hinge-points-input" value="10" min="1" max="100">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 18px;">
+        <button class="btn-secondary" style="flex:1;" onclick="closeHingeModal()">Cancel</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchHingeQuestion()">🚀 Start Question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2: LEADERBOARD MODAL -->
+  <div class="leaderboard-modal" id="leaderboard-modal" onclick="if(event.target === this) closeLeaderboardModal()">
+    <div class="leaderboard-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 8px;">
+        <h3 style="margin: 0; color: var(--ga-gold);">Classroom Leaderboard</h3>
+        <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeLeaderboardModal()">✕</button>
+      </div>
+      <div class="leaderboard-list" id="t-leaderboard-list">
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+        <button class="btn-danger btn-action-mini" onclick="resetLeaderboard()">Reset Scores</button>
+        <button class="btn-secondary" onclick="closeLeaderboardModal()">Close</button>
       </div>
     </div>
   </div>
@@ -524,6 +785,11 @@
     let isAnonymised = false;
     let activeSpotlightClientId = null;
 
+    // Phase 2 State Variables
+    let currentHingeConfig = null;
+    let mySelectedHingeAnswer = null;
+    let currentLeaderboard = {};
+
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
@@ -536,6 +802,7 @@
       const now = Date.now();
       const sPill = document.getElementById('s-timer-pill');
       const tPill = document.getElementById('t-timer-pill');
+      const sHingePill = document.getElementById('s-hinge-timer-pill');
 
       if (activeTimerEndEpoch > 0) {
         if (now < activeTimerEndEpoch) {
@@ -543,10 +810,12 @@
           const formatted = `⏱ ${formatTime(remaining)}`;
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
+          if (sHingePill) sHingePill.innerText = formatted;
         } else {
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
+          if (sHingePill) sHingePill.innerText = '⏱ 00:00 (Time Up)';
           updateStudentLockState(true);
         }
       } else {
@@ -634,12 +903,10 @@
           wipeCanvasLocal();
         }
 
-        // On-demand high-res request from teacher
         if (ctrl.requestHighRes === studentClientId) {
           uploadHighResSnapshot();
         }
 
-        // Student Showcase Display (High-Def Replica)
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -654,6 +921,57 @@
         }
 
         tickClocksLocally();
+      });
+
+      // PHASE 2: Student Hinge Question Listener
+      roomRef.child('hinge/active').on('value', (snapshot) => {
+        const hinge = snapshot.val();
+        currentHingeConfig = hinge;
+        const overlay = document.getElementById('s-hinge-overlay');
+
+        if (hinge && hinge.status === 'ACTIVE') {
+          overlay.style.display = 'flex';
+          mySelectedHingeAnswer = null;
+
+          const qBox = document.getElementById('s-hinge-qbox');
+          const qText = document.getElementById('s-hinge-qtext');
+          if (hinge.prompt && hinge.prompt.trim() !== "") {
+            qBox.style.display = 'block';
+            qText.innerText = hinge.prompt;
+          } else {
+            qBox.style.display = 'none';
+          }
+
+          // Render options (A/B/C/D or True/False)
+          const grid = document.getElementById('s-hinge-grid');
+          grid.innerHTML = '';
+          const choices = hinge.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+          choices.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-hinge-choice';
+            btn.innerText = ch;
+            btn.id = `btn_hinge_${ch}`;
+            btn.onclick = () => selectHingeAnswer(ch);
+            grid.appendChild(btn);
+          });
+
+          // Fetch student's pre-existing response if reconnecting
+          roomRef.child(`hinge/responses/${studentClientId}`).once('value', snap => {
+            const val = snap.val();
+            if (val && val.answer) {
+              selectHingeAnswer(val.answer, false);
+            }
+          });
+        } else {
+          overlay.style.display = 'none';
+        }
+      });
+
+      // PHASE 2: Individual points tracker
+      roomRef.child(`leaderboard/${studentClientId}`).on('value', (snapshot) => {
+        const data = snapshot.val();
+        const score = (data && data.score) ? data.score : 0;
+        document.getElementById('s-points-pill').innerText = `🏆 ${score} pts`;
       });
 
       studentRef.on('value', (snapshot) => {
@@ -675,6 +993,24 @@
           location.reload();
         }
       });
+    }
+
+    function selectHingeAnswer(choice, shouldWrite = true) {
+      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) return;
+
+      mySelectedHingeAnswer = choice;
+      document.querySelectorAll('.btn-hinge-choice').forEach(b => b.classList.remove('selected'));
+      const activeBtn = document.getElementById(`btn_hinge_${choice}`);
+      if (activeBtn) activeBtn.classList.add('selected');
+
+      if (shouldWrite && roomRef) {
+        roomRef.child(`hinge/responses/${studentClientId}`).set({
+          clientId: studentClientId,
+          seat: studentSeat,
+          answer: choice,
+          timestamp: Date.now()
+        });
+      }
     }
 
     function updateStudentLockState(locked) {
@@ -732,7 +1068,6 @@
       sendBoardPayload();
     }
 
-    // 1. Routine Low-Res Grid Broadcast (~8-10 KB)
     function sendBoardPayload() {
       if (!canvasRef || isBoardLocked) return;
 
@@ -752,7 +1087,6 @@
       });
     }
 
-    // 2. On-Demand High-Res Snapshot (1200x720 @ 0.75 JPEG, ~75 KB, triggered only when needed)
     function uploadHighResSnapshot() {
       if (!roomRef || !studentClientId) return;
 
@@ -775,6 +1109,7 @@
     // --- TEACHER LOGIC ---
     const teacherRoster = new Map();
     const teacherCanvasCache = new Map();
+    let currentHingeResponses = {};
 
     function openTeacherLogin() {
       document.getElementById('login-modal').style.display = 'flex';
@@ -854,7 +1189,6 @@
         });
       });
 
-      // Listen for incoming High-Res snapshots
       roomRef.child('highResCanvases').on('child_added', (snapshot) => {
         handleHighResDelivery(snapshot.key, snapshot.val());
       });
@@ -900,6 +1234,29 @@
         }
 
         tickClocksLocally();
+      });
+
+      // PHASE 2: Teacher Live Hinge Listener
+      roomRef.child('hinge/active').on('value', (snapshot) => {
+        currentHingeConfig = snapshot.val();
+        const panel = document.getElementById('t-hinge-stats-panel');
+        if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
+          panel.style.display = 'block';
+          document.getElementById('t-hinge-qdisplay').innerText = currentHingeConfig.prompt ? `Q: "${currentHingeConfig.prompt}"` : 'Question active (verbal/screen)';
+        } else {
+          panel.style.display = 'none';
+        }
+      });
+
+      roomRef.child('hinge/responses').on('value', (snapshot) => {
+        currentHingeResponses = snapshot.val() || {};
+        renderHingeStatsVisualisation();
+      });
+
+      // PHASE 2: Leaderboard Sync
+      roomRef.child('leaderboard').on('value', (snapshot) => {
+        currentLeaderboard = snapshot.val() || {};
+        renderLeaderboardUI();
       });
     }
 
@@ -1009,6 +1366,8 @@
       }
 
       updateRosterUI();
+      renderHingeStatsVisualisation();
+      renderLeaderboardUI();
 
       if (activeSpotlightClientId) {
         const s = teacherRoster.get(activeSpotlightClientId);
@@ -1019,7 +1378,184 @@
       }
     }
 
-    // --- HIGH-RES SPOTLIGHT MODAL ---
+    // --- PHASE 2: HINGE QUESTION ENGINE ---
+    function openHingeModal() {
+      document.getElementById('hinge-modal').style.display = 'flex';
+      document.getElementById('hinge-prompt-input').focus();
+    }
+
+    function closeHingeModal() {
+      document.getElementById('hinge-modal').style.display = 'none';
+    }
+
+    function adjustHingeLayoutChoices() {
+      const layout = document.getElementById('hinge-layout-select').value;
+      const correctSelect = document.getElementById('hinge-correct-select');
+      correctSelect.innerHTML = '<option value="NONE">Don\'t Score (Survey)</option>';
+
+      const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+      opts.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o;
+        opt.innerText = o;
+        correctSelect.appendChild(opt);
+      });
+    }
+
+    async function launchHingeQuestion() {
+      const prompt = document.getElementById('hinge-prompt-input').value.trim();
+      const layout = document.getElementById('hinge-layout-select').value;
+      const correct = document.getElementById('hinge-correct-select').value;
+      const durationSecs = parseInt(document.getElementById('hinge-duration-input').value, 10) || 30;
+      const points = parseInt(document.getElementById('hinge-points-input').value, 10) || 10;
+
+      closeHingeModal();
+
+      const targetEnd = Date.now() + (durationSecs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      // Clear previous responses and write active config atomically
+      await roomRef.child('hinge/responses').remove();
+      await roomRef.child('hinge/active').set({
+        status: 'ACTIVE',
+        prompt: prompt,
+        layout: layout,
+        correctAnswer: correct,
+        points: points,
+        startedAt: Date.now()
+      });
+
+      // Synchronise countdown timer across all devices
+      await roomRef.child('controls').update({
+        locked: false,
+        timerEnd: targetEnd
+      });
+    }
+
+    function endHingeSession() {
+      if (confirm("End the current Hinge Question?")) {
+        roomRef.child('hinge/active').update({ status: 'CLOSED' });
+      }
+    }
+
+    function renderHingeStatsVisualisation() {
+      const bars = document.getElementById('t-stats-bars');
+      if (!bars || !currentHingeConfig) return;
+
+      const keys = currentHingeConfig.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+      const counts = {};
+      const rosters = {};
+      keys.forEach(k => { counts[k] = 0; rosters[k] = []; });
+
+      const responses = Object.values(currentHingeResponses);
+      const totalAnswers = responses.length;
+
+      responses.forEach(r => {
+        if (counts[r.answer] !== undefined) {
+          counts[r.answer]++;
+          const s = teacherRoster.get(r.clientId);
+          const idx = Array.from(teacherRoster.keys()).indexOf(r.clientId);
+          const name = s ? getDisplayName(s, idx) : (r.seat || 'Student');
+          rosters[r.answer].push(name);
+        }
+      });
+
+      bars.innerHTML = '';
+      keys.forEach(k => {
+        const count = counts[k];
+        const pct = totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0;
+        const isCorrect = currentHingeConfig.correctAnswer === k;
+
+        const col = document.createElement('div');
+        col.className = `stat-col ${isCorrect ? 'correct-key' : ''}`;
+        col.innerHTML = `
+          <div class="stat-col-letter">${k} ${isCorrect ? '✅' : ''}</div>
+          <div class="stat-col-count" style="color: ${isCorrect ? 'var(--ga-green)' : 'var(--ga-gold)'}">${count}</div>
+          <div class="stat-col-percent">${pct}% (${count}/${totalAnswers})</div>
+          <div class="stat-roster-list">${rosters[k].join(', ') || '<em>None</em>'}</div>
+        `;
+        bars.appendChild(col);
+      });
+    }
+
+    async function awardHingePoints() {
+      if (!currentHingeConfig || currentHingeConfig.correctAnswer === 'NONE') {
+        return alert("This question does not have a correct answer configured.");
+      }
+
+      const correctChoice = currentHingeConfig.correctAnswer;
+      const ptsToAward = currentHingeConfig.points || 10;
+      let countAwarded = 0;
+
+      const updates = {};
+      Object.values(currentHingeResponses).forEach(r => {
+        if (r.answer === correctChoice) {
+          const currentScore = (currentLeaderboard[r.clientId] && currentLeaderboard[r.clientId].score) || 0;
+          updates[`leaderboard/${r.clientId}`] = {
+            clientId: r.clientId,
+            seat: r.seat,
+            score: currentScore + ptsToAward
+          };
+          countAwarded++;
+        }
+      });
+
+      if (countAwarded > 0) {
+        await roomRef.update(updates);
+        alert(`Awarded +${ptsToAward} points to ${countAwarded} student(s)!`);
+      } else {
+        alert("No students selected the correct answer.");
+      }
+    }
+
+    // --- PHASE 2: LEADERBOARD SYSTEM ---
+    function openLeaderboardModal() {
+      renderLeaderboardUI();
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+    }
+
+    function closeLeaderboardModal() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
+
+    function renderLeaderboardUI() {
+      const list = document.getElementById('t-leaderboard-list');
+      if (!list) return;
+
+      const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
+
+      if (entries.length === 0) {
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      entries.forEach((e, idx) => {
+        const row = document.createElement('div');
+        row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
+        
+        const s = teacherRoster.get(e.clientId);
+        const rIdx = Array.from(teacherRoster.keys()).indexOf(e.clientId);
+        const name = s ? getDisplayName(s, rIdx) : (e.seat || 'Student');
+
+        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+
+        row.innerHTML = `
+          <span><strong>${badge}</strong> &nbsp; ${escapeHTML(name)}</span>
+          <span style="font-weight: 800; color: var(--ga-gold);">${e.score} pts</span>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    async function resetLeaderboard() {
+      if (confirm("Reset all student scores to 0 for this session?")) {
+        await roomRef.child('leaderboard').remove();
+      }
+    }
+
+    // --- HIGH-RES SPOTLIGHT & EXHIBIT (FROM PHASE 1) ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -1031,7 +1567,6 @@
       document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
       const spotlightImg = document.getElementById('spotlight-img');
 
-      // Instantly show the low-res thumbnail as a placeholder
       if (lowResImg) {
         spotlightImg.src = lowResImg;
         spotlightImg.style.display = 'block';
@@ -1042,10 +1577,7 @@
 
       document.getElementById('t-spotlight-modal').style.display = 'flex';
 
-      // Request on-demand high-definition render from the student's browser
-      roomRef.child('controls').update({
-        requestHighRes: clientId
-      });
+      roomRef.child('controls').update({ requestHighRes: clientId });
     }
 
     function closeSpotlightModal() {
@@ -1056,14 +1588,10 @@
       }
     }
 
-    // --- HIGH-RES EXHIBIT / SHOWCASE ---
     async function exhibitDirectly(clientId) {
       activeSpotlightClientId = clientId;
-      
-      // Request high-res snapshot
       await roomRef.child('controls').update({ requestHighRes: clientId });
 
-      // Allow 350ms for high-res render to arrive, fallback to thumbnail if offline
       setTimeout(async () => {
         const hrSnap = await roomRef.child(`highResCanvases/${clientId}`).once('value');
         const hrData = hrSnap.val();
@@ -1184,6 +1712,7 @@
         roomRef.child('students').remove();
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
+        roomRef.child('hinge').remove();
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
@@ -1260,6 +1789,7 @@
 
     function isOperationBlocked() {
       if (isBoardLocked) return true;
+      if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') return true;
       if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
         updateStudentLockState(true);
         return true;
