@@ -523,6 +523,53 @@
     .leaderboard-row.rank-2 { border-color: #cbd5e1; }
     .leaderboard-row.rank-3 { border-color: #b45309; }
 
+    /* PHASE 3: Template Modal & Library Styles */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      max-height: 220px;
+      overflow-y: auto;
+      margin: 12px 0;
+      background: var(--ga-navy-input);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--ga-navy-border);
+    }
+    .template-card {
+      border: 2px solid var(--ga-navy-border);
+      border-radius: 6px;
+      padding: 6px;
+      cursor: pointer;
+      background: var(--ga-navy-panel);
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .template-card:hover {
+      border-color: var(--ga-gold);
+      transform: translateY(-2px);
+    }
+    .template-card.active {
+      border-color: var(--ga-gold) !important;
+      background: #14356f;
+    }
+    .template-card img {
+      width: 100%;
+      height: 65px;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+    .template-card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ga-white);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(2, 11, 26, 0.85); align-items: center; justify-content: center; z-index: 100; }
   </style>
 </head>
@@ -624,18 +671,14 @@
           <div style="margin-bottom: 16px;">
             <span class="timer-pill" id="s-hinge-timer-pill" style="display: inline-block; font-size: 1.1rem; padding: 6px 18px;">⏱ 00:00</span>
           </div>
-          <div class="hinge-btn-grid" id="s-hinge-grid">
-            <!-- Populated dynamically -->
-          </div>
+          <div class="hinge-btn-grid" id="s-hinge-grid"></div>
         </div>
 
-        <!-- Student Broadcasted Leaderboard Overlay -->
+        <!-- Student Broadcast Leaderboard Overlay -->
         <div class="student-leaderboard-overlay" id="s-leaderboard-overlay">
           <div class="student-leaderboard-box">
             <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.4rem;">🏆 Session Leaderboard</h3>
-            <div class="leaderboard-list" id="s-leaderboard-list">
-              <!-- Broadcasted Scores -->
-            </div>
+            <div class="leaderboard-list" id="s-leaderboard-list"></div>
           </div>
         </div>
       </div>
@@ -659,8 +702,13 @@
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
-        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openHingeModal()">🎯 Hinge Question</button>
+        <button class="btn-secondary" onclick="openHingeModal()">🎯 Hinge Question</button>
         <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
+        
+        <!-- PHASE 3: Push Template / Diagram Button -->
+        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openTemplateModal()">📋 Push Template</button>
+        <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
+
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
@@ -742,7 +790,6 @@
         </div>
       </div>
 
-      <!-- Custom Choice Inputs (Visible only when CUSTOM is picked) -->
       <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-navy-border);">
         <label style="margin-top: 0;">Custom Choices (Enter 2 to 6 answers, 1 per line):</label>
         <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
@@ -780,6 +827,38 @@
         <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">📢 Broadcast to Class</button>
         <button class="btn-danger btn-action-mini" onclick="resetLeaderboard()">Reset Scores</button>
         <button class="btn-secondary" onclick="closeLeaderboardModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: TEMPLATE & DIAGRAM MODAL -->
+  <div class="modal-overlay" id="template-modal">
+    <div class="card" style="margin: 0; max-width: 550px; width: 95%;">
+      <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Push Template / Diagram</h3>
+      <p style="margin: 0 0 12px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Select or upload a template to stamp onto student whiteboards.</p>
+      
+      <label style="margin-top: 0;">Template Library</label>
+      <div class="template-grid" id="template-library-grid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>Push Placement</label>
+          <select id="tpl-position-select">
+            <option value="TOP_LEFT">Top-Left Question Card (35% Scale)</option>
+            <option value="FULL">Full Canvas Background</option>
+          </select>
+        </div>
+        <div>
+          <label>Upload Custom Image</label>
+          <input type="file" id="tpl-file-input" accept="image/*" onchange="handleTemplateUpload(event)" style="padding: 6px 10px; font-size: 0.85rem;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 18px;">
+        <button class="btn-secondary" style="flex:1;" onclick="closeTemplateModal()">Cancel</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">🚀 Push to Students</button>
       </div>
     </div>
   </div>
@@ -835,6 +914,11 @@
     let mySelectedHingeAnswer = null;
     let currentLeaderboard = {};
     let isBroadcastingLeaderboard = false;
+
+    // PHASE 3: Template State
+    let activeTemplateImageObj = null;
+    let activeTemplateConfig = null;
+    let selectedTemplateId = 'trace_table';
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -987,6 +1071,17 @@
           studentLbOverlay.style.display = 'none';
         }
 
+        // PHASE 3: Background Template Sync
+        if (ctrl.templateData) {
+          if (!activeTemplateConfig || activeTemplateConfig.timestamp !== ctrl.templateData.timestamp) {
+            applyRemoteTemplate(ctrl.templateData);
+          }
+        } else if (activeTemplateConfig) {
+          activeTemplateConfig = null;
+          activeTemplateImageObj = null;
+          wipeCanvasLocal();
+        }
+
         tickClocksLocally();
       });
 
@@ -1009,7 +1104,6 @@
             qBox.style.display = 'none';
           }
 
-          // Render options (A/B/C/D, True/False, or Custom Choices)
           const grid = document.getElementById('s-hinge-grid');
           grid.innerHTML = '';
           const choices = hinge.choices || (hinge.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D']);
@@ -1023,7 +1117,6 @@
             grid.appendChild(btn);
           });
 
-          // Check if time is already up
           if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
             setStudentHingeLocked(true);
           }
@@ -1207,6 +1300,40 @@
       });
     }
 
+    // --- PHASE 3: REMOTE TEMPLATE RENDERING ---
+    function applyRemoteTemplate(tplData) {
+      activeTemplateConfig = tplData;
+      const img = new Image();
+      img.onload = () => {
+        activeTemplateImageObj = img;
+        renderTemplateToCanvas();
+        queueAutoSync();
+      };
+      img.src = tplData.image;
+    }
+
+    function renderTemplateToCanvas() {
+      if (!activeTemplateImageObj || !activeTemplateConfig) return;
+
+      if (activeTemplateConfig.position === 'FULL') {
+        ctx.drawImage(activeTemplateImageObj, 0, 0, canvas.width, canvas.height);
+      } else {
+        // TOP_LEFT Question Card Stamp (scales to ~38% canvas width)
+        const targetW = canvas.width * 0.38;
+        const aspect = activeTemplateImageObj.width / activeTemplateImageObj.height;
+        const targetH = targetW / aspect;
+
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(8, 8, targetW + 8, targetH + 8);
+        ctx.strokeStyle = 'var(--ga-navy-border)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(8, 8, targetW + 8, targetH + 8);
+        ctx.drawImage(activeTemplateImageObj, 12, 12, targetW, targetH);
+        ctx.restore();
+      }
+    }
+
     // --- TEACHER LOGIC ---
     const teacherRoster = new Map();
     const teacherCanvasCache = new Map();
@@ -1344,6 +1471,14 @@
             bcastBtn.innerText = "📢 Broadcast to Class";
             bcastBtn.className = "btn-gold btn-action-mini";
           }
+        }
+
+        // Template clear button toggle
+        const clearTplBtn = document.getElementById('t-clear-tpl-btn');
+        if (ctrl.templateData) {
+          clearTplBtn.style.display = 'inline-block';
+        } else {
+          clearTplBtn.style.display = 'none';
         }
 
         tickClocksLocally();
@@ -1489,7 +1624,210 @@
       }
     }
 
-    // --- HINGE QUESTION ENGINE WITH CUSTOM CHOICES ---
+    // --- PHASE 3: TEMPLATE LIBRARY & PUSH ENGINE ---
+    const defaultTemplates = [
+      {
+        id: 'trace_table',
+        title: 'Trace Table',
+        dataUri: generateTraceTableDataUri()
+      },
+      {
+        id: 'coord_grid',
+        title: 'Coordinate Grid',
+        dataUri: generateGridDataUri()
+      },
+      {
+        id: 'logic_boxes',
+        title: 'Flowchart Box',
+        dataUri: generateFlowchartDataUri()
+      }
+    ];
+
+    function getSavedTemplates() {
+      try {
+        const saved = localStorage.getItem('ga_saved_templates');
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCustomTemplate(title, dataUri) {
+      const current = getSavedTemplates();
+      current.push({ id: 'custom_' + Date.now(), title, dataUri });
+      localStorage.setItem('ga_saved_templates', JSON.stringify(current));
+    }
+
+    function openTemplateModal() {
+      renderTemplateLibraryGrid();
+      document.getElementById('template-modal').style.display = 'flex';
+    }
+
+    function closeTemplateModal() {
+      document.getElementById('template-modal').style.display = 'none';
+    }
+
+    function renderTemplateLibraryGrid() {
+      const grid = document.getElementById('template-library-grid');
+      grid.innerHTML = '';
+
+      const all = [...defaultTemplates, ...getSavedTemplates()];
+      all.forEach(t => {
+        const card = document.createElement('div');
+        card.className = `template-card ${t.id === selectedTemplateId ? 'active' : ''}`;
+        card.id = `tpl_${t.id}`;
+        card.onclick = () => selectTemplate(t.id);
+        card.innerHTML = `
+          <img src="${t.dataUri}" alt="${escapeHTML(t.title)}">
+          <div class="template-card-title">${escapeHTML(t.title)}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function selectTemplate(id) {
+      selectedTemplateId = id;
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById(`tpl_${id}`);
+      if (activeCard) activeCard.classList.add('active');
+    }
+
+    function handleTemplateUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          // Scale down uploaded image to lightweight WebP/JPEG
+          const maxDim = 1000;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = (h * maxDim) / w;
+              w = maxDim;
+            } else {
+              w = (w * maxDim) / h;
+              h = maxDim;
+            }
+          }
+
+          const c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          const cx = c.getContext('2d');
+          cx.fillStyle = "#ffffff";
+          cx.fillRect(0, 0, w, h);
+          cx.drawImage(img, 0, 0, w, h);
+
+          const compressed = c.toDataURL('image/jpeg', 0.6);
+          const name = file.name.replace(/\.[^/.]+$/, "").substring(0, 16);
+          saveCustomTemplate(name, compressed);
+          selectedTemplateId = 'custom_' + (Date.now());
+          renderTemplateLibraryGrid();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function pushSelectedTemplate() {
+      const all = [...defaultTemplates, ...getSavedTemplates()];
+      const tpl = all.find(t => t.id === selectedTemplateId);
+      if (!tpl) return alert("Please select a template.");
+
+      const position = document.getElementById('tpl-position-select').value;
+      closeTemplateModal();
+
+      await roomRef.child('controls').update({
+        templateData: {
+          image: tpl.dataUri,
+          position: position,
+          timestamp: Date.now()
+        }
+      });
+      alert(`Pushed "${tpl.title}" to all students!`);
+    }
+
+    async function clearActiveTemplate() {
+      if (confirm("Remove the active background template from all whiteboards?")) {
+        await roomRef.child('controls').update({ templateData: null });
+      }
+    }
+
+    // Default SVG-to-Canvas Generators for Built-In Templates
+    function generateTraceTableDataUri() {
+      const c = document.createElement('canvas');
+      c.width = 600; c.height = 360;
+      const x = c.getContext('2d');
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
+      x.strokeStyle = '#04142d'; x.lineWidth = 2;
+      x.strokeRect(10, 10, 580, 340);
+      x.beginPath();
+      // Columns
+      x.moveTo(140, 10); x.lineTo(140, 350);
+      x.moveTo(270, 10); x.lineTo(270, 350);
+      x.moveTo(400, 10); x.lineTo(400, 350);
+      // Header row
+      x.moveTo(10, 60); x.lineTo(590, 60);
+      // Grid rows
+      for (let r = 110; r < 350; r += 45) {
+        x.moveTo(10, r); x.lineTo(590, r);
+      }
+      x.stroke();
+      x.fillStyle = '#04142d'; x.font = 'bold 18px sans-serif';
+      x.fillText('Line #', 35, 42);
+      x.fillText('Var A', 175, 42);
+      x.fillText('Var B', 305, 42);
+      x.fillText('Output', 455, 42);
+      return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    function generateGridDataUri() {
+      const c = document.createElement('canvas');
+      c.width = 600; c.height = 360;
+      const x = c.getContext('2d');
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
+      x.strokeStyle = '#e2e8f0'; x.lineWidth = 1;
+      for (let i = 20; i < 600; i += 25) {
+        x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 360); x.stroke();
+      }
+      for (let j = 20; j < 360; j += 25) {
+        x.beginPath(); x.moveTo(0, j); x.lineTo(600, j); x.stroke();
+      }
+      // Main axes
+      x.strokeStyle = '#04142d'; x.lineWidth = 2.5;
+      x.beginPath();
+      x.moveTo(300, 0); x.lineTo(300, 360);
+      x.moveTo(0, 180); x.lineTo(600, 180);
+      x.stroke();
+      return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    function generateFlowchartDataUri() {
+      const c = document.createElement('canvas');
+      c.width = 600; c.height = 360;
+      const x = c.getContext('2d');
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
+      x.strokeStyle = '#04142d'; x.lineWidth = 2;
+      x.strokeRect(60, 40, 160, 80);
+      x.beginPath();
+      x.moveTo(220, 80); x.lineTo(360, 80);
+      x.lineTo(350, 70); x.moveTo(360, 80); x.lineTo(350, 90);
+      x.stroke();
+      // Decision diamond
+      x.beginPath();
+      x.moveTo(440, 40); x.lineTo(520, 80); x.lineTo(440, 120); x.lineTo(360, 80); x.closePath();
+      x.stroke();
+      x.fillStyle = '#04142d'; x.font = 'bold 16px sans-serif';
+      x.fillText('Process', 110, 86);
+      x.fillText('Decision?', 410, 86);
+      return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    // --- HINGE QUESTION HANDLERS ---
     function openHingeModal() {
       document.getElementById('hinge-modal').style.display = 'flex';
       document.getElementById('hinge-prompt-input').focus();
@@ -1819,7 +2157,7 @@
     }
 
     function wipeAllStudentBoards() {
-      if (confirm("Wipe all student whiteboards clean?")) {
+      if (confirm("Wipe all student whiteboards clean? (Active template will remain intact)")) {
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
         roomRef.child('controls').update({
@@ -1875,7 +2213,8 @@
           showcaseImage: null,
           showcaseCaption: null,
           requestHighRes: null,
-          broadcastLeaderboard: false
+          broadcastLeaderboard: false,
+          templateData: null
         });
       }
     }
@@ -1896,8 +2235,7 @@
         const container = canvas.parentElement;
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        wipeCanvasLocal();
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
       }, 50);
@@ -1915,8 +2253,7 @@
 
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      wipeCanvasLocal();
       ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
     }
 
@@ -2010,6 +2347,9 @@
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
+      if (activeTemplateImageObj) {
+        renderTemplateToCanvas();
+      }
     }
   </script>
 </body>
