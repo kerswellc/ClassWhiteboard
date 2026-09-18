@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Digital Whiteboard</title>
+  <!-- Firebase SDKs via CDN -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --ga-navy-deep: #04142d;
@@ -213,7 +216,7 @@
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
       <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Session</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and name/desk number.</p>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and desk/name.</p>
       <label>Room Number</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
       <label>Your Name / Desk Identifier</label>
@@ -257,8 +260,8 @@
         <canvas id="board"></canvas>
         <div class="lock-overlay" id="s-lock-overlay">
           <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
-          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);" id="lock-title">Board Locked</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="lock-desc">Teacher paused input for class discussion.</p>
+          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);">Teacher paused input for class discussion.</p>
         </div>
       </div>
     </div>
@@ -318,27 +321,36 @@
 
   <script>
     const TEACHER_PIN = "1234";
-    const RELAY_URL = "https://class-relay.kerswell-c.workers.dev";
+
+    // PASTE YOUR FIREBASE CONFIG HERE:
+    const firebaseConfig = {
+      apiKey: "AIzaSyBrX32u_UUaocG6j318EG3Qu501r2vMjPw",
+      authDomain: "ga-whiteboard.firebaseapp.com",
+      databaseURL: "https://ga-whiteboard-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "ga-whiteboard",
+      storageBucket: "ga-whiteboard.firebasestorage.app",
+      messagingSenderId: "1021006153972",
+      appId: "1:1021006153972:web:d1ff0c33355020be4ff6a1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     let activeRoom = "";
     let studentSeat = "";
     let studentClientId = "";
-    let pollInterval = null;
     let streamDebounceTimer = null;
     let isBoardLocked = true;
     let teacherLockFlag = false;
-    let lastWipeHandled = 0;
 
-    function getClientId() {
-      let cid = sessionStorage.getItem('ga_client_id');
-      if (!cid) {
-        cid = 'ga_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        sessionStorage.setItem('ga_client_id', cid);
-      }
-      return cid;
+    let studentRef = null;
+    let roomRef = null;
+
+    function generateInstanceClientId() {
+      return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 
-    // Smooth Local Countdown Clock Engine
+    // Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -371,68 +383,6 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Staggered Adaptive Jitter Scheduler
-    let lastInteractionTime = Date.now();
-    let pingTimeout = null;
-
-    async function wakeAndSyncAuthoritative() {
-      lastInteractionTime = Date.now();
-      updateStudentLockState(true);
-
-      const statusEl = document.getElementById('s-sync-status');
-      if (statusEl) {
-        statusEl.innerText = "● Syncing...";
-        statusEl.style.color = "var(--ga-gold)";
-      }
-
-      await pingRelay();
-      scheduleNextPing(3500);
-    }
-
-    function scheduleNextPing(baseDelayMs) {
-      clearTimeout(pingTimeout);
-      // Introduce 500-1500ms jitter to spread requests across the school subnet
-      const jitter = Math.floor(Math.random() * 1200);
-      const delay = baseDelayMs + jitter;
-
-      pingTimeout = setTimeout(async () => {
-        const ok = await pingRelay();
-        const idleDuration = Date.now() - lastInteractionTime;
-        const syncLabel = document.getElementById('s-sync-status');
-        
-        let nextBase = (document.hidden || idleDuration > 30000) ? 11000 : 3800;
-
-        if (syncLabel) {
-          if (!ok) {
-            syncLabel.innerText = "● Reconnecting...";
-            syncLabel.style.color = "#ef4444";
-          } else if (document.hidden) {
-            syncLabel.innerText = "● Connected (Standby)";
-            syncLabel.style.color = "#64748b";
-          } else if (idleDuration > 30000) {
-            syncLabel.innerText = "● Connected (Idle)";
-            syncLabel.style.color = "var(--ga-text-muted)";
-          } else {
-            syncLabel.innerText = "● Connected (Active)";
-            syncLabel.style.color = "#22c55e";
-          }
-        }
-
-        scheduleNextPing(nextBase);
-      }, delay);
-    }
-
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && activeRoom && studentClientId) {
-        wakeAndSyncAuthoritative();
-      }
-    });
-    window.addEventListener('focus', () => {
-      if (activeRoom && studentClientId) {
-        wakeAndSyncAuthoritative();
-      }
-    });
-
     // --- STUDENT LOGIC ---
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
@@ -445,7 +395,7 @@
 
       activeRoom = room;
       studentSeat = seat;
-      studentClientId = getClientId();
+      studentClientId = generateInstanceClientId();
 
       document.getElementById('join-view').style.display = 'none';
       const drawView = document.getElementById('student-draw-view');
@@ -453,92 +403,95 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      // Fail-closed default
-      updateStudentLockState(true, "Connecting to Teacher...", "Waiting for room verification.");
+      updateStudentLockState(true);
       setupCanvas();
 
-      lastInteractionTime = Date.now();
-      pingRelay().then(() => {
-        scheduleNextPing(3500);
-      });
-
+      connectStudentFirebase();
       window.addEventListener('resize', resizeCanvasPreserve);
     }
 
-    async function pingRelay() {
-      if (!studentClientId || !studentSeat || !activeRoom) return false;
+    function connectStudentFirebase() {
+      roomRef = db.ref(`rooms/${activeRoom}`);
+      studentRef = roomRef.child(`students/${studentClientId}`);
 
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+      // Instant disconnect: Firebase automatically drops the student's entry when the tab closes
+      studentRef.onDisconnect().remove();
 
-        const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId: studentClientId, seat: studentSeat }),
-          signal: controller.signal
+      // Check for duplicate names and deduplicate
+      roomRef.child('students').once('value', (snapshot) => {
+        const students = snapshot.val() || {};
+        let count = 0;
+        Object.values(students).forEach(s => {
+          if (s.seat && s.seat.toLowerCase().startsWith(studentSeat.toLowerCase()) && s.clientId !== studentClientId) {
+            count++;
+          }
         });
-        clearTimeout(timeoutId);
-
-        if (!res.ok) {
-          // If rate-limited (HTTP 429) or proxy blocked, fail closed
-          updateStudentLockState(true, "Reconnecting...", "Connection temporarily paused.");
-          return false;
+        if (count > 0 && !studentSeat.includes('(')) {
+          studentSeat = `${studentSeat} (${count + 1})`;
+          document.getElementById('s-display-seat').innerText = studentSeat;
         }
 
-        const data = await res.json();
+        // Write initial student presence
+        studentRef.set({
+          clientId: studentClientId,
+          seat: studentSeat,
+          image: null,
+          lastSeen: Date.now()
+        });
+      });
 
-        if (data.status === 'kicked') {
-          clearTimeout(pingTimeout);
-          alert("You have been removed from this room by the teacher.");
-          location.reload();
-          return false;
+      // Listen for room controls (lock, timer, wipes)
+      roomRef.child('controls').on('value', (snapshot) => {
+        const ctrl = snapshot.val() || {};
+        activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
+        const now = Date.now();
+
+        if (activeTimerEndEpoch > 0) {
+          updateStudentLockState(now >= activeTimerEndEpoch);
+        } else {
+          updateStudentLockState(Boolean(ctrl.locked));
         }
+
+        if (ctrl.wipeAllTimestamp && ctrl.wipeAllTimestamp > lastLocalWipe) {
+          lastLocalWipe = ctrl.wipeAllTimestamp;
+          wipeCanvasLocal();
+        }
+
+        tickClocksLocally();
+      });
+
+      // Listen for individual commands (rename, single wipe, kick)
+      studentRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return; // Tab closed or kicked
 
         if (data.assignedSeat && data.assignedSeat !== studentSeat) {
           studentSeat = data.assignedSeat;
           document.getElementById('s-display-seat').innerText = studentSeat;
         }
 
-        if (data.shouldWipe && data.wipeCounter > lastWipeHandled) {
-          lastWipeHandled = data.wipeCounter;
+        if (data.wipeTimestamp && data.wipeTimestamp > lastLocalWipe) {
+          lastLocalWipe = data.wipeTimestamp;
           wipeCanvasLocal();
         }
 
-        activeTimerEndEpoch = Number(data.timerEnd) || 0;
-        const now = Date.now();
-
-        if (activeTimerEndEpoch > 0) {
-          if (now < activeTimerEndEpoch) {
-            updateStudentLockState(false);
-          } else {
-            updateStudentLockState(true);
-          }
-        } else {
-          updateStudentLockState(Boolean(data.locked));
+        if (data.kicked) {
+          alert("You have been removed from this room by the teacher.");
+          location.reload();
         }
-
-        tickClocksLocally();
-        return true;
-      } catch (e) {
-        // Network timeout / connection failure -> Fail Closed
-        updateStudentLockState(true, "Connecting...", "Waiting to sync with teacher console.");
-        return false;
-      }
+      });
     }
 
-    function updateStudentLockState(locked, titleText, descText) {
+    let lastLocalWipe = 0;
+
+    function updateStudentLockState(locked) {
       isBoardLocked = Boolean(locked);
       const overlay = document.getElementById('s-lock-overlay');
       const clearBtn = document.getElementById('s-clear-btn');
-      const titleEl = document.getElementById('lock-title');
-      const descEl = document.getElementById('lock-desc');
 
       if (isBoardLocked) {
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
-        if (titleEl) titleEl.innerText = titleText || "Board Locked";
-        if (descEl) descEl.innerText = descText || "Teacher paused input for class discussion.";
       } else {
         overlay.style.display = 'none';
         clearBtn.disabled = false;
@@ -546,22 +499,10 @@
     }
 
     function queueAutoSync() {
-      if (isBoardLocked) return;
-
-      const statusEl = document.getElementById('s-sync-status');
-      if (statusEl) {
-        statusEl.innerText = "Syncing...";
-        statusEl.style.color = "var(--ga-gold)";
-      }
+      if (isBoardLocked || !studentRef) return;
 
       clearTimeout(streamDebounceTimer);
-      streamDebounceTimer = setTimeout(async () => {
-        await sendBoardPayload();
-        if (statusEl) {
-          statusEl.innerText = "● Connected (Active)";
-          statusEl.style.color = "#22c55e";
-        }
-      }, 700);
+      streamDebounceTimer = setTimeout(sendBoardPayload, 600);
     }
 
     function sendBoardImmediate() {
@@ -569,8 +510,8 @@
       sendBoardPayload();
     }
 
-    async function sendBoardPayload() {
-      if (!studentClientId || !studentSeat || isBoardLocked) return;
+    function sendBoardPayload() {
+      if (!studentRef || isBoardLocked) return;
 
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 320;
@@ -582,13 +523,10 @@
 
       const imgData = exportCanvas.toDataURL('image/jpeg', 0.5);
 
-      try {
-        await fetch(`${RELAY_URL}/${activeRoom}/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId: studentClientId, image: imgData })
-        });
-      } catch (err) {}
+      studentRef.update({
+        image: imgData,
+        lastSeen: Date.now()
+      });
     }
 
     // --- TEACHER LOGIC ---
@@ -620,38 +558,51 @@
       document.getElementById('teacher-view').style.display = 'block';
       document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
 
-      fetchBoards();
-      if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(fetchBoards, 2500); // 2.5s interval to prevent network congestion
+      connectTeacherFirebase();
     }
 
-    async function toggleLockState() {
-      teacherLockFlag = !teacherLockFlag;
-      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locked: teacherLockFlag })
+    function connectTeacherFirebase() {
+      roomRef = db.ref(`rooms/${activeRoom}`);
+
+      // Real-time listener for all students (30+ on single WebSocket stream)
+      roomRef.child('students').on('value', (snapshot) => {
+        const studentsObj = snapshot.val() || {};
+        renderTeacherDashboard(Object.values(studentsObj));
       });
-      updateLockBtnUI(teacherLockFlag);
-      fetchBoards();
+
+      // Synchronize lock state
+      roomRef.child('controls').on('value', (snapshot) => {
+        const ctrl = snapshot.val() || {};
+        teacherLockFlag = Boolean(ctrl.locked);
+        updateLockBtnUI(teacherLockFlag);
+        activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
+        tickClocksLocally();
+      });
     }
 
-    async function startTimer() {
+    function toggleLockState() {
+      teacherLockFlag = !teacherLockFlag;
+      roomRef.child('controls').update({
+        locked: teacherLockFlag,
+        timerEnd: 0
+      });
+    }
+
+    function startTimer() {
       const secs = parseInt(document.getElementById('timer-seconds').value, 10);
       if (isNaN(secs) || secs <= 0) return alert("Specify valid seconds.");
 
       teacherLockFlag = false;
       updateLockBtnUI(false);
 
-      activeTimerEndEpoch = Date.now() + (secs * 1000);
+      const targetEnd = Date.now() + (secs * 1000);
+      activeTimerEndEpoch = targetEnd;
       tickClocksLocally();
 
-      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timerSeconds: secs })
+      roomRef.child('controls').update({
+        locked: false,
+        timerEnd: targetEnd
       });
-      fetchBoards();
     }
 
     function updateLockBtnUI(locked) {
@@ -665,65 +616,55 @@
       }
     }
 
-    async function wipeAllStudentBoards() {
+    function wipeAllStudentBoards() {
       if (confirm("Wipe all student whiteboards clean?")) {
-        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wipe: 'ALL' })
+        // Clear thumbnails on server and instruct all clients to clear locally
+        roomRef.child('students').once('value', (snapshot) => {
+          const updates = {};
+          snapshot.forEach(child => {
+            updates[`students/${child.key}/image`] = null;
+          });
+          updates['controls/wipeAllTimestamp'] = Date.now();
+          roomRef.update(updates);
         });
-        fetchBoards();
       }
     }
 
-    async function wipeSingleStudent(clientId) {
-      await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ wipe: clientId })
+    function wipeSingleStudent(clientId) {
+      roomRef.child(`students/${clientId}`).update({
+        image: null,
+        wipeTimestamp: Date.now()
       });
-      fetchBoards();
     }
 
-    async function kickStudent(clientId, seatName) {
+    function kickStudent(clientId, seatName) {
       if (confirm(`Remove ${seatName} from the session?`)) {
-        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kickClientId: clientId })
-        });
-        fetchBoards();
+        roomRef.child(`students/${clientId}`).update({ kicked: true });
+        setTimeout(() => {
+          roomRef.child(`students/${clientId}`).remove();
+        }, 300);
       }
     }
 
-    async function renameStudent(clientId, currentName) {
+    function renameStudent(clientId, currentName) {
       const newSeat = prompt(`Rename ${currentName} to:`, currentName);
       if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
         const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
-        await fetch(`${RELAY_URL}/${activeRoom}/control`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ renameClientId: clientId, renameNew: cleanName })
+        roomRef.child(`students/${clientId}`).update({
+          seat: cleanName,
+          assignedSeat: cleanName
         });
-        fetchBoards();
       }
     }
 
-    async function fetchBoards() {
-      try {
-        const res = await fetch(`${RELAY_URL}/${activeRoom}/poll`);
-        if (!res.ok) return;
-        const data = await res.json();
-
-        teacherLockFlag = Boolean(data.locked);
-        updateLockBtnUI(teacherLockFlag);
-
-        activeTimerEndEpoch = Number(data.timerEnd) || 0;
-        tickClocksLocally();
-
-        renderTeacherDashboard(data.students || []);
-      } catch (e) {
-        console.error("Poll error:", e);
+    function clearTeacherRoom() {
+      if (confirm("Reset the entire room and remove all student sessions?")) {
+        roomRef.child('students').remove();
+        roomRef.child('controls').set({
+          locked: false,
+          timerEnd: 0,
+          wipeAllTimestamp: Date.now()
+        });
       }
     }
 
@@ -768,15 +709,6 @@
         `;
         grid.appendChild(card);
       });
-    }
-
-    async function clearTeacherRoom() {
-      if (confirm("Reset the entire room and remove all student sessions?")) {
-        await fetch(`${RELAY_URL}/${activeRoom}/clear`, { method: 'DELETE' });
-        document.getElementById('teacher-grid').innerHTML = '';
-        document.getElementById('roster-tags').innerHTML = '';
-        document.getElementById('sub-counter').innerText = 'Currently Connected: 0';
-      }
     }
 
     function escapeHTML(str) {
