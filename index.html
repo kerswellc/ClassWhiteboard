@@ -169,7 +169,35 @@
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
 
-    /* Floating In-Page Text Entry Modal (Non-Blocking) */
+    /* Student Showcase Overlay */
+    .showcase-overlay { 
+      position: absolute; 
+      inset: 0; 
+      background: rgba(4, 20, 45, 0.96); 
+      display: none; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 25; 
+      padding: 20px;
+    }
+    .showcase-overlay img {
+      max-width: 90%;
+      max-height: 75vh;
+      object-fit: contain;
+      border: 3px solid var(--ga-gold);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    }
+    .showcase-tag {
+      margin-top: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ga-gold);
+    }
+
+    /* Floating In-Page Text Modal (Non-Blocking) */
     .text-modal-overlay { 
       position: absolute; 
       inset: 0; 
@@ -206,14 +234,68 @@
 
     /* Live Boards Grid */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-    .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; }
-    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; }
-    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); }
+    .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; transition: transform 0.1s ease; }
+    .board-card:hover { border-color: var(--ga-gold); }
+    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; cursor: zoom-in; }
+    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); cursor: pointer; }
     .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; }
-    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px; }
+    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px; }
     
     .meta-actions { display: flex; gap: 4px; }
     .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
+
+    /* Zoom / Spotlight Modal */
+    .spotlight-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 20, 45, 0.92);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+      padding: 20px;
+    }
+    .spotlight-content {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      max-width: 950px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+    .spotlight-header {
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--ga-navy-card);
+      border-bottom: 1px solid var(--ga-navy-border);
+    }
+    .spotlight-body {
+      background: #ffffff;
+      height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .spotlight-body img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .spotlight-footer {
+      padding: 12px 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
+      background: var(--ga-navy-card);
+      border-top: 1px solid var(--ga-navy-border);
+    }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(2, 11, 26, 0.85); align-items: center; justify-content: center; z-index: 100; }
   </style>
@@ -296,6 +378,13 @@
           <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
           <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);">Teacher paused input for class discussion.</p>
         </div>
+
+        <!-- Whole-Class Showcase Overlay -->
+        <div class="showcase-overlay" id="s-showcase-overlay">
+          <h3 style="color: var(--ga-gold); margin: 0 0 10px 0;">Classroom Showcase</h3>
+          <img id="s-showcase-img" src="" alt="Showcased Whiteboard">
+          <span class="showcase-tag" id="s-showcase-caption">Spotlight Example</span>
+        </div>
       </div>
     </div>
 
@@ -307,6 +396,7 @@
           <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">Currently Connected: 0</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="end-showcase-btn" class="btn-gold" style="display: none;" onclick="stopShowcaseBroadcast()">🛑 Stop Showcase</button>
           <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
           <span class="room-badge" id="t-room-tag">Room: ---</span>
           <button class="btn-danger" onclick="clearTeacherRoom()">Clear Room</button>
@@ -315,6 +405,7 @@
 
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
+        <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe All Whiteboards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
@@ -352,6 +443,23 @@
     </div>
   </div>
 
+  <!-- ZOOM / SPOTLIGHT MODAL -->
+  <div class="spotlight-modal" id="t-spotlight-modal" onclick="if(event.target === this) closeSpotlightModal()">
+    <div class="spotlight-content">
+      <div class="spotlight-header">
+        <h3 id="spotlight-title" style="margin: 0; color: var(--ga-gold);">Spotlight: Student</h3>
+        <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeSpotlightModal()">✕</button>
+      </div>
+      <div class="spotlight-body">
+        <img id="spotlight-img" src="" alt="Enlarged Whiteboard">
+      </div>
+      <div class="spotlight-footer">
+        <button class="btn-gold" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">📢 Exhibit to Class</button>
+        <button class="btn-secondary" onclick="closeSpotlightModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBrX32u_UUaocG6j318EG3Qu501r2vMjPw",
@@ -379,12 +487,14 @@
     let roomRef = null;
 
     let pendingTextCoords = { x: 0, y: 0 };
+    let isAnonymised = false;
+    let activeSpotlightClientId = null;
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 
-    // Local Countdown Clock Engine (Runs continuously)
+    // Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -472,6 +582,7 @@
         });
       });
 
+      // Controls sync (Lock, Timer, Wipe, Showcase Broadcast)
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -486,6 +597,20 @@
         if (ctrl.wipeAllTimestamp && ctrl.wipeAllTimestamp > lastLocalWipe) {
           lastLocalWipe = ctrl.wipeAllTimestamp;
           wipeCanvasLocal();
+        }
+
+        // Student Showcase Display
+        const showcaseOverlay = document.getElementById('s-showcase-overlay');
+        const showcaseImg = document.getElementById('s-showcase-img');
+        const showcaseCap = document.getElementById('s-showcase-caption');
+
+        if (ctrl.showcaseImage) {
+          showcaseImg.src = ctrl.showcaseImage;
+          showcaseCap.innerText = ctrl.showcaseCaption || "Spotlight Board";
+          showcaseOverlay.style.display = 'flex';
+        } else {
+          showcaseOverlay.style.display = 'none';
+          showcaseImg.removeAttribute('src');
         }
 
         tickClocksLocally();
@@ -518,7 +643,7 @@
       const clearBtn = document.getElementById('s-clear-btn');
 
       if (isBoardLocked) {
-        closeCanvasTextModal(); // Automatically dismiss text input if time expires
+        closeCanvasTextModal();
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
       } else {
@@ -527,7 +652,6 @@
       }
     }
 
-    // Non-blocking text entry handlers
     function openCanvasTextModal(x, y) {
       pendingTextCoords = { x, y };
       const modal = document.getElementById('s-text-modal');
@@ -589,6 +713,7 @@
 
     // --- TEACHER LOGIC ---
     const teacherRoster = new Map();
+    const teacherCanvasCache = new Map();
 
     function openTeacherLogin() {
       document.getElementById('login-modal').style.display = 'flex';
@@ -662,7 +787,14 @@
 
         roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
           const cData = canvasSnap.val();
-          updateCardImage(student.clientId, cData ? cData.image : null);
+          const img = cData ? cData.image : null;
+          teacherCanvasCache.set(student.clientId, img);
+          updateCardImage(student.clientId, img);
+
+          // Update active zoom modal if currently viewing this student
+          if (activeSpotlightClientId === student.clientId) {
+            document.getElementById('spotlight-img').src = img || '';
+          }
         });
       });
 
@@ -678,8 +810,13 @@
       roomRef.child('students').on('child_removed', (snapshot) => {
         const clientId = snapshot.key;
         teacherRoster.delete(clientId);
+        teacherCanvasCache.delete(clientId);
         removeStudentCard(clientId);
         updateRosterUI();
+
+        if (activeSpotlightClientId === clientId) {
+          closeSpotlightModal();
+        }
 
         roomRef.child(`canvases/${clientId}`).off();
       });
@@ -689,8 +826,24 @@
         teacherLockFlag = Boolean(ctrl.locked);
         updateLockBtnUI(teacherLockFlag);
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
+
+        // Show/hide teacher "Stop Showcase" button
+        const stopBtn = document.getElementById('end-showcase-btn');
+        if (ctrl.showcaseImage) {
+          stopBtn.style.display = 'inline-block';
+        } else {
+          stopBtn.style.display = 'none';
+        }
+
         tickClocksLocally();
       });
+    }
+
+    function getDisplayName(student, index) {
+      if (isAnonymised) {
+        return `Student ${index + 1}`;
+      }
+      return student.seat;
     }
 
     function upsertStudentCard(student) {
@@ -702,11 +855,12 @@
         card.id = `card_${student.clientId}`;
         card.className = 'board-card';
         card.innerHTML = `
-          <div class="board-placeholder" id="ph_${student.clientId}">Waiting for student to draw...</div>
-          <img id="img_${student.clientId}" style="display: none;" alt="Board">
+          <div class="board-placeholder" id="ph_${student.clientId}" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">Waiting for student to draw...</div>
+          <img id="img_${student.clientId}" style="display: none;" alt="Board" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">
           <div class="board-meta">
-            <span class="seat-tag" id="tag_${student.clientId}" title="${escapeHTML(student.seat)}">${escapeHTML(student.seat)}</span>
+            <span class="seat-tag" id="tag_${student.clientId}"></span>
             <div class="meta-actions">
+              <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">Exhibit</button>
               <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
               <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(student.clientId)}')">Wipe</button>
               <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">Kick</button>
@@ -714,9 +868,8 @@
           </div>
         `;
         grid.appendChild(card);
-      } else {
-        updateCardMeta(student);
       }
+      updateCardMeta(student);
     }
 
     function updateCardImage(clientId, base64Data) {
@@ -738,8 +891,10 @@
     function updateCardMeta(student) {
       const tag = document.getElementById(`tag_${student.clientId}`);
       if (tag) {
-        tag.innerText = student.seat;
-        tag.title = student.seat;
+        const studentIndex = Array.from(teacherRoster.keys()).indexOf(student.clientId);
+        const name = getDisplayName(student, studentIndex);
+        tag.innerText = name;
+        tag.title = name;
       }
     }
 
@@ -758,13 +913,101 @@
         rosterEl.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
       } else {
         rosterEl.innerHTML = '';
-        students.forEach(s => {
+        students.forEach((s, idx) => {
           const chip = document.createElement('div');
           chip.className = 'student-chip';
-          chip.innerHTML = `<span class="status-dot"></span><span>${escapeHTML(s.seat)}</span>`;
+          chip.innerHTML = `<span class="status-dot"></span><span>${escapeHTML(getDisplayName(s, idx))}</span>`;
           rosterEl.appendChild(chip);
         });
       }
+
+      // Re-label existing grid cards for instant anonymisation toggling
+      students.forEach(s => updateCardMeta(s));
+    }
+
+    // --- PHASE 1: ANONYMISE NAMES ---
+    function toggleAnonymiseNames() {
+      isAnonymised = !isAnonymised;
+      const btn = document.getElementById('anon-toggle-btn');
+
+      if (isAnonymised) {
+        btn.innerText = "🕶️ Reveal Names";
+        btn.className = "btn-gold";
+      } else {
+        btn.innerText = "👁️ Anonymise Names";
+        btn.className = "btn-secondary";
+      }
+
+      updateRosterUI();
+
+      if (activeSpotlightClientId) {
+        const s = teacherRoster.get(activeSpotlightClientId);
+        if (s) {
+          const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
+          document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+        }
+      }
+    }
+
+    // --- PHASE 1: SPOTLIGHT / ZOOM MODAL ---
+    function openSpotlightModal(clientId) {
+      const s = teacherRoster.get(clientId);
+      if (!s) return;
+
+      activeSpotlightClientId = clientId;
+      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+      const imgData = teacherCanvasCache.get(clientId);
+
+      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+      const spotlightImg = document.getElementById('spotlight-img');
+
+      if (imgData) {
+        spotlightImg.src = imgData;
+        spotlightImg.style.display = 'block';
+      } else {
+        spotlightImg.removeAttribute('src');
+        spotlightImg.style.display = 'none';
+      }
+
+      document.getElementById('t-spotlight-modal').style.display = 'flex';
+    }
+
+    function closeSpotlightModal() {
+      activeSpotlightClientId = null;
+      document.getElementById('t-spotlight-modal').style.display = 'none';
+    }
+
+    // --- PHASE 1: EXHIBIT / SHOWCASE TO CLASS ---
+    function exhibitDirectly(clientId) {
+      activeSpotlightClientId = clientId;
+      broadcastCurrentSpotlight();
+    }
+
+    function broadcastCurrentSpotlight() {
+      if (!activeSpotlightClientId) return;
+
+      const imgData = teacherCanvasCache.get(activeSpotlightClientId);
+      if (!imgData) {
+        return alert("This whiteboard has no drawings to exhibit yet.");
+      }
+
+      const s = teacherRoster.get(activeSpotlightClientId);
+      const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
+      const caption = `Exhibited: ${getDisplayName(s, idx)}`;
+
+      roomRef.child('controls').update({
+        showcaseImage: imgData,
+        showcaseCaption: caption
+      });
+
+      closeSpotlightModal();
+    }
+
+    function stopShowcaseBroadcast() {
+      roomRef.child('controls').update({
+        showcaseImage: null,
+        showcaseCaption: null
+      });
     }
 
     function toggleLockState() {
@@ -851,7 +1094,9 @@
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
-          wipeAllTimestamp: Date.now()
+          wipeAllTimestamp: Date.now(),
+          showcaseImage: null,
+          showcaseCaption: null
         });
       }
     }
@@ -934,7 +1179,7 @@
       if (currentTool === 'text') {
         e.preventDefault();
         const { x, y } = getCoords(e);
-        openCanvasTextModal(x, y); // Non-blocking modal trigger
+        openCanvasTextModal(x, y);
         return;
       }
 
