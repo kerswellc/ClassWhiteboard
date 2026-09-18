@@ -169,6 +169,26 @@
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
 
+    /* Floating In-Page Text Entry Modal (Non-Blocking) */
+    .text-modal-overlay { 
+      position: absolute; 
+      inset: 0; 
+      background: rgba(4, 20, 45, 0.6); 
+      display: none; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 15; 
+    }
+    .text-modal-box {
+      background: var(--ga-navy-panel);
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid var(--ga-gold);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      width: 90%;
+      max-width: 360px;
+    }
+
     /* Teacher Dashboard */
     #teacher-view { display: none; max-width: 1400px; margin: 0 auto; }
     .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
@@ -258,6 +278,19 @@
       
       <div class="canvas-container">
         <canvas id="board"></canvas>
+        
+        <!-- Non-Blocking In-Page Text Modal -->
+        <div class="text-modal-overlay" id="s-text-modal">
+          <div class="text-modal-box">
+            <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Text (Bold 60px)</h3>
+            <input type="text" id="s-text-input" placeholder="Type text here..." onkeydown="if(event.key==='Enter') confirmCanvasText(); if(event.key==='Escape') closeCanvasTextModal();">
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+              <button class="btn-secondary" style="flex:1;" onclick="closeCanvasTextModal()">Cancel</button>
+              <button class="btn-primary" style="flex:1; margin-top:0;" onclick="confirmCanvasText()">Place Text</button>
+            </div>
+          </div>
+        </div>
+
         <div class="lock-overlay" id="s-lock-overlay">
           <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
           <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
@@ -345,11 +378,13 @@
     let canvasRef = null;
     let roomRef = null;
 
+    let pendingTextCoords = { x: 0, y: 0 };
+
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 
-    // Local Countdown Clock Engine
+    // Local Countdown Clock Engine (Runs continuously)
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -414,11 +449,9 @@
       studentRef = roomRef.child(`students/${studentClientId}`);
       canvasRef = roomRef.child(`canvases/${studentClientId}`);
 
-      // Auto-remove student presence & canvas on disconnect
       studentRef.onDisconnect().remove();
       canvasRef.onDisconnect().remove();
 
-      // Deduplicate names cleanly
       roomRef.child('students').once('value', (snapshot) => {
         const students = snapshot.val() || {};
         let count = 0;
@@ -432,7 +465,6 @@
           document.getElementById('s-display-seat').innerText = studentSeat;
         }
 
-        // Lightweight metadata payload (no image binary)
         studentRef.set({
           clientId: studentClientId,
           seat: studentSeat,
@@ -440,7 +472,6 @@
         });
       });
 
-      // Controls sync (lock, timer, wipe)
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -460,7 +491,6 @@
         tickClocksLocally();
       });
 
-      // Individual actions (rename, single wipe, kick)
       studentRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -488,12 +518,42 @@
       const clearBtn = document.getElementById('s-clear-btn');
 
       if (isBoardLocked) {
+        closeCanvasTextModal(); // Automatically dismiss text input if time expires
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
       } else {
         overlay.style.display = 'none';
         clearBtn.disabled = false;
       }
+    }
+
+    // Non-blocking text entry handlers
+    function openCanvasTextModal(x, y) {
+      pendingTextCoords = { x, y };
+      const modal = document.getElementById('s-text-modal');
+      const input = document.getElementById('s-text-input');
+      modal.style.display = 'flex';
+      input.value = '';
+      input.focus();
+    }
+
+    function closeCanvasTextModal() {
+      document.getElementById('s-text-modal').style.display = 'none';
+    }
+
+    function confirmCanvasText() {
+      if (isOperationBlocked()) {
+        closeCanvasTextModal();
+        return;
+      }
+      const text = document.getElementById('s-text-input').value.trim();
+      if (text) {
+        ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.fillStyle = currentColor;
+        ctx.fillText(text, pendingTextCoords.x, pendingTextCoords.y);
+        queueAutoSync();
+      }
+      closeCanvasTextModal();
     }
 
     function queueAutoSync() {
@@ -511,7 +571,6 @@
     function sendBoardPayload() {
       if (!canvasRef || isBoardLocked) return;
 
-      // Scaled thumbnail (300x180 at 0.35 quality = ~8-12KB)
       const exportCanvas = document.createElement('canvas');
       exportCanvas.width = 300;
       exportCanvas.height = 180;
@@ -555,7 +614,6 @@
       unlockBtn.innerText = "Checking...";
 
       try {
-        // Fetch authoritative PIN stored in Firebase (Method 1)
         const snap = await db.ref('admin/pin').once('value');
         const validPin = snap.val();
 
@@ -594,7 +652,6 @@
     function connectTeacherFirebase() {
       roomRef = db.ref(`rooms/${activeRoom}`);
 
-      // Granular Child Listeners: Updates only the individual student modified
       roomRef.child('students').on('child_added', (snapshot) => {
         const student = snapshot.val();
         if (!student || !student.clientId) return;
@@ -627,7 +684,6 @@
         roomRef.child(`canvases/${clientId}`).off();
       });
 
-      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         teacherLockFlag = Boolean(ctrl.locked);
@@ -878,14 +934,7 @@
       if (currentTool === 'text') {
         e.preventDefault();
         const { x, y } = getCoords(e);
-        const text = prompt("Enter text (will appear in bold 60px):");
-        if (text) {
-          if (isOperationBlocked()) return;
-          ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
-          ctx.fillStyle = currentColor;
-          ctx.fillText(text, x, y);
-          queueAutoSync();
-        }
+        openCanvasTextModal(x, y); // Non-blocking modal trigger
         return;
       }
 
