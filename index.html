@@ -257,8 +257,8 @@
         <canvas id="board"></canvas>
         <div class="lock-overlay" id="s-lock-overlay">
           <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
-          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);">Teacher paused input for class discussion.</p>
+          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);" id="lock-title">Board Locked</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="lock-desc">Teacher paused input for class discussion.</p>
         </div>
       </div>
     </div>
@@ -329,9 +329,13 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Generates a strictly unique ID in RAM for each open browser session/tab
-    function generateInstanceClientId() {
-      return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    function getClientId() {
+      let cid = sessionStorage.getItem('ga_client_id');
+      if (!cid) {
+        cid = 'ga_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+        sessionStorage.setItem('ga_client_id', cid);
+      }
+      return cid;
     }
 
     // Smooth Local Countdown Clock Engine
@@ -367,7 +371,7 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Idle Scheduler
+    // Staggered Adaptive Jitter Scheduler
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
@@ -377,7 +381,7 @@
 
       const statusEl = document.getElementById('s-sync-status');
       if (statusEl) {
-        statusEl.innerText = "● Checking...";
+        statusEl.innerText = "● Syncing...";
         statusEl.style.color = "var(--ga-gold)";
       }
 
@@ -385,19 +389,24 @@
       scheduleNextPing(3500);
     }
 
-    function scheduleNextPing(delayMs) {
+    function scheduleNextPing(baseDelayMs) {
       clearTimeout(pingTimeout);
-      pingTimeout = setTimeout(async () => {
-        await pingRelay();
+      // Introduce 500-1500ms jitter to spread requests across the school subnet
+      const jitter = Math.floor(Math.random() * 1200);
+      const delay = baseDelayMs + jitter;
 
+      pingTimeout = setTimeout(async () => {
+        const ok = await pingRelay();
         const idleDuration = Date.now() - lastInteractionTime;
         const syncLabel = document.getElementById('s-sync-status');
         
-        // Active: 3.5s | Background/Idle: 12s (Well inside 45s prune window)
-        let nextDelay = (document.hidden || idleDuration > 30000) ? 12000 : 3500;
+        let nextBase = (document.hidden || idleDuration > 30000) ? 11000 : 3800;
 
         if (syncLabel) {
-          if (document.hidden) {
+          if (!ok) {
+            syncLabel.innerText = "● Reconnecting...";
+            syncLabel.style.color = "#ef4444";
+          } else if (document.hidden) {
             syncLabel.innerText = "● Connected (Standby)";
             syncLabel.style.color = "#64748b";
           } else if (idleDuration > 30000) {
@@ -409,8 +418,8 @@
           }
         }
 
-        scheduleNextPing(nextDelay);
-      }, delayMs);
+        scheduleNextPing(nextBase);
+      }, delay);
     }
 
     document.addEventListener('visibilitychange', () => {
@@ -436,7 +445,7 @@
 
       activeRoom = room;
       studentSeat = seat;
-      studentClientId = generateInstanceClientId();
+      studentClientId = getClientId();
 
       document.getElementById('join-view').style.display = 'none';
       const drawView = document.getElementById('student-draw-view');
@@ -444,7 +453,8 @@
       document.getElementById('s-display-seat').innerText = studentSeat;
       document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
 
-      updateStudentLockState(true);
+      // Fail-closed default
+      updateStudentLockState(true, "Connecting to Teacher...", "Waiting for room verification.");
       setupCanvas();
 
       lastInteractionTime = Date.now();
@@ -456,22 +466,33 @@
     }
 
     async function pingRelay() {
-      if (!studentClientId || !studentSeat || !activeRoom) return;
+      if (!studentClientId || !studentSeat || !activeRoom) return false;
 
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+
         const res = await fetch(`${RELAY_URL}/${activeRoom}/ping`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId: studentClientId, seat: studentSeat })
+          body: JSON.stringify({ clientId: studentClientId, seat: studentSeat }),
+          signal: controller.signal
         });
-        if (!res.ok) return;
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          // If rate-limited (HTTP 429) or proxy blocked, fail closed
+          updateStudentLockState(true, "Reconnecting...", "Connection temporarily paused.");
+          return false;
+        }
+
         const data = await res.json();
 
         if (data.status === 'kicked') {
           clearTimeout(pingTimeout);
           alert("You have been removed from this room by the teacher.");
           location.reload();
-          return;
+          return false;
         }
 
         if (data.assignedSeat && data.assignedSeat !== studentSeat) {
@@ -498,19 +519,26 @@
         }
 
         tickClocksLocally();
+        return true;
       } catch (e) {
-        console.error("Ping error:", e);
+        // Network timeout / connection failure -> Fail Closed
+        updateStudentLockState(true, "Connecting...", "Waiting to sync with teacher console.");
+        return false;
       }
     }
 
-    function updateStudentLockState(locked) {
+    function updateStudentLockState(locked, titleText, descText) {
       isBoardLocked = Boolean(locked);
       const overlay = document.getElementById('s-lock-overlay');
       const clearBtn = document.getElementById('s-clear-btn');
+      const titleEl = document.getElementById('lock-title');
+      const descEl = document.getElementById('lock-desc');
 
       if (isBoardLocked) {
         overlay.style.display = 'flex';
         clearBtn.disabled = true;
+        if (titleEl) titleEl.innerText = titleText || "Board Locked";
+        if (descEl) descEl.innerText = descText || "Teacher paused input for class discussion.";
       } else {
         overlay.style.display = 'none';
         clearBtn.disabled = false;
@@ -594,7 +622,7 @@
 
       fetchBoards();
       if (pollInterval) clearInterval(pollInterval);
-      pollInterval = setInterval(fetchBoards, 1500);
+      pollInterval = setInterval(fetchBoards, 2500); // 2.5s interval to prevent network congestion
     }
 
     async function toggleLockState() {
