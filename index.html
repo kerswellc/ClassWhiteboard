@@ -187,7 +187,7 @@
     /* Live Boards Grid */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
     .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; }
-    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); }
+    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; }
     .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); }
     .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; }
     .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px; }
@@ -314,15 +314,12 @@
       <input type="password" id="teacher-pin" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') unlockTeacher()">
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="unlockTeacher()">Unlock</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
       </div>
     </div>
   </div>
 
   <script>
-    const TEACHER_PIN = "1234";
-
-    // PASTE YOUR FIREBASE CONFIG HERE:
     const firebaseConfig = {
       apiKey: "AIzaSyBrX32u_UUaocG6j318EG3Qu501r2vMjPw",
       authDomain: "ga-whiteboard.firebaseapp.com",
@@ -342,8 +339,10 @@
     let streamDebounceTimer = null;
     let isBoardLocked = true;
     let teacherLockFlag = false;
+    let lastLocalWipe = 0;
 
     let studentRef = null;
+    let canvasRef = null;
     let roomRef = null;
 
     function generateInstanceClientId() {
@@ -413,11 +412,13 @@
     function connectStudentFirebase() {
       roomRef = db.ref(`rooms/${activeRoom}`);
       studentRef = roomRef.child(`students/${studentClientId}`);
+      canvasRef = roomRef.child(`canvases/${studentClientId}`);
 
-      // Instant disconnect: Firebase automatically drops the student's entry when the tab closes
+      // Auto-remove student presence & canvas on disconnect
       studentRef.onDisconnect().remove();
+      canvasRef.onDisconnect().remove();
 
-      // Check for duplicate names and deduplicate
+      // Deduplicate names cleanly
       roomRef.child('students').once('value', (snapshot) => {
         const students = snapshot.val() || {};
         let count = 0;
@@ -431,16 +432,15 @@
           document.getElementById('s-display-seat').innerText = studentSeat;
         }
 
-        // Write initial student presence
+        // Lightweight metadata payload (no image binary)
         studentRef.set({
           clientId: studentClientId,
           seat: studentSeat,
-          image: null,
           lastSeen: Date.now()
         });
       });
 
-      // Listen for room controls (lock, timer, wipes)
+      // Controls sync (lock, timer, wipe)
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -460,10 +460,10 @@
         tickClocksLocally();
       });
 
-      // Listen for individual commands (rename, single wipe, kick)
+      // Individual actions (rename, single wipe, kick)
       studentRef.on('value', (snapshot) => {
         const data = snapshot.val();
-        if (!data) return; // Tab closed or kicked
+        if (!data) return;
 
         if (data.assignedSeat && data.assignedSeat !== studentSeat) {
           studentSeat = data.assignedSeat;
@@ -482,8 +482,6 @@
       });
     }
 
-    let lastLocalWipe = 0;
-
     function updateStudentLockState(locked) {
       isBoardLocked = Boolean(locked);
       const overlay = document.getElementById('s-lock-overlay');
@@ -499,7 +497,7 @@
     }
 
     function queueAutoSync() {
-      if (isBoardLocked || !studentRef) return;
+      if (isBoardLocked || !canvasRef) return;
 
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(sendBoardPayload, 600);
@@ -511,25 +509,28 @@
     }
 
     function sendBoardPayload() {
-      if (!studentRef || isBoardLocked) return;
+      if (!canvasRef || isBoardLocked) return;
 
+      // Scaled thumbnail (300x180 at 0.35 quality = ~8-12KB)
       const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = 320;
-      exportCanvas.height = 200;
+      exportCanvas.width = 300;
+      exportCanvas.height = 180;
       const expCtx = exportCanvas.getContext('2d');
       expCtx.fillStyle = '#ffffff';
-      expCtx.fillRect(0, 0, 320, 200);
-      expCtx.drawImage(canvas, 0, 0, 320, 200);
+      expCtx.fillRect(0, 0, 300, 180);
+      expCtx.drawImage(canvas, 0, 0, 300, 180);
 
-      const imgData = exportCanvas.toDataURL('image/jpeg', 0.5);
+      const imgData = exportCanvas.toDataURL('image/jpeg', 0.35);
 
-      studentRef.update({
+      canvasRef.set({
         image: imgData,
-        lastSeen: Date.now()
+        updatedAt: Date.now()
       });
     }
 
     // --- TEACHER LOGIC ---
+    const teacherRoster = new Map();
+
     function openTeacherLogin() {
       document.getElementById('login-modal').style.display = 'flex';
       const existingRoom = document.getElementById('join-room').value.trim();
@@ -542,35 +543,91 @@
       document.getElementById('teacher-pin').value = '';
     }
 
-    function unlockTeacher() {
+    async function unlockTeacher() {
       const room = document.getElementById('teacher-target-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-      const pin = document.getElementById('teacher-pin').value.trim();
+      const enteredPin = document.getElementById('teacher-pin').value.trim();
+      const unlockBtn = document.getElementById('unlock-btn');
 
       if (!room) return alert("Please enter the Room Number.");
-      if (pin !== TEACHER_PIN) return alert("Incorrect PIN.");
+      if (!enteredPin) return alert("Please enter the PIN.");
 
-      closeTeacherLogin();
-      activeRoom = room;
+      unlockBtn.disabled = true;
+      unlockBtn.innerText = "Checking...";
 
-      document.getElementById('join-view').style.display = 'none';
-      document.getElementById('student-draw-view').style.display = 'none';
-      document.getElementById('teacher-switch-btn').style.display = 'none';
-      document.getElementById('teacher-view').style.display = 'block';
-      document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
+      try {
+        // Fetch authoritative PIN stored in Firebase (Method 1)
+        const snap = await db.ref('admin/pin').once('value');
+        const validPin = snap.val();
 
-      connectTeacherFirebase();
+        if (validPin === null || validPin === undefined) {
+          alert("Admin PIN is not configured in Firebase under 'admin/pin'.");
+          unlockBtn.disabled = false;
+          unlockBtn.innerText = "Unlock";
+          return;
+        }
+
+        if (String(enteredPin) !== String(validPin).trim()) {
+          alert("Incorrect PIN.");
+          unlockBtn.disabled = false;
+          unlockBtn.innerText = "Unlock";
+          return;
+        }
+
+        closeTeacherLogin();
+        activeRoom = room;
+
+        document.getElementById('join-view').style.display = 'none';
+        document.getElementById('student-draw-view').style.display = 'none';
+        document.getElementById('teacher-switch-btn').style.display = 'none';
+        document.getElementById('teacher-view').style.display = 'block';
+        document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
+
+        connectTeacherFirebase();
+      } catch (err) {
+        alert("Authentication error. Check network connection or Firebase permissions.");
+      } finally {
+        unlockBtn.disabled = false;
+        unlockBtn.innerText = "Unlock";
+      }
     }
 
     function connectTeacherFirebase() {
       roomRef = db.ref(`rooms/${activeRoom}`);
 
-      // Real-time listener for all students (30+ on single WebSocket stream)
-      roomRef.child('students').on('value', (snapshot) => {
-        const studentsObj = snapshot.val() || {};
-        renderTeacherDashboard(Object.values(studentsObj));
+      // Granular Child Listeners: Updates only the individual student modified
+      roomRef.child('students').on('child_added', (snapshot) => {
+        const student = snapshot.val();
+        if (!student || !student.clientId) return;
+
+        teacherRoster.set(student.clientId, student);
+        upsertStudentCard(student);
+        updateRosterUI();
+
+        roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
+          const cData = canvasSnap.val();
+          updateCardImage(student.clientId, cData ? cData.image : null);
+        });
       });
 
-      // Synchronize lock state
+      roomRef.child('students').on('child_changed', (snapshot) => {
+        const student = snapshot.val();
+        if (!student || !student.clientId) return;
+
+        teacherRoster.set(student.clientId, student);
+        updateCardMeta(student);
+        updateRosterUI();
+      });
+
+      roomRef.child('students').on('child_removed', (snapshot) => {
+        const clientId = snapshot.key;
+        teacherRoster.delete(clientId);
+        removeStudentCard(clientId);
+        updateRosterUI();
+
+        roomRef.child(`canvases/${clientId}`).off();
+      });
+
+      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         teacherLockFlag = Boolean(ctrl.locked);
@@ -578,6 +635,80 @@
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
         tickClocksLocally();
       });
+    }
+
+    function upsertStudentCard(student) {
+      const grid = document.getElementById('teacher-grid');
+      let card = document.getElementById(`card_${student.clientId}`);
+
+      if (!card) {
+        card = document.createElement('div');
+        card.id = `card_${student.clientId}`;
+        card.className = 'board-card';
+        card.innerHTML = `
+          <div class="board-placeholder" id="ph_${student.clientId}">Waiting for student to draw...</div>
+          <img id="img_${student.clientId}" style="display: none;" alt="Board">
+          <div class="board-meta">
+            <span class="seat-tag" id="tag_${student.clientId}" title="${escapeHTML(student.seat)}">${escapeHTML(student.seat)}</span>
+            <div class="meta-actions">
+              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
+              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(student.clientId)}')">Wipe</button>
+              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">Kick</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      } else {
+        updateCardMeta(student);
+      }
+    }
+
+    function updateCardImage(clientId, base64Data) {
+      const img = document.getElementById(`img_${clientId}`);
+      const ph = document.getElementById(`ph_${clientId}`);
+      if (!img || !ph) return;
+
+      if (base64Data) {
+        img.src = base64Data;
+        img.style.display = 'block';
+        ph.style.display = 'none';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+        ph.style.display = 'flex';
+      }
+    }
+
+    function updateCardMeta(student) {
+      const tag = document.getElementById(`tag_${student.clientId}`);
+      if (tag) {
+        tag.innerText = student.seat;
+        tag.title = student.seat;
+      }
+    }
+
+    function removeStudentCard(clientId) {
+      const card = document.getElementById(`card_${clientId}`);
+      if (card) card.remove();
+    }
+
+    function updateRosterUI() {
+      const students = Array.from(teacherRoster.values());
+      document.getElementById('sub-counter').innerText = `Currently Connected: ${students.length}`;
+      document.getElementById('roster-count').innerText = `${students.length} connected`;
+
+      const rosterEl = document.getElementById('roster-tags');
+      if (students.length === 0) {
+        rosterEl.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
+      } else {
+        rosterEl.innerHTML = '';
+        students.forEach(s => {
+          const chip = document.createElement('div');
+          chip.className = 'student-chip';
+          chip.innerHTML = `<span class="status-dot"></span><span>${escapeHTML(s.seat)}</span>`;
+          rosterEl.appendChild(chip);
+        });
+      }
     }
 
     function toggleLockState() {
@@ -618,35 +749,35 @@
 
     function wipeAllStudentBoards() {
       if (confirm("Wipe all student whiteboards clean?")) {
-        // Clear thumbnails on server and instruct all clients to clear locally
-        roomRef.child('students').once('value', (snapshot) => {
-          const updates = {};
-          snapshot.forEach(child => {
-            updates[`students/${child.key}/image`] = null;
-          });
-          updates['controls/wipeAllTimestamp'] = Date.now();
-          roomRef.update(updates);
+        roomRef.child('canvases').remove();
+        roomRef.child('controls').update({
+          wipeAllTimestamp: Date.now()
         });
       }
     }
 
     function wipeSingleStudent(clientId) {
+      roomRef.child(`canvases/${clientId}`).remove();
       roomRef.child(`students/${clientId}`).update({
-        image: null,
         wipeTimestamp: Date.now()
       });
     }
 
-    function kickStudent(clientId, seatName) {
-      if (confirm(`Remove ${seatName} from the session?`)) {
+    function kickStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const name = s ? s.seat : "Student";
+      if (confirm(`Remove ${name} from the session?`)) {
         roomRef.child(`students/${clientId}`).update({ kicked: true });
+        roomRef.child(`canvases/${clientId}`).remove();
         setTimeout(() => {
           roomRef.child(`students/${clientId}`).remove();
         }, 300);
       }
     }
 
-    function renameStudent(clientId, currentName) {
+    function renameStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const currentName = s ? s.seat : "";
       const newSeat = prompt(`Rename ${currentName} to:`, currentName);
       if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
         const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
@@ -660,55 +791,13 @@
     function clearTeacherRoom() {
       if (confirm("Reset the entire room and remove all student sessions?")) {
         roomRef.child('students').remove();
+        roomRef.child('canvases').remove();
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
           wipeAllTimestamp: Date.now()
         });
       }
-    }
-
-    function renderTeacherDashboard(students) {
-      document.getElementById('sub-counter').innerText = `Currently Connected: ${students.length}`;
-      document.getElementById('roster-count').innerText = `${students.length} connected`;
-
-      const rosterEl = document.getElementById('roster-tags');
-      if (students.length === 0) {
-        rosterEl.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>`;
-      } else {
-        rosterEl.innerHTML = '';
-        students.forEach(s => {
-          const chip = document.createElement('div');
-          chip.className = 'student-chip';
-          chip.innerHTML = `<span class="status-dot"></span><span>${escapeHTML(s.seat)}</span>`;
-          rosterEl.appendChild(chip);
-        });
-      }
-
-      const grid = document.getElementById('teacher-grid');
-      grid.innerHTML = '';
-
-      students.forEach(s => {
-        const card = document.createElement('div');
-        card.className = 'board-card';
-
-        const boardContent = s.image
-          ? `<img src="${s.image}" alt="Board">`
-          : `<div class="board-placeholder">Waiting for student to draw...</div>`;
-
-        card.innerHTML = `
-          ${boardContent}
-          <div class="board-meta">
-            <span class="seat-tag" title="${escapeHTML(s.seat)}">${escapeHTML(s.seat)}</span>
-            <div class="meta-actions">
-              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(s.clientId)}', '${escapeHTML(s.seat)}')">Rename</button>
-              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(s.clientId)}')">Wipe</button>
-              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(s.clientId)}', '${escapeHTML(s.seat)}')">Kick</button>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
     }
 
     function escapeHTML(str) {
