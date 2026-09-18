@@ -339,6 +339,24 @@
       return cid;
     }
 
+    // High-reliability disconnect signal on tab close or refresh
+    function notifyDisconnect() {
+      if (activeRoom && studentClientId) {
+        const payload = JSON.stringify({ clientId: studentClientId });
+        // Use fetch keepalive to guarantee execution even as the tab shuts down
+        try {
+          fetch(`${RELAY_URL}/${activeRoom}/disconnect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true
+          });
+        } catch (_) {}
+      }
+    }
+    window.addEventListener('pagehide', notifyDisconnect);
+    window.addEventListener('beforeunload', notifyDisconnect);
+
     // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
@@ -372,7 +390,7 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Idle Scheduler
+    // Adaptive Idle Scheduler (Keeps background tabs alive under 18s prune window)
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
@@ -397,22 +415,18 @@
 
         const idleDuration = Date.now() - lastInteractionTime;
         const syncLabel = document.getElementById('s-sync-status');
-        let nextDelay = 3500;
+        
+        // Active: 3.5s | Background/Idle: 9s (Guaranteed under 18s disconnect prune)
+        let nextDelay = (document.hidden || idleDuration > 30000) ? 9000 : 3500;
 
-        if (document.hidden || idleDuration > 120000) {
-          nextDelay = 240000;
-          if (syncLabel) {
+        if (syncLabel) {
+          if (document.hidden) {
             syncLabel.innerText = "● Connected (Standby)";
             syncLabel.style.color = "#64748b";
-          }
-        } else if (idleDuration > 30000) {
-          nextDelay = 15000;
-          if (syncLabel) {
+          } else if (idleDuration > 30000) {
             syncLabel.innerText = "● Connected (Idle)";
             syncLabel.style.color = "var(--ga-text-muted)";
-          }
-        } else {
-          if (syncLabel) {
+          } else {
             syncLabel.innerText = "● Connected (Active)";
             syncLabel.style.color = "#22c55e";
           }
