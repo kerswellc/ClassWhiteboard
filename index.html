@@ -106,7 +106,7 @@
       margin-top: 14px; 
       margin-bottom: 6px; 
     }
-    input, select { 
+    input, select, textarea { 
       width: 100%; 
       padding: 10px 12px; 
       border-radius: 6px; 
@@ -115,7 +115,7 @@
       color: white; 
       font-size: 1rem; 
     }
-    input:focus, select:focus { 
+    input:focus, select:focus, textarea:focus { 
       outline: none; 
       border-color: var(--ga-gold); 
     }
@@ -198,14 +198,15 @@
     }
     .hinge-btn-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(130px, 260px));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 16px;
       width: 100%;
-      max-width: 560px;
+      max-width: 720px;
     }
     .btn-hinge-choice {
-      height: 90px;
-      font-size: 2rem;
+      min-height: 80px;
+      padding: 12px 16px;
+      font-size: 1.3rem;
       font-weight: 800;
       background: var(--ga-navy-card);
       border: 2px solid var(--ga-navy-border);
@@ -216,8 +217,9 @@
       align-items: center;
       justify-content: center;
       transition: all 0.15s ease;
+      word-break: break-word;
     }
-    .btn-hinge-choice:hover {
+    .btn-hinge-choice:hover:not(:disabled) {
       border-color: var(--ga-gold);
       background: #14356f;
       transform: translateY(-2px);
@@ -229,8 +231,41 @@
       box-shadow: 0 0 20px rgba(223, 155, 53, 0.6);
       transform: scale(1.03);
     }
+    .btn-hinge-choice:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+    .btn-hinge-choice.selected:disabled {
+      opacity: 1;
+      border-color: #ffffff !important;
+    }
 
-    /* Student Showcase Fullscreen Canvas Replica */
+    /* Student Broadcast Leaderboard Overlay */
+    .student-leaderboard-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(2, 11, 26, 0.96);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 45;
+      padding: 20px;
+    }
+    .student-leaderboard-box {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      max-width: 550px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Student Showcase Fullscreen Overlay */
     .showcase-overlay { 
       position: absolute; 
       inset: 0; 
@@ -326,7 +361,7 @@
     }
     .stats-bar-container {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
       gap: 12px;
       margin-bottom: 12px;
     }
@@ -343,12 +378,13 @@
       background: rgba(34, 197, 94, 0.08);
     }
     .stat-col-letter {
-      font-size: 1.4rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: var(--ga-gold);
+      word-break: break-word;
     }
     .stat-col-count {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 700;
       margin: 4px 0;
     }
@@ -460,7 +496,7 @@
       background: var(--ga-navy-panel);
       border: 2px solid var(--ga-gold);
       border-radius: 8px;
-      max-width: 500px;
+      max-width: 550px;
       width: 100%;
       padding: 20px;
       max-height: 80vh;
@@ -580,7 +616,7 @@
           </div>
         </div>
 
-        <!-- PHASE 2: Student Hinge Question Overlay -->
+        <!-- Student Hinge Question Overlay -->
         <div class="hinge-student-overlay" id="s-hinge-overlay">
           <div class="hinge-question-box" id="s-hinge-qbox" style="display: none;">
             <h3 id="s-hinge-qtext" style="color: var(--ga-gold); margin: 0; font-size: 1.3rem;">Question text</h3>
@@ -589,10 +625,17 @@
             <span class="timer-pill" id="s-hinge-timer-pill" style="display: inline-block; font-size: 1.1rem; padding: 6px 18px;">⏱ 00:00</span>
           </div>
           <div class="hinge-btn-grid" id="s-hinge-grid">
-            <button class="btn-hinge-choice" onclick="selectHingeAnswer('A')">A</button>
-            <button class="btn-hinge-choice" onclick="selectHingeAnswer('B')">B</button>
-            <button class="btn-hinge-choice" onclick="selectHingeAnswer('C')">C</button>
-            <button class="btn-hinge-choice" onclick="selectHingeAnswer('D')">D</button>
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Student Broadcasted Leaderboard Overlay -->
+        <div class="student-leaderboard-overlay" id="s-leaderboard-overlay">
+          <div class="student-leaderboard-box">
+            <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.4rem;">🏆 Session Leaderboard</h3>
+            <div class="leaderboard-list" id="s-leaderboard-list">
+              <!-- Broadcasted Scores -->
+            </div>
           </div>
         </div>
       </div>
@@ -616,11 +659,8 @@
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
-        
-        <!-- PHASE 2 BUTTONS -->
         <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openHingeModal()">🎯 Hinge Question</button>
         <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
@@ -629,7 +669,7 @@
         </div>
       </div>
 
-      <!-- PHASE 2: Live Hinge Stats Visualisation Bar -->
+      <!-- Teacher Live Hinge Stats Panel -->
       <div class="hinge-stats-panel" id="t-hinge-stats-panel">
         <div class="stats-header">
           <div>
@@ -642,9 +682,7 @@
           </div>
         </div>
         <p id="t-hinge-qdisplay" style="font-size: 0.95rem; margin: 0 0 12px 0; color: #ffffff;"></p>
-        <div class="stats-bar-container" id="t-stats-bars">
-          <!-- Populated by JS for A, B, C, D -->
-        </div>
+        <div class="stats-bar-container" id="t-stats-bars"></div>
       </div>
 
       <div class="roster-panel">
@@ -676,19 +714,20 @@
     </div>
   </div>
 
-  <!-- PHASE 2: HINGE QUESTION LAUNCHER MODAL -->
+  <!-- HINGE QUESTION LAUNCHER MODAL -->
   <div class="modal-overlay" id="hinge-modal">
-    <div class="card" style="margin: 0; max-width: 480px; width: 95%;">
+    <div class="card" style="margin: 0; max-width: 520px; width: 95%;">
       <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Launch Hinge Question</h3>
-      <label>Question Prompt (Optional - leave blank if verbal or on screen)</label>
-      <input type="text" id="hinge-prompt-input" placeholder="e.g. What is the value of x after line 4?">
+      <label>Question Prompt (Optional)</label>
+      <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate is this?">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Options Layout</label>
-          <select id="hinge-layout-select" onchange="adjustHingeLayoutChoices()">
+          <label>Options Type</label>
+          <select id="hinge-layout-select" onchange="handleHingeLayoutChange()">
             <option value="ABCD">A, B, C, D</option>
             <option value="TF">True / False</option>
+            <option value="CUSTOM">Custom Choices...</option>
           </select>
         </div>
         <div>
@@ -701,6 +740,12 @@
             <option value="D">D</option>
           </select>
         </div>
+      </div>
+
+      <!-- Custom Choice Inputs (Visible only when CUSTOM is picked) -->
+      <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-navy-border);">
+        <label style="margin-top: 0;">Custom Choices (Enter 2 to 6 answers, 1 per line):</label>
+        <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -721,7 +766,7 @@
     </div>
   </div>
 
-  <!-- PHASE 2: LEADERBOARD MODAL -->
+  <!-- LEADERBOARD MODAL -->
   <div class="leaderboard-modal" id="leaderboard-modal" onclick="if(event.target === this) closeLeaderboardModal()">
     <div class="leaderboard-box">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 8px;">
@@ -731,7 +776,8 @@
       <div class="leaderboard-list" id="t-leaderboard-list">
         <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap;">
+        <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">📢 Broadcast to Class</button>
         <button class="btn-danger btn-action-mini" onclick="resetLeaderboard()">Reset Scores</button>
         <button class="btn-secondary" onclick="closeLeaderboardModal()">Close</button>
       </div>
@@ -785,10 +831,10 @@
     let isAnonymised = false;
     let activeSpotlightClientId = null;
 
-    // Phase 2 State Variables
     let currentHingeConfig = null;
     let mySelectedHingeAnswer = null;
     let currentLeaderboard = {};
+    let isBroadcastingLeaderboard = false;
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -811,16 +857,21 @@
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
           if (sHingePill) sHingePill.innerText = formatted;
+          setStudentHingeLocked(false);
         } else {
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
-          if (sHingePill) sHingePill.innerText = '⏱ 00:00 (Time Up)';
+          if (sHingePill) sHingePill.innerText = '⏱ 00:00 (Time Expired - Locked)';
+          setStudentHingeLocked(true);
           updateStudentLockState(true);
         }
       } else {
         if (sPill) sPill.style.display = 'none';
         if (tPill) tPill.style.display = 'none';
+        if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
+          setStudentHingeLocked(true);
+        }
       }
     }
 
@@ -828,6 +879,12 @@
       const mins = Math.floor(totalSecs / 60);
       const secs = totalSecs % 60;
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function setStudentHingeLocked(isLocked) {
+      document.querySelectorAll('.btn-hinge-choice').forEach(b => {
+        b.disabled = isLocked;
+      });
     }
 
     // --- STUDENT LOGIC ---
@@ -907,6 +964,7 @@
           uploadHighResSnapshot();
         }
 
+        // Showcase Overlay
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -920,10 +978,19 @@
           showcaseImg.removeAttribute('src');
         }
 
+        // Broadcasted Leaderboard Overlay
+        const studentLbOverlay = document.getElementById('s-leaderboard-overlay');
+        if (ctrl.broadcastLeaderboard) {
+          renderStudentBroadcastLeaderboard();
+          studentLbOverlay.style.display = 'flex';
+        } else {
+          studentLbOverlay.style.display = 'none';
+        }
+
         tickClocksLocally();
       });
 
-      // PHASE 2: Student Hinge Question Listener
+      // Hinge Question Listener
       roomRef.child('hinge/active').on('value', (snapshot) => {
         const hinge = snapshot.val();
         currentHingeConfig = hinge;
@@ -942,20 +1009,25 @@
             qBox.style.display = 'none';
           }
 
-          // Render options (A/B/C/D or True/False)
+          // Render options (A/B/C/D, True/False, or Custom Choices)
           const grid = document.getElementById('s-hinge-grid');
           grid.innerHTML = '';
-          const choices = hinge.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+          const choices = hinge.choices || (hinge.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D']);
+          
           choices.forEach(ch => {
             const btn = document.createElement('button');
             btn.className = 'btn-hinge-choice';
             btn.innerText = ch;
-            btn.id = `btn_hinge_${ch}`;
+            btn.id = `btn_hinge_${encodeURIComponent(ch)}`;
             btn.onclick = () => selectHingeAnswer(ch);
             grid.appendChild(btn);
           });
 
-          // Fetch student's pre-existing response if reconnecting
+          // Check if time is already up
+          if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
+            setStudentHingeLocked(true);
+          }
+
           roomRef.child(`hinge/responses/${studentClientId}`).once('value', snap => {
             const val = snap.val();
             if (val && val.answer) {
@@ -967,11 +1039,15 @@
         }
       });
 
-      // PHASE 2: Individual points tracker
-      roomRef.child(`leaderboard/${studentClientId}`).on('value', (snapshot) => {
-        const data = snapshot.val();
-        const score = (data && data.score) ? data.score : 0;
+      // Leaderboard Listener
+      roomRef.child('leaderboard').on('value', (snapshot) => {
+        currentLeaderboard = snapshot.val() || {};
+        const myData = currentLeaderboard[studentClientId];
+        const score = (myData && myData.score) ? myData.score : 0;
         document.getElementById('s-points-pill').innerText = `🏆 ${score} pts`;
+        if (document.getElementById('s-leaderboard-overlay').style.display === 'flex') {
+          renderStudentBroadcastLeaderboard();
+        }
       });
 
       studentRef.on('value', (snapshot) => {
@@ -1000,7 +1076,7 @@
 
       mySelectedHingeAnswer = choice;
       document.querySelectorAll('.btn-hinge-choice').forEach(b => b.classList.remove('selected'));
-      const activeBtn = document.getElementById(`btn_hinge_${choice}`);
+      const activeBtn = document.getElementById(`btn_hinge_${encodeURIComponent(choice)}`);
       if (activeBtn) activeBtn.classList.add('selected');
 
       if (shouldWrite && roomRef) {
@@ -1011,6 +1087,31 @@
           timestamp: Date.now()
         });
       }
+    }
+
+    function renderStudentBroadcastLeaderboard() {
+      const list = document.getElementById('s-leaderboard-list');
+      if (!list) return;
+
+      const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
+      if (entries.length === 0) {
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.9rem; font-style: italic;">No scores recorded yet.</span>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      entries.forEach((e, idx) => {
+        const row = document.createElement('div');
+        row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
+        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+        const isMe = e.clientId === studentClientId;
+
+        row.innerHTML = `
+          <span><strong>${badge}</strong> &nbsp; ${escapeHTML(e.seat)} ${isMe ? '<strong style="color:var(--ga-gold);">(You)</strong>' : ''}</span>
+          <span style="font-weight: 800; color: var(--ga-gold);">${e.score} pts</span>
+        `;
+        list.appendChild(row);
+      });
     }
 
     function updateStudentLockState(locked) {
@@ -1233,10 +1334,21 @@
           stopBtn.style.display = 'none';
         }
 
+        isBroadcastingLeaderboard = Boolean(ctrl.broadcastLeaderboard);
+        const bcastBtn = document.getElementById('broadcast-lb-btn');
+        if (bcastBtn) {
+          if (isBroadcastingLeaderboard) {
+            bcastBtn.innerText = "🛑 Stop Broadcasting";
+            bcastBtn.className = "btn-danger btn-action-mini";
+          } else {
+            bcastBtn.innerText = "📢 Broadcast to Class";
+            bcastBtn.className = "btn-gold btn-action-mini";
+          }
+        }
+
         tickClocksLocally();
       });
 
-      // PHASE 2: Teacher Live Hinge Listener
       roomRef.child('hinge/active').on('value', (snapshot) => {
         currentHingeConfig = snapshot.val();
         const panel = document.getElementById('t-hinge-stats-panel');
@@ -1253,7 +1365,6 @@
         renderHingeStatsVisualisation();
       });
 
-      // PHASE 2: Leaderboard Sync
       roomRef.child('leaderboard').on('value', (snapshot) => {
         currentLeaderboard = snapshot.val() || {};
         renderLeaderboardUI();
@@ -1378,7 +1489,7 @@
       }
     }
 
-    // --- PHASE 2: HINGE QUESTION ENGINE ---
+    // --- HINGE QUESTION ENGINE WITH CUSTOM CHOICES ---
     function openHingeModal() {
       document.getElementById('hinge-modal').style.display = 'flex';
       document.getElementById('hinge-prompt-input').focus();
@@ -1388,16 +1499,41 @@
       document.getElementById('hinge-modal').style.display = 'none';
     }
 
-    function adjustHingeLayoutChoices() {
+    function handleHingeLayoutChange() {
       const layout = document.getElementById('hinge-layout-select').value;
+      const customBox = document.getElementById('custom-choices-container');
+
+      if (layout === 'CUSTOM') {
+        customBox.style.display = 'block';
+        populateCustomCorrectDropdown();
+      } else {
+        customBox.style.display = 'none';
+        const correctSelect = document.getElementById('hinge-correct-select');
+        correctSelect.innerHTML = '<option value="NONE">Don\'t Score (Survey)</option>';
+
+        const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+        opts.forEach(o => {
+          const opt = document.createElement('option');
+          opt.value = o;
+          opt.innerText = o;
+          correctSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function populateCustomCorrectDropdown() {
+      const text = document.getElementById('custom-choices-text').value;
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
       const correctSelect = document.getElementById('hinge-correct-select');
+      
+      const currentSelected = correctSelect.value;
       correctSelect.innerHTML = '<option value="NONE">Don\'t Score (Survey)</option>';
 
-      const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
-      opts.forEach(o => {
+      lines.forEach(line => {
         const opt = document.createElement('option');
-        opt.value = o;
-        opt.innerText = o;
+        opt.value = line;
+        opt.innerText = line;
+        if (line === currentSelected) opt.selected = true;
         correctSelect.appendChild(opt);
       });
     }
@@ -1405,9 +1541,20 @@
     async function launchHingeQuestion() {
       const prompt = document.getElementById('hinge-prompt-input').value.trim();
       const layout = document.getElementById('hinge-layout-select').value;
-      const correct = document.getElementById('hinge-correct-select').value;
+      let correct = document.getElementById('hinge-correct-select').value;
       const durationSecs = parseInt(document.getElementById('hinge-duration-input').value, 10) || 30;
       const points = parseInt(document.getElementById('hinge-points-input').value, 10) || 10;
+
+      let choices = ['A', 'B', 'C', 'D'];
+      if (layout === 'TF') {
+        choices = ['True', 'False'];
+      } else if (layout === 'CUSTOM') {
+        const text = document.getElementById('custom-choices-text').value;
+        choices = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (choices.length < 2) {
+          return alert("Please enter at least 2 custom answer choices.");
+        }
+      }
 
       closeHingeModal();
 
@@ -1415,18 +1562,17 @@
       activeTimerEndEpoch = targetEnd;
       tickClocksLocally();
 
-      // Clear previous responses and write active config atomically
       await roomRef.child('hinge/responses').remove();
       await roomRef.child('hinge/active').set({
         status: 'ACTIVE',
         prompt: prompt,
         layout: layout,
+        choices: choices,
         correctAnswer: correct,
         points: points,
         startedAt: Date.now()
       });
 
-      // Synchronise countdown timer across all devices
       await roomRef.child('controls').update({
         locked: false,
         timerEnd: targetEnd
@@ -1443,7 +1589,7 @@
       const bars = document.getElementById('t-stats-bars');
       if (!bars || !currentHingeConfig) return;
 
-      const keys = currentHingeConfig.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
+      const keys = currentHingeConfig.choices || (currentHingeConfig.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D']);
       const counts = {};
       const rosters = {};
       keys.forEach(k => { counts[k] = 0; rosters[k] = []; });
@@ -1470,10 +1616,10 @@
         const col = document.createElement('div');
         col.className = `stat-col ${isCorrect ? 'correct-key' : ''}`;
         col.innerHTML = `
-          <div class="stat-col-letter">${k} ${isCorrect ? '✅' : ''}</div>
+          <div class="stat-col-letter">${escapeHTML(k)} ${isCorrect ? '✅' : ''}</div>
           <div class="stat-col-count" style="color: ${isCorrect ? 'var(--ga-green)' : 'var(--ga-gold)'}">${count}</div>
           <div class="stat-col-percent">${pct}% (${count}/${totalAnswers})</div>
-          <div class="stat-roster-list">${rosters[k].join(', ') || '<em>None</em>'}</div>
+          <div class="stat-roster-list">${rosters[k].map(n => escapeHTML(n)).join(', ') || '<em>None</em>'}</div>
         `;
         bars.appendChild(col);
       });
@@ -1509,7 +1655,7 @@
       }
     }
 
-    // --- PHASE 2: LEADERBOARD SYSTEM ---
+    // --- LEADERBOARD BROADCAST TO ALL STUDENTS ---
     function openLeaderboardModal() {
       renderLeaderboardUI();
       document.getElementById('leaderboard-modal').style.display = 'flex';
@@ -1549,13 +1695,23 @@
       });
     }
 
+    function toggleBroadcastLeaderboard() {
+      isBroadcastingLeaderboard = !isBroadcastingLeaderboard;
+      roomRef.child('controls').update({
+        broadcastLeaderboard: isBroadcastingLeaderboard
+      });
+    }
+
     async function resetLeaderboard() {
       if (confirm("Reset all student scores to 0 for this session?")) {
         await roomRef.child('leaderboard').remove();
+        if (isBroadcastingLeaderboard) {
+          toggleBroadcastLeaderboard();
+        }
       }
     }
 
-    // --- HIGH-RES SPOTLIGHT & EXHIBIT (FROM PHASE 1) ---
+    // --- HIGH-RES SPOTLIGHT & EXHIBIT ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -1576,7 +1732,6 @@
       }
 
       document.getElementById('t-spotlight-modal').style.display = 'flex';
-
       roomRef.child('controls').update({ requestHighRes: clientId });
     }
 
@@ -1719,7 +1874,8 @@
           wipeAllTimestamp: Date.now(),
           showcaseImage: null,
           showcaseCaption: null,
-          requestHighRes: null
+          requestHighRes: null,
+          broadcastLeaderboard: false
         });
       }
     }
