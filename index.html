@@ -169,32 +169,55 @@
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
 
-    /* Student Showcase Overlay */
+    /* Student Showcase Fullscreen Canvas Replica */
     .showcase-overlay { 
       position: absolute; 
       inset: 0; 
-      background: rgba(4, 20, 45, 0.96); 
+      background: #020b1a; 
       display: none; 
       flex-direction: column; 
       align-items: center; 
       justify-content: center; 
       z-index: 25; 
-      padding: 20px;
+      padding: 8px;
     }
-    .showcase-overlay img {
-      max-width: 90%;
-      max-height: 75vh;
-      object-fit: contain;
-      border: 3px solid var(--ga-gold);
-      border-radius: 8px;
-      background: #ffffff;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    .showcase-header-bar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 30;
+      pointer-events: none;
     }
     .showcase-tag {
-      margin-top: 12px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--ga-gold);
+      background: var(--ga-gold);
+      color: #04142d;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      pointer-events: auto;
+    }
+    .showcase-img-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 3px solid var(--ga-gold);
+    }
+    .showcase-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
     /* Floating In-Page Text Modal (Non-Blocking) */
@@ -244,31 +267,31 @@
     .meta-actions { display: flex; gap: 4px; }
     .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
 
-    /* Zoom / Spotlight Modal */
+    /* Zoom / Spotlight Modal (Maximised Display) */
     .spotlight-modal {
       position: fixed;
       inset: 0;
-      background: rgba(4, 20, 45, 0.92);
+      background: rgba(2, 11, 26, 0.94);
       display: none;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 150;
-      padding: 20px;
+      padding: 16px;
     }
     .spotlight-content {
       background: var(--ga-navy-panel);
       border: 2px solid var(--ga-gold);
       border-radius: 8px;
-      max-width: 950px;
-      width: 100%;
+      width: 95vw;
+      max-width: 1300px;
+      height: 90vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
     }
     .spotlight-header {
-      padding: 12px 18px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -277,18 +300,25 @@
     }
     .spotlight-body {
       background: #ffffff;
-      height: 60vh;
+      flex: 1;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
+      padding: 8px;
     }
     .spotlight-body img {
+      width: 100%;
+      height: 100%;
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+      display: block;
     }
     .spotlight-footer {
-      padding: 12px 18px;
+      padding: 12px 20px;
       display: flex;
       gap: 10px;
       justify-content: flex-end;
@@ -379,11 +409,14 @@
           <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);">Teacher paused input for class discussion.</p>
         </div>
 
-        <!-- Whole-Class Showcase Overlay -->
+        <!-- Student Showcase Fullscreen Overlay -->
         <div class="showcase-overlay" id="s-showcase-overlay">
-          <h3 style="color: var(--ga-gold); margin: 0 0 10px 0;">Classroom Showcase</h3>
-          <img id="s-showcase-img" src="" alt="Showcased Whiteboard">
-          <span class="showcase-tag" id="s-showcase-caption">Spotlight Example</span>
+          <div class="showcase-header-bar">
+            <span class="showcase-tag" id="s-showcase-caption">Featured Whiteboard</span>
+          </div>
+          <div class="showcase-img-wrap">
+            <img id="s-showcase-img" src="" alt="Showcased Whiteboard">
+          </div>
         </div>
       </div>
     </div>
@@ -582,7 +615,7 @@
         });
       });
 
-      // Controls sync (Lock, Timer, Wipe, Showcase Broadcast)
+      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -599,14 +632,14 @@
           wipeCanvasLocal();
         }
 
-        // Student Showcase Display
+        // Student Showcase Display (Full-Canvas View)
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
 
         if (ctrl.showcaseImage) {
           showcaseImg.src = ctrl.showcaseImage;
-          showcaseCap.innerText = ctrl.showcaseCaption || "Spotlight Board";
+          showcaseCap.innerText = ctrl.showcaseCaption || "Featured Board";
           showcaseOverlay.style.display = 'flex';
         } else {
           showcaseOverlay.style.display = 'none';
@@ -791,7 +824,6 @@
           teacherCanvasCache.set(student.clientId, img);
           updateCardImage(student.clientId, img);
 
-          // Update active zoom modal if currently viewing this student
           if (activeSpotlightClientId === student.clientId) {
             document.getElementById('spotlight-img').src = img || '';
           }
@@ -827,7 +859,6 @@
         updateLockBtnUI(teacherLockFlag);
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
 
-        // Show/hide teacher "Stop Showcase" button
         const stopBtn = document.getElementById('end-showcase-btn');
         if (ctrl.showcaseImage) {
           stopBtn.style.display = 'inline-block';
@@ -921,11 +952,9 @@
         });
       }
 
-      // Re-label existing grid cards for instant anonymisation toggling
       students.forEach(s => updateCardMeta(s));
     }
 
-    // --- PHASE 1: ANONYMISE NAMES ---
     function toggleAnonymiseNames() {
       isAnonymised = !isAnonymised;
       const btn = document.getElementById('anon-toggle-btn');
@@ -949,7 +978,6 @@
       }
     }
 
-    // --- PHASE 1: SPOTLIGHT / ZOOM MODAL ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -977,7 +1005,6 @@
       document.getElementById('t-spotlight-modal').style.display = 'none';
     }
 
-    // --- PHASE 1: EXHIBIT / SHOWCASE TO CLASS ---
     function exhibitDirectly(clientId) {
       activeSpotlightClientId = clientId;
       broadcastCurrentSpotlight();
@@ -993,7 +1020,7 @@
 
       const s = teacherRoster.get(activeSpotlightClientId);
       const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
-      const caption = `Exhibited: ${getDisplayName(s, idx)}`;
+      const caption = `Featured: ${getDisplayName(s, idx)}`;
 
       roomRef.child('controls').update({
         showcaseImage: imgData,
