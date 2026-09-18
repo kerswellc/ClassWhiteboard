@@ -235,10 +235,6 @@
       cursor: not-allowed;
       opacity: 0.65;
     }
-    .btn-hinge-choice.selected:disabled {
-      opacity: 1;
-      border-color: #ffffff !important;
-    }
 
     /* Student Broadcast Leaderboard Overlay */
     .student-leaderboard-overlay {
@@ -265,7 +261,7 @@
       flex-direction: column;
     }
 
-    /* Student Showcase Fullscreen Overlay */
+    /* Student Showcase Overlay */
     .showcase-overlay { 
       position: absolute; 
       inset: 0; 
@@ -523,7 +519,7 @@
     .leaderboard-row.rank-2 { border-color: #cbd5e1; }
     .leaderboard-row.rank-3 { border-color: #b45309; }
 
-    /* PHASE 3: Template Modal & Library Styles */
+    /* Template Library Grid */
     .template-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -544,6 +540,7 @@
       background: var(--ga-navy-panel);
       text-align: center;
       transition: all 0.15s ease;
+      position: relative;
     }
     .template-card:hover {
       border-color: var(--ga-gold);
@@ -560,6 +557,7 @@
       background: #ffffff;
       border-radius: 4px;
       margin-bottom: 4px;
+      display: block;
     }
     .template-card-title {
       font-size: 0.75rem;
@@ -568,6 +566,85 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+    .template-card-actions {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      display: flex;
+      gap: 2px;
+    }
+    .template-card-btn {
+      background: rgba(2, 11, 26, 0.85);
+      color: white;
+      border-radius: 4px;
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ga-navy-border);
+      cursor: pointer;
+    }
+    .template-card-btn.del { background: #b91c1c; }
+
+    /* Template Studio Modal */
+    .studio-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 11, 26, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 180;
+      padding: 12px;
+    }
+    .studio-box {
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      max-width: 980px;
+      width: 100%;
+      height: 92vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
+      overflow: hidden;
+    }
+    .studio-header {
+      padding: 10px 16px;
+      background: var(--ga-navy-card);
+      border-bottom: 1px solid var(--ga-navy-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .studio-toolbar {
+      padding: 8px 14px;
+      background: var(--ga-navy-deep);
+      border-bottom: 1px solid var(--ga-navy-border);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .studio-canvas-wrap {
+      flex: 1;
+      background: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 12px;
+    }
+    #studio-canvas {
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      border-radius: 4px;
+      cursor: crosshair;
     }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(2, 11, 26, 0.85); align-items: center; justify-content: center; z-index: 100; }
@@ -704,11 +781,8 @@
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
         <button class="btn-secondary" onclick="openHingeModal()">🎯 Hinge Question</button>
         <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-        
-        <!-- PHASE 3: Push Template / Diagram Button -->
-        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openTemplateModal()">📋 Push Template</button>
+        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openTemplateModal()">📋 Templates</button>
         <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
-
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
@@ -831,27 +905,34 @@
     </div>
   </div>
 
-  <!-- PHASE 3: TEMPLATE & DIAGRAM MODAL -->
+  <!-- TEMPLATE SELECTION & FILE SHARING MODAL -->
   <div class="modal-overlay" id="template-modal">
-    <div class="card" style="margin: 0; max-width: 550px; width: 95%;">
-      <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Push Template / Diagram</h3>
-      <p style="margin: 0 0 12px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Select or upload a template to stamp onto student whiteboards.</p>
-      
-      <label style="margin-top: 0;">Template Library</label>
-      <div class="template-grid" id="template-library-grid">
-        <!-- Rendered by JS -->
+    <div class="card" style="margin: 0; max-width: 600px; width: 95%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <h3 style="margin: 0; color: var(--ga-gold);">Template Library</h3>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn-secondary btn-action-mini" onclick="triggerImportTemplateFile()">📥 Import .JSON</button>
+          <button class="btn-secondary btn-action-mini" onclick="exportTemplateLibrary()">📦 Export Library</button>
+          <button class="btn-gold btn-action-mini" onclick="openStudioModal()">🎨 Studio</button>
+        </div>
       </div>
+      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Push diagrams, code cards, or tables onto all student boards.</p>
+      
+      <!-- Hidden file input for importing template json -->
+      <input type="file" id="tpl-json-importer" accept=".json" style="display: none;" onchange="handleTemplateJsonImport(event)">
+
+      <div class="template-grid" id="template-library-grid"></div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
           <label>Push Placement</label>
           <select id="tpl-position-select">
-            <option value="TOP_LEFT">Top-Left Question Card (35% Scale)</option>
+            <option value="TOP_LEFT">Top-Left Question Card (38% Scale)</option>
             <option value="FULL">Full Canvas Background</option>
           </select>
         </div>
         <div>
-          <label>Upload Custom Image</label>
+          <label>Upload From Image File</label>
           <input type="file" id="tpl-file-input" accept="image/*" onchange="handleTemplateUpload(event)" style="padding: 6px 10px; font-size: 0.85rem;">
         </div>
       </div>
@@ -859,6 +940,49 @@
       <div style="display: flex; gap: 8px; margin-top: 18px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTemplateModal()">Cancel</button>
         <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">🚀 Push to Students</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER TEMPLATE STUDIO MODAL -->
+  <div class="studio-modal" id="studio-modal">
+    <div class="studio-box">
+      <div class="studio-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <strong style="color: var(--ga-gold); font-size: 1.1rem;">Template Authoring Studio</strong>
+          <input type="text" id="studio-name-input" placeholder="Template Name (e.g. Logic Circuit)" style="width: 240px; padding: 4px 8px; font-size: 0.9rem;">
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-gold btn-action-mini" onclick="saveStudioTemplate()">💾 Save to My Templates</button>
+          <button class="btn-secondary btn-action-mini" onclick="closeStudioModal()">Close</button>
+        </div>
+      </div>
+
+      <div class="studio-toolbar">
+        <button class="tool-btn active" id="st-tool-pen" onclick="setStudioTool('pen')">✏️ Pen</button>
+        <button class="tool-btn" id="st-tool-line" onclick="setStudioTool('line')">📏 Line</button>
+        <button class="tool-btn" id="st-tool-arrow" onclick="setStudioTool('arrow')">↗️ Arrow</button>
+        <button class="tool-btn" id="st-tool-rect" onclick="setStudioTool('rect')">⬜ Box</button>
+        <button class="tool-btn" id="st-tool-circle" onclick="setStudioTool('circle')">⭕ Circle</button>
+        <button class="tool-btn" id="st-tool-text" onclick="setStudioTool('text')">🔤 Text Stamp</button>
+        <button class="tool-btn" id="st-tool-grid" onclick="stampStudioTablePrompt()">📊 Insert Table</button>
+
+        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+
+        <select id="studio-color-select" style="width: 100px; padding: 4px 6px; font-size: 0.85rem;" onchange="studioCurrentColor = this.value;">
+          <option value="#04142d">GA Navy</option>
+          <option value="#000000">Black</option>
+          <option value="#df9b35">GA Gold</option>
+          <option value="#dc2626">Red</option>
+          <option value="#2563eb">Blue</option>
+          <option value="#16a34a">Green</option>
+        </select>
+
+        <button class="btn-secondary btn-action-mini" style="margin-left: auto;" onclick="clearStudioCanvas()">Wipe Canvas</button>
+      </div>
+
+      <div class="studio-canvas-wrap">
+        <canvas id="studio-canvas" width="800" height="480"></canvas>
       </div>
     </div>
   </div>
@@ -915,7 +1039,6 @@
     let currentLeaderboard = {};
     let isBroadcastingLeaderboard = false;
 
-    // PHASE 3: Template State
     let activeTemplateImageObj = null;
     let activeTemplateConfig = null;
     let selectedTemplateId = 'trace_table';
@@ -1027,7 +1150,6 @@
         });
       });
 
-      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -1048,7 +1170,6 @@
           uploadHighResSnapshot();
         }
 
-        // Showcase Overlay
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -1062,7 +1183,6 @@
           showcaseImg.removeAttribute('src');
         }
 
-        // Broadcasted Leaderboard Overlay
         const studentLbOverlay = document.getElementById('s-leaderboard-overlay');
         if (ctrl.broadcastLeaderboard) {
           renderStudentBroadcastLeaderboard();
@@ -1071,7 +1191,6 @@
           studentLbOverlay.style.display = 'none';
         }
 
-        // PHASE 3: Background Template Sync
         if (ctrl.templateData) {
           if (!activeTemplateConfig || activeTemplateConfig.timestamp !== ctrl.templateData.timestamp) {
             applyRemoteTemplate(ctrl.templateData);
@@ -1085,7 +1204,6 @@
         tickClocksLocally();
       });
 
-      // Hinge Question Listener
       roomRef.child('hinge/active').on('value', (snapshot) => {
         const hinge = snapshot.val();
         currentHingeConfig = hinge;
@@ -1132,7 +1250,6 @@
         }
       });
 
-      // Leaderboard Listener
       roomRef.child('leaderboard').on('value', (snapshot) => {
         currentLeaderboard = snapshot.val() || {};
         const myData = currentLeaderboard[studentClientId];
@@ -1300,7 +1417,6 @@
       });
     }
 
-    // --- PHASE 3: REMOTE TEMPLATE RENDERING ---
     function applyRemoteTemplate(tplData) {
       activeTemplateConfig = tplData;
       const img = new Image();
@@ -1318,7 +1434,6 @@
       if (activeTemplateConfig.position === 'FULL') {
         ctx.drawImage(activeTemplateImageObj, 0, 0, canvas.width, canvas.height);
       } else {
-        // TOP_LEFT Question Card Stamp (scales to ~38% canvas width)
         const targetW = canvas.width * 0.38;
         const aspect = activeTemplateImageObj.width / activeTemplateImageObj.height;
         const targetH = targetW / aspect;
@@ -1326,7 +1441,7 @@
         ctx.save();
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(8, 8, targetW + 8, targetH + 8);
-        ctx.strokeStyle = 'var(--ga-navy-border)';
+        ctx.strokeStyle = '#04142d';
         ctx.lineWidth = 2;
         ctx.strokeRect(8, 8, targetW + 8, targetH + 8);
         ctx.drawImage(activeTemplateImageObj, 12, 12, targetW, targetH);
@@ -1473,7 +1588,6 @@
           }
         }
 
-        // Template clear button toggle
         const clearTplBtn = document.getElementById('t-clear-tpl-btn');
         if (ctrl.templateData) {
           clearTplBtn.style.display = 'inline-block';
@@ -1624,23 +1738,11 @@
       }
     }
 
-    // --- PHASE 3: TEMPLATE LIBRARY & PUSH ENGINE ---
+    // --- TEMPLATE LIBRARY, IMPORT & EXPORT ENGINE ---
     const defaultTemplates = [
-      {
-        id: 'trace_table',
-        title: 'Trace Table',
-        dataUri: generateTraceTableDataUri()
-      },
-      {
-        id: 'coord_grid',
-        title: 'Coordinate Grid',
-        dataUri: generateGridDataUri()
-      },
-      {
-        id: 'logic_boxes',
-        title: 'Flowchart Box',
-        dataUri: generateFlowchartDataUri()
-      }
+      { id: 'trace_table', title: 'Trace Table', dataUri: generateTraceTableDataUri() },
+      { id: 'coord_grid', title: 'Coordinate Grid', dataUri: generateGridDataUri() },
+      { id: 'logic_boxes', title: 'Flowchart Box', dataUri: generateFlowchartDataUri() }
     ];
 
     function getSavedTemplates() {
@@ -1656,6 +1758,102 @@
       const current = getSavedTemplates();
       current.push({ id: 'custom_' + Date.now(), title, dataUri });
       localStorage.setItem('ga_saved_templates', JSON.stringify(current));
+    }
+
+    function deleteCustomTemplate(id, e) {
+      e.stopPropagation();
+      if (confirm("Delete this saved template?")) {
+        let current = getSavedTemplates();
+        current = current.filter(t => t.id !== id);
+        localStorage.setItem('ga_saved_templates', JSON.stringify(current));
+        renderTemplateLibraryGrid();
+      }
+    }
+
+    // Download a single template file
+    function downloadSingleTemplate(id, e) {
+      e.stopPropagation();
+      const all = [...defaultTemplates, ...getSavedTemplates()];
+      const tpl = all.find(t => t.id === id);
+      if (!tpl) return;
+
+      const exportData = {
+        type: "GA_WHITEBOARD_TEMPLATE",
+        version: "1.0",
+        template: tpl
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${tpl.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-template.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Export all custom templates in a bulk backup
+    function exportTemplateLibrary() {
+      const custom = getSavedTemplates();
+      if (custom.length === 0) {
+        return alert("You don't have any custom saved templates to export yet.");
+      }
+
+      const exportData = {
+        type: "GA_WHITEBOARD_LIBRARY",
+        version: "1.0",
+        templates: custom
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `whiteboard-template-library-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Trigger file chooser for template json import
+    function triggerImportTemplateFile() {
+      document.getElementById('tpl-json-importer').click();
+    }
+
+    // Handle template import
+    function handleTemplateJsonImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          let current = getSavedTemplates();
+          let addedCount = 0;
+
+          if (parsed.type === "GA_WHITEBOARD_TEMPLATE" && parsed.template) {
+            parsed.template.id = 'custom_' + Date.now();
+            current.push(parsed.template);
+            addedCount = 1;
+          } else if (parsed.type === "GA_WHITEBOARD_LIBRARY" && Array.isArray(parsed.templates)) {
+            parsed.templates.forEach(t => {
+              t.id = 'custom_' + Date.now() + Math.random().toString(36).substring(2, 6);
+              current.push(t);
+              addedCount++;
+            });
+          } else {
+            return alert("Invalid template file format.");
+          }
+
+          localStorage.setItem('ga_saved_templates', JSON.stringify(current));
+          renderTemplateLibraryGrid();
+          alert(`Successfully imported ${addedCount} template(s)!`);
+        } catch (err) {
+          alert("Could not read template file. Please make sure it is a valid .json template.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ''; // Reset input
     }
 
     function openTemplateModal() {
@@ -1677,7 +1875,17 @@
         card.className = `template-card ${t.id === selectedTemplateId ? 'active' : ''}`;
         card.id = `tpl_${t.id}`;
         card.onclick = () => selectTemplate(t.id);
+        
+        const isCustom = t.id.startsWith('custom_');
+        const actionBtns = `
+          <div class="template-card-actions">
+            <button class="template-card-btn" title="Download Template File" onclick="downloadSingleTemplate('${t.id}', event)">💾</button>
+            ${isCustom ? `<button class="template-card-btn del" title="Delete Template" onclick="deleteCustomTemplate('${t.id}', event)">✕</button>` : ''}
+          </div>
+        `;
+
         card.innerHTML = `
+          ${actionBtns}
           <img src="${t.dataUri}" alt="${escapeHTML(t.title)}">
           <div class="template-card-title">${escapeHTML(t.title)}</div>
         `;
@@ -1700,7 +1908,6 @@
       reader.onload = function(evt) {
         const img = new Image();
         img.onload = function() {
-          // Scale down uploaded image to lightweight WebP/JPEG
           const maxDim = 1000;
           let w = img.width;
           let h = img.height;
@@ -1725,7 +1932,7 @@
           const compressed = c.toDataURL('image/jpeg', 0.6);
           const name = file.name.replace(/\.[^/.]+$/, "").substring(0, 16);
           saveCustomTemplate(name, compressed);
-          selectedTemplateId = 'custom_' + (Date.now());
+          selectedTemplateId = 'custom_' + Date.now();
           renderTemplateLibraryGrid();
         };
         img.src = evt.target.result;
@@ -1757,7 +1964,6 @@
       }
     }
 
-    // Default SVG-to-Canvas Generators for Built-In Templates
     function generateTraceTableDataUri() {
       const c = document.createElement('canvas');
       c.width = 600; c.height = 360;
@@ -1766,13 +1972,10 @@
       x.strokeStyle = '#04142d'; x.lineWidth = 2;
       x.strokeRect(10, 10, 580, 340);
       x.beginPath();
-      // Columns
       x.moveTo(140, 10); x.lineTo(140, 350);
       x.moveTo(270, 10); x.lineTo(270, 350);
       x.moveTo(400, 10); x.lineTo(400, 350);
-      // Header row
       x.moveTo(10, 60); x.lineTo(590, 60);
-      // Grid rows
       for (let r = 110; r < 350; r += 45) {
         x.moveTo(10, r); x.lineTo(590, r);
       }
@@ -1797,7 +2000,6 @@
       for (let j = 20; j < 360; j += 25) {
         x.beginPath(); x.moveTo(0, j); x.lineTo(600, j); x.stroke();
       }
-      // Main axes
       x.strokeStyle = '#04142d'; x.lineWidth = 2.5;
       x.beginPath();
       x.moveTo(300, 0); x.lineTo(300, 360);
@@ -1817,7 +2019,6 @@
       x.moveTo(220, 80); x.lineTo(360, 80);
       x.lineTo(350, 70); x.moveTo(360, 80); x.lineTo(350, 90);
       x.stroke();
-      // Decision diamond
       x.beginPath();
       x.moveTo(440, 40); x.lineTo(520, 80); x.lineTo(440, 120); x.lineTo(360, 80); x.closePath();
       x.stroke();
@@ -1825,6 +2026,163 @@
       x.fillText('Process', 110, 86);
       x.fillText('Decision?', 410, 86);
       return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    // --- TEACHER TEMPLATE STUDIO ENGINE ---
+    const studioCanvas = document.getElementById('studio-canvas');
+    const sctx = studioCanvas.getContext('2d');
+    let studioTool = 'pen';
+    let studioCurrentColor = '#04142d';
+    let studioDrawing = false;
+    let studioStartCoords = { x: 0, y: 0 };
+    let studioSnapshot = null;
+
+    function openStudioModal() {
+      closeTemplateModal();
+      document.getElementById('studio-modal').style.display = 'flex';
+      clearStudioCanvas();
+    }
+
+    function closeStudioModal() {
+      document.getElementById('studio-modal').style.display = 'none';
+      openTemplateModal();
+    }
+
+    function clearStudioCanvas() {
+      sctx.fillStyle = "#ffffff";
+      sctx.fillRect(0, 0, studioCanvas.width, studioCanvas.height);
+      sctx.lineCap = 'round';
+      sctx.lineJoin = 'round';
+    }
+
+    function setStudioTool(tool) {
+      studioTool = tool;
+      document.querySelectorAll('.studio-toolbar .tool-btn').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`st-tool-${tool}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function getStudioCoords(e) {
+      const rect = studioCanvas.getBoundingClientRect();
+      const scaleX = studioCanvas.width / rect.width;
+      const scaleY = studioCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function startStudioDraw(e) {
+      const coords = getStudioCoords(e);
+      studioStartCoords = coords;
+
+      if (studioTool === 'text') {
+        const text = prompt("Enter text to stamp on template:");
+        if (text) {
+          sctx.font = "bold 24px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+          sctx.fillStyle = studioCurrentColor;
+          sctx.fillText(text, coords.x, coords.y);
+        }
+        return;
+      }
+
+      studioDrawing = true;
+      studioSnapshot = sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height);
+
+      if (studioTool === 'pen') {
+        sctx.beginPath();
+        sctx.moveTo(coords.x, coords.y);
+      }
+    }
+
+    function drawStudio(e) {
+      if (!studioDrawing) return;
+      const coords = getStudioCoords(e);
+
+      if (studioTool === 'pen') {
+        sctx.strokeStyle = studioCurrentColor;
+        sctx.lineWidth = 3;
+        sctx.lineTo(coords.x, coords.y);
+        sctx.stroke();
+        return;
+      }
+
+      sctx.putImageData(studioSnapshot, 0, 0);
+      sctx.strokeStyle = studioCurrentColor;
+      sctx.lineWidth = 3;
+
+      if (studioTool === 'line') {
+        sctx.beginPath();
+        sctx.moveTo(studioStartCoords.x, studioStartCoords.y);
+        sctx.lineTo(coords.x, coords.y);
+        sctx.stroke();
+      } else if (studioTool === 'arrow') {
+        drawStudioArrow(studioStartCoords.x, studioStartCoords.y, coords.x, coords.y);
+      } else if (studioTool === 'rect') {
+        const w = coords.x - studioStartCoords.x;
+        const h = coords.y - studioStartCoords.y;
+        sctx.strokeRect(studioStartCoords.x, studioStartCoords.y, w, h);
+      } else if (studioTool === 'circle') {
+        const radius = Math.hypot(coords.x - studioStartCoords.x, coords.y - studioStartCoords.y);
+        sctx.beginPath();
+        sctx.arc(studioStartCoords.x, studioStartCoords.y, radius, 0, 2 * Math.PI);
+        sctx.stroke();
+      }
+    }
+
+    function stopStudioDraw() {
+      studioDrawing = false;
+    }
+
+    function drawStudioArrow(fromx, fromy, tox, toy) {
+      const headlen = 14;
+      const angle = Math.atan2(toy - fromy, tox - fromx);
+      sctx.beginPath();
+      sctx.moveTo(fromx, fromy);
+      sctx.lineTo(tox, toy);
+      sctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+      sctx.moveTo(tox, toy);
+      sctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+      sctx.stroke();
+    }
+
+    function stampStudioTablePrompt() {
+      const rows = parseInt(prompt("How many table rows? (e.g. 4)", "4"), 10);
+      const cols = parseInt(prompt("How many table columns? (e.g. 3)", "3"), 10);
+      if (!rows || !cols || rows <= 0 || cols <= 0) return;
+
+      const pad = 40;
+      const w = studioCanvas.width - (pad * 2);
+      const h = studioCanvas.height - (pad * 2);
+      const colW = w / cols;
+      const rowH = h / rows;
+
+      sctx.strokeStyle = studioCurrentColor;
+      sctx.lineWidth = 2.5;
+      sctx.strokeRect(pad, pad, w, h);
+
+      sctx.beginPath();
+      for (let c = 1; c < cols; c++) {
+        sctx.moveTo(pad + (c * colW), pad);
+        sctx.lineTo(pad + (c * colW), pad + h);
+      }
+      for (let r = 1; r < rows; r++) {
+        sctx.moveTo(pad, pad + (r * rowH));
+        sctx.lineTo(pad + w, pad + (r * rowH));
+      }
+      sctx.stroke();
+    }
+
+    studioCanvas.addEventListener('mousedown', startStudioDraw);
+    studioCanvas.addEventListener('mousemove', drawStudio);
+    studioCanvas.addEventListener('mouseup', stopStudioDraw);
+
+    function saveStudioTemplate() {
+      const name = document.getElementById('studio-name-input').value.trim() || 'Custom Template';
+      const dataUri = studioCanvas.toDataURL('image/jpeg', 0.8);
+      saveCustomTemplate(name, dataUri);
+      alert(`Template "${name}" saved to library!`);
+      closeStudioModal();
     }
 
     // --- HINGE QUESTION HANDLERS ---
