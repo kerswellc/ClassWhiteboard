@@ -329,27 +329,15 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Use localStorage so page refresh reuses the exact same clientId instead of duplicating
+    // Isolate client ID to this tab so multiple tabs on one device never collide
     function getClientId() {
-      let cid = localStorage.getItem('ga_client_id');
+      let cid = sessionStorage.getItem('ga_client_id');
       if (!cid) {
         cid = 'cid_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        localStorage.setItem('ga_client_id', cid);
+        sessionStorage.setItem('ga_client_id', cid);
       }
       return cid;
     }
-
-    // Tell the server immediately when closing or refreshing the tab
-    function sendDisconnectBeacon() {
-      if (activeRoom && studentClientId) {
-        const payload = JSON.stringify({ clientId: studentClientId });
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(`${RELAY_URL}/${activeRoom}/disconnect`, payload);
-        }
-      }
-    }
-    window.addEventListener('beforeunload', sendDisconnectBeacon);
-    window.addEventListener('pagehide', sendDisconnectBeacon);
 
     // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
