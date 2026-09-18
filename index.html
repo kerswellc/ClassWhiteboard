@@ -329,33 +329,10 @@
     let teacherLockFlag = false;
     let lastWipeHandled = 0;
 
-    // Isolate client ID to this tab so multiple tabs on one device never collide
-    function getClientId() {
-      let cid = sessionStorage.getItem('ga_client_id');
-      if (!cid) {
-        cid = 'cid_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        sessionStorage.setItem('ga_client_id', cid);
-      }
-      return cid;
+    // Generates a strictly unique ID in RAM for each open browser session/tab
+    function generateInstanceClientId() {
+      return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
-
-    // High-reliability disconnect signal on tab close or refresh
-    function notifyDisconnect() {
-      if (activeRoom && studentClientId) {
-        const payload = JSON.stringify({ clientId: studentClientId });
-        // Use fetch keepalive to guarantee execution even as the tab shuts down
-        try {
-          fetch(`${RELAY_URL}/${activeRoom}/disconnect`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload,
-            keepalive: true
-          });
-        } catch (_) {}
-      }
-    }
-    window.addEventListener('pagehide', notifyDisconnect);
-    window.addEventListener('beforeunload', notifyDisconnect);
 
     // Smooth Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
@@ -390,7 +367,7 @@
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
-    // Adaptive Idle Scheduler (Keeps background tabs alive under 18s prune window)
+    // Adaptive Idle Scheduler
     let lastInteractionTime = Date.now();
     let pingTimeout = null;
 
@@ -416,8 +393,8 @@
         const idleDuration = Date.now() - lastInteractionTime;
         const syncLabel = document.getElementById('s-sync-status');
         
-        // Active: 3.5s | Background/Idle: 9s (Guaranteed under 18s disconnect prune)
-        let nextDelay = (document.hidden || idleDuration > 30000) ? 9000 : 3500;
+        // Active: 3.5s | Background/Idle: 12s (Well inside 45s prune window)
+        let nextDelay = (document.hidden || idleDuration > 30000) ? 12000 : 3500;
 
         if (syncLabel) {
           if (document.hidden) {
@@ -459,7 +436,7 @@
 
       activeRoom = room;
       studentSeat = seat;
-      studentClientId = getClientId();
+      studentClientId = generateInstanceClientId();
 
       document.getElementById('join-view').style.display = 'none';
       const drawView = document.getElementById('student-draw-view');
