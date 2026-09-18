@@ -173,6 +173,70 @@
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
     .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
 
+    /* Student Peer Review Split View */
+    .peer-review-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 20, 45, 0.97);
+      display: none;
+      flex-direction: column;
+      z-index: 42;
+      padding: 14px;
+      overflow: hidden;
+    }
+    .peer-review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .peer-review-body {
+      display: flex;
+      gap: 16px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .peer-board-panel {
+      flex: 1.6;
+      background: #ffffff;
+      border: 2px solid var(--ga-gold);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .peer-board-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .peer-feedback-panel {
+      flex: 1;
+      background: var(--ga-navy-panel);
+      border: 1px solid var(--ga-navy-border);
+      border-radius: 6px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Student Peer Feedback Delivery Notification */
+    .feedback-notice-card {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: var(--ga-navy-panel);
+      border: 2px solid var(--ga-gold);
+      border-radius: 8px;
+      padding: 14px 18px;
+      max-width: 380px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      z-index: 35;
+      display: none;
+    }
+
     /* Student Hinge Question Overlay */
     .hinge-student-overlay {
       position: absolute;
@@ -712,7 +776,7 @@
       <div class="canvas-container">
         <canvas id="board"></canvas>
         
-        <!-- Non-Blocking In-Page Text Modal -->
+        <!-- Non-Blocking Text Modal -->
         <div class="text-modal-overlay" id="s-text-modal">
           <div class="text-modal-box">
             <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Text (Bold 60px)</h3>
@@ -758,6 +822,36 @@
             <div class="leaderboard-list" id="s-leaderboard-list"></div>
           </div>
         </div>
+
+        <!-- PHASE 4: Student Peer Review Split-Screen Overlay -->
+        <div class="peer-review-overlay" id="s-peer-overlay">
+          <div class="peer-review-header">
+            <div>
+              <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review Mode</strong>
+              <span id="s-peer-partner-tag" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Reviewing: Classmate</span>
+            </div>
+            <span class="timer-pill" id="s-peer-timer-pill" style="display: inline-block; font-size: 0.95rem;">⏱ 00:00</span>
+          </div>
+          <div class="peer-review-body">
+            <div class="peer-board-panel">
+              <img id="s-peer-board-img" src="" alt="Peer Board Snapshot">
+            </div>
+            <div class="peer-feedback-panel">
+              <label style="margin-top:0; font-size: 0.95rem; color: var(--ga-gold);">Your Feedback for this student:</label>
+              <textarea id="s-peer-feedback-input" style="flex: 1; resize: none;" placeholder="Give 1 piece of praise and 1 constructive suggestion or correction..."></textarea>
+              <button class="btn-primary" style="margin-top: 0;" onclick="sendPeerFeedback()">Send Feedback</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivered Feedback Card (shown to student after review) -->
+        <div class="feedback-notice-card" id="s-feedback-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: var(--ga-gold);">💬 Peer Feedback Received</strong>
+            <button class="btn-ghost" style="padding: 2px 6px;" onclick="document.getElementById('s-feedback-card').style.display='none'">✕</button>
+          </div>
+          <p id="s-feedback-text" style="font-size: 0.85rem; margin: 0; color: #ffffff; line-height: 1.4;"></p>
+        </div>
       </div>
     </div>
 
@@ -770,6 +864,7 @@
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <button id="end-showcase-btn" class="btn-gold" style="display: none;" onclick="stopShowcaseBroadcast()">🛑 Stop Showcase</button>
+          <button id="end-peer-btn" class="btn-gold" style="display: none;" onclick="endPeerReviewSession()">🛑 End Peer Review</button>
           <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
           <span class="room-badge" id="t-room-tag">Room: ---</span>
           <button class="btn-danger" onclick="clearTeacherRoom()">Clear Room</button>
@@ -780,8 +875,12 @@
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
         <button class="btn-secondary" onclick="openHingeModal()">🎯 Hinge Question</button>
+        
+        <!-- PHASE 4: Peer Review Launcher -->
+        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openPeerReviewModal()">👥 Peer Review</button>
+        
         <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openTemplateModal()">📋 Templates</button>
+        <button class="btn-secondary" onclick="openTemplateModal()">📋 Templates</button>
         <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
@@ -805,6 +904,18 @@
         </div>
         <p id="t-hinge-qdisplay" style="font-size: 0.95rem; margin: 0 0 12px 0; color: #ffffff;"></p>
         <div class="stats-bar-container" id="t-stats-bars"></div>
+      </div>
+
+      <!-- PHASE 4: Teacher Live Peer Review Tracker -->
+      <div class="hinge-stats-panel" id="t-peer-status-panel">
+        <div class="stats-header">
+          <div>
+            <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review in Progress</strong>
+            <span id="t-peer-counter" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">0 / 0 feedback sent</span>
+          </div>
+          <button class="btn-danger btn-action-mini" onclick="endPeerReviewSession()">End Review Now</button>
+        </div>
+        <div id="t-peer-roster-status" style="font-size: 0.8rem; color: var(--ga-text-muted); display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
 
       <div class="roster-panel">
@@ -832,6 +943,27 @@
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
         <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: PEER REVIEW LAUNCHER MODAL -->
+  <div class="modal-overlay" id="peer-review-modal">
+    <div class="card" style="margin: 0; max-width: 460px; width: 95%;">
+      <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Start Timed Peer Review</h3>
+      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Pairs students up randomly to review each other's current boards and provide feedback.</p>
+      
+      <label>Duration (Seconds)</label>
+      <input type="number" id="peer-duration-input" value="90" min="20" max="600">
+
+      <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" id="peer-anonymise-check" checked style="width: auto; margin: 0;">
+        <label for="peer-anonymise-check" style="margin: 0; cursor: pointer; color: #ffffff;">Anonymise peer boards (hide names during review)</label>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button class="btn-secondary" style="flex:1;" onclick="closePeerReviewModal()">Cancel</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchPeerReview()">🚀 Pair & Launch</button>
       </div>
     </div>
   </div>
@@ -918,9 +1050,7 @@
       </div>
       <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Push diagrams, code cards, or tables onto all student boards.</p>
       
-      <!-- Hidden file input for importing template json -->
       <input type="file" id="tpl-json-importer" accept=".json" style="display: none;" onchange="handleTemplateJsonImport(event)">
-
       <div class="template-grid" id="template-library-grid"></div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -1043,6 +1173,9 @@
     let activeTemplateConfig = null;
     let selectedTemplateId = 'trace_table';
 
+    // PHASE 4: Peer Review State
+    let currentPeerAssignment = null;
+
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
@@ -1056,6 +1189,7 @@
       const sPill = document.getElementById('s-timer-pill');
       const tPill = document.getElementById('t-timer-pill');
       const sHingePill = document.getElementById('s-hinge-timer-pill');
+      const sPeerPill = document.getElementById('s-peer-timer-pill');
 
       if (activeTimerEndEpoch > 0) {
         if (now < activeTimerEndEpoch) {
@@ -1064,12 +1198,14 @@
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
           if (sHingePill) sHingePill.innerText = formatted;
+          if (sPeerPill) sPeerPill.innerText = formatted;
           setStudentHingeLocked(false);
         } else {
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
           if (sHingePill) sHingePill.innerText = '⏱ 00:00 (Time Expired - Locked)';
+          if (sPeerPill) sPeerPill.innerText = '⏱ 00:00 (Review Closed)';
           setStudentHingeLocked(true);
           updateStudentLockState(true);
         }
@@ -1150,6 +1286,7 @@
         });
       });
 
+      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -1201,9 +1338,37 @@
           wipeCanvasLocal();
         }
 
+        // PHASE 4: Peer Review Session Sync
+        const peerOverlay = document.getElementById('s-peer-overlay');
+        if (ctrl.peerReviewActive) {
+          peerOverlay.style.display = 'flex';
+        } else {
+          peerOverlay.style.display = 'none';
+        }
+
         tickClocksLocally();
       });
 
+      // PHASE 4: Listen for personal assigned peer
+      roomRef.child(`peerReview/assignments/${studentClientId}`).on('value', (snapshot) => {
+        const assignment = snapshot.val();
+        currentPeerAssignment = assignment;
+        if (assignment) {
+          document.getElementById('s-peer-partner-tag').innerText = `Reviewing: ${assignment.peerName}`;
+          document.getElementById('s-peer-board-img').src = assignment.peerImage || '';
+        }
+      });
+
+      // PHASE 4: Listen for received feedback from peer
+      roomRef.child(`peerReview/feedback/${studentClientId}`).on('value', (snapshot) => {
+        const fb = snapshot.val();
+        if (fb && fb.comment) {
+          document.getElementById('s-feedback-text').innerText = `"${fb.comment}"`;
+          document.getElementById('s-feedback-card').style.display = 'block';
+        }
+      });
+
+      // Hinge Question Listener
       roomRef.child('hinge/active').on('value', (snapshot) => {
         const hinge = snapshot.val();
         currentHingeConfig = hinge;
@@ -1250,6 +1415,7 @@
         }
       });
 
+      // Leaderboard Listener
       roomRef.child('leaderboard').on('value', (snapshot) => {
         currentLeaderboard = snapshot.val() || {};
         const myData = currentLeaderboard[studentClientId];
@@ -1279,6 +1445,24 @@
           location.reload();
         }
       });
+    }
+
+    // PHASE 4: Send peer feedback
+    async function sendPeerFeedback() {
+      if (!currentPeerAssignment || !currentPeerAssignment.peerClientId) {
+        return alert("No peer assigned.");
+      }
+      const comment = document.getElementById('s-peer-feedback-input').value.trim();
+      if (!comment) return alert("Please write a comment before sending.");
+
+      await roomRef.child(`peerReview/feedback/${currentPeerAssignment.peerClientId}`).set({
+        fromSeat: studentSeat,
+        comment: comment,
+        timestamp: Date.now()
+      });
+
+      await roomRef.child(`peerReview/submitted/${studentClientId}`).set(true);
+      alert("Feedback submitted to your classmate!");
     }
 
     function selectHingeAnswer(choice, shouldWrite = true) {
@@ -1576,6 +1760,16 @@
           stopBtn.style.display = 'none';
         }
 
+        const stopPeerBtn = document.getElementById('end-peer-btn');
+        const peerPanel = document.getElementById('t-peer-status-panel');
+        if (ctrl.peerReviewActive) {
+          stopPeerBtn.style.display = 'inline-block';
+          peerPanel.style.display = 'block';
+        } else {
+          stopPeerBtn.style.display = 'none';
+          peerPanel.style.display = 'none';
+        }
+
         isBroadcastingLeaderboard = Boolean(ctrl.broadcastLeaderboard);
         const bcastBtn = document.getElementById('broadcast-lb-btn');
         if (bcastBtn) {
@@ -1596,6 +1790,27 @@
         }
 
         tickClocksLocally();
+      });
+
+      // PHASE 4: Live Peer Review Progress Tracker
+      roomRef.child('peerReview/submitted').on('value', (snapshot) => {
+        const submitted = snapshot.val() || {};
+        const total = teacherRoster.size;
+        const count = Object.keys(submitted).length;
+        document.getElementById('t-peer-counter').innerText = `${count} / ${total} reviews completed`;
+
+        const rosterWrap = document.getElementById('t-peer-roster-status');
+        rosterWrap.innerHTML = '';
+        teacherRoster.forEach(s => {
+          const isDone = Boolean(submitted[s.clientId]);
+          const badge = document.createElement('span');
+          badge.style.padding = '2px 6px';
+          badge.style.borderRadius = '4px';
+          badge.style.background = isDone ? '#166534' : 'var(--ga-navy-input)';
+          badge.style.color = isDone ? '#4ade80' : 'var(--ga-text-muted)';
+          badge.innerText = `${s.seat}: ${isDone ? '✓ Done' : 'Writing...'}`;
+          rosterWrap.appendChild(badge);
+        });
       });
 
       roomRef.child('hinge/active').on('value', (snapshot) => {
@@ -1738,6 +1953,65 @@
       }
     }
 
+    // --- PHASE 4: PEER REVIEW LAUNCHER & PAIRING ENGINE ---
+    function openPeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'flex';
+    }
+
+    function closePeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'none';
+    }
+
+    async function launchPeerReview() {
+      const students = Array.from(teacherRoster.values());
+      if (students.length < 2) {
+        return alert("At least 2 connected students are required for Peer Review.");
+      }
+
+      const durationSecs = parseInt(document.getElementById('peer-duration-input').value, 10) || 90;
+      const anonymise = document.getElementById('peer-anonymise-check').checked;
+      closePeerReviewModal();
+
+      // Shuffle array
+      const shuffled = [...students].sort(() => Math.random() - 0.5);
+      const assignments = {};
+
+      // Cycle shift pairing (1 -> 2, 2 -> 3 ... N -> 1)
+      for (let i = 0; i < shuffled.length; i++) {
+        const reviewer = shuffled[i];
+        const reviewedPeer = shuffled[(i + 1) % shuffled.length];
+        const peerImage = teacherCanvasCache.get(reviewedPeer.clientId) || null;
+
+        assignments[reviewer.clientId] = {
+          peerClientId: reviewedPeer.clientId,
+          peerName: anonymise ? "Anonymous Classmate" : reviewedPeer.seat,
+          peerImage: peerImage
+        };
+      }
+
+      const targetEnd = Date.now() + (durationSecs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      // Clean old session and push atomic assignments
+      await roomRef.child('peerReview/submitted').remove();
+      await roomRef.child('peerReview/assignments').set(assignments);
+      await roomRef.child('controls').update({
+        peerReviewActive: true,
+        locked: false,
+        timerEnd: targetEnd
+      });
+    }
+
+    async function endPeerReviewSession() {
+      if (confirm("Conclude Peer Review and restore drawing boards?")) {
+        await roomRef.child('controls').update({
+          peerReviewActive: false,
+          timerEnd: 0
+        });
+      }
+    }
+
     // --- TEMPLATE LIBRARY, IMPORT & EXPORT ENGINE ---
     const defaultTemplates = [
       { id: 'trace_table', title: 'Trace Table', dataUri: generateTraceTableDataUri() },
@@ -1770,7 +2044,6 @@
       }
     }
 
-    // Download a single template file
     function downloadSingleTemplate(id, e) {
       e.stopPropagation();
       const all = [...defaultTemplates, ...getSavedTemplates()];
@@ -1792,7 +2065,6 @@
       URL.revokeObjectURL(url);
     }
 
-    // Export all custom templates in a bulk backup
     function exportTemplateLibrary() {
       const custom = getSavedTemplates();
       if (custom.length === 0) {
@@ -1814,12 +2086,10 @@
       URL.revokeObjectURL(url);
     }
 
-    // Trigger file chooser for template json import
     function triggerImportTemplateFile() {
       document.getElementById('tpl-json-importer').click();
     }
 
-    // Handle template import
     function handleTemplateJsonImport(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1853,7 +2123,7 @@
         }
       };
       reader.readAsText(file);
-      event.target.value = ''; // Reset input
+      event.target.value = '';
     }
 
     function openTemplateModal() {
@@ -2564,6 +2834,7 @@
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
         roomRef.child('hinge').remove();
+        roomRef.child('peerReview').remove();
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
@@ -2572,7 +2843,8 @@
           showcaseCaption: null,
           requestHighRes: null,
           broadcastLeaderboard: false,
-          templateData: null
+          templateData: null,
+          peerReviewActive: false
         });
       }
     }
