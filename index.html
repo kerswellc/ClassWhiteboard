@@ -308,6 +308,7 @@
       justify-content: center;
       overflow: hidden;
       padding: 8px;
+      position: relative;
     }
     .spotlight-body img {
       width: 100%;
@@ -594,6 +595,7 @@
 
       studentRef.onDisconnect().remove();
       canvasRef.onDisconnect().remove();
+      roomRef.child(`highResCanvases/${studentClientId}`).onDisconnect().remove();
 
       roomRef.child('students').once('value', (snapshot) => {
         const students = snapshot.val() || {};
@@ -632,7 +634,12 @@
           wipeCanvasLocal();
         }
 
-        // Student Showcase Display (Full-Canvas View)
+        // On-demand high-res request from teacher
+        if (ctrl.requestHighRes === studentClientId) {
+          uploadHighResSnapshot();
+        }
+
+        // Student Showcase Display (High-Def Replica)
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -725,6 +732,7 @@
       sendBoardPayload();
     }
 
+    // 1. Routine Low-Res Grid Broadcast (~8-10 KB)
     function sendBoardPayload() {
       if (!canvasRef || isBoardLocked) return;
 
@@ -740,6 +748,26 @@
 
       canvasRef.set({
         image: imgData,
+        updatedAt: Date.now()
+      });
+    }
+
+    // 2. On-Demand High-Res Snapshot (1200x720 @ 0.75 JPEG, ~75 KB, triggered only when needed)
+    function uploadHighResSnapshot() {
+      if (!roomRef || !studentClientId) return;
+
+      const highResCanvas = document.createElement('canvas');
+      highResCanvas.width = 1200;
+      highResCanvas.height = 720;
+      const hrCtx = highResCanvas.getContext('2d');
+      hrCtx.fillStyle = '#ffffff';
+      hrCtx.fillRect(0, 0, 1200, 720);
+      hrCtx.drawImage(canvas, 0, 0, 1200, 720);
+
+      const highResData = highResCanvas.toDataURL('image/jpeg', 0.75);
+
+      roomRef.child(`highResCanvases/${studentClientId}`).set({
+        image: highResData,
         updatedAt: Date.now()
       });
     }
@@ -823,11 +851,15 @@
           const img = cData ? cData.image : null;
           teacherCanvasCache.set(student.clientId, img);
           updateCardImage(student.clientId, img);
-
-          if (activeSpotlightClientId === student.clientId) {
-            document.getElementById('spotlight-img').src = img || '';
-          }
         });
+      });
+
+      // Listen for incoming High-Res snapshots
+      roomRef.child('highResCanvases').on('child_added', (snapshot) => {
+        handleHighResDelivery(snapshot.key, snapshot.val());
+      });
+      roomRef.child('highResCanvases').on('child_changed', (snapshot) => {
+        handleHighResDelivery(snapshot.key, snapshot.val());
       });
 
       roomRef.child('students').on('child_changed', (snapshot) => {
@@ -851,6 +883,7 @@
         }
 
         roomRef.child(`canvases/${clientId}`).off();
+        roomRef.child(`highResCanvases/${clientId}`).remove();
       });
 
       roomRef.child('controls').on('value', (snapshot) => {
@@ -868,6 +901,14 @@
 
         tickClocksLocally();
       });
+    }
+
+    function handleHighResDelivery(clientId, data) {
+      if (!data || !data.image) return;
+      if (activeSpotlightClientId === clientId) {
+        const spotlightImg = document.getElementById('spotlight-img');
+        spotlightImg.src = data.image;
+      }
     }
 
     function getDisplayName(student, index) {
@@ -978,19 +1019,21 @@
       }
     }
 
+    // --- HIGH-RES SPOTLIGHT MODAL ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
 
       activeSpotlightClientId = clientId;
       const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-      const imgData = teacherCanvasCache.get(clientId);
+      const lowResImg = teacherCanvasCache.get(clientId);
 
       document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
       const spotlightImg = document.getElementById('spotlight-img');
 
-      if (imgData) {
-        spotlightImg.src = imgData;
+      // Instantly show the low-res thumbnail as a placeholder
+      if (lowResImg) {
+        spotlightImg.src = lowResImg;
         spotlightImg.style.display = 'block';
       } else {
         spotlightImg.removeAttribute('src');
@@ -998,42 +1041,61 @@
       }
 
       document.getElementById('t-spotlight-modal').style.display = 'flex';
+
+      // Request on-demand high-definition render from the student's browser
+      roomRef.child('controls').update({
+        requestHighRes: clientId
+      });
     }
 
     function closeSpotlightModal() {
       activeSpotlightClientId = null;
       document.getElementById('t-spotlight-modal').style.display = 'none';
-    }
-
-    function exhibitDirectly(clientId) {
-      activeSpotlightClientId = clientId;
-      broadcastCurrentSpotlight();
-    }
-
-    function broadcastCurrentSpotlight() {
-      if (!activeSpotlightClientId) return;
-
-      const imgData = teacherCanvasCache.get(activeSpotlightClientId);
-      if (!imgData) {
-        return alert("This whiteboard has no drawings to exhibit yet.");
+      if (roomRef) {
+        roomRef.child('controls').update({ requestHighRes: null });
       }
+    }
 
-      const s = teacherRoster.get(activeSpotlightClientId);
-      const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
-      const caption = `Featured: ${getDisplayName(s, idx)}`;
+    // --- HIGH-RES EXHIBIT / SHOWCASE ---
+    async function exhibitDirectly(clientId) {
+      activeSpotlightClientId = clientId;
+      
+      // Request high-res snapshot
+      await roomRef.child('controls').update({ requestHighRes: clientId });
 
-      roomRef.child('controls').update({
-        showcaseImage: imgData,
-        showcaseCaption: caption
-      });
+      // Allow 350ms for high-res render to arrive, fallback to thumbnail if offline
+      setTimeout(async () => {
+        const hrSnap = await roomRef.child(`highResCanvases/${clientId}`).once('value');
+        const hrData = hrSnap.val();
+        const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
 
+        if (!bestImage) {
+          return alert("This whiteboard has no drawings to exhibit yet.");
+        }
+
+        const s = teacherRoster.get(clientId);
+        const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+        const caption = `Featured: ${getDisplayName(s, idx)}`;
+
+        roomRef.child('controls').update({
+          showcaseImage: bestImage,
+          showcaseCaption: caption,
+          requestHighRes: null
+        });
+      }, 350);
+    }
+
+    async function broadcastCurrentSpotlight() {
+      if (!activeSpotlightClientId) return;
+      exhibitDirectly(activeSpotlightClientId);
       closeSpotlightModal();
     }
 
     function stopShowcaseBroadcast() {
       roomRef.child('controls').update({
         showcaseImage: null,
-        showcaseCaption: null
+        showcaseCaption: null,
+        requestHighRes: null
       });
     }
 
@@ -1076,6 +1138,7 @@
     function wipeAllStudentBoards() {
       if (confirm("Wipe all student whiteboards clean?")) {
         roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
         roomRef.child('controls').update({
           wipeAllTimestamp: Date.now()
         });
@@ -1084,6 +1147,7 @@
 
     function wipeSingleStudent(clientId) {
       roomRef.child(`canvases/${clientId}`).remove();
+      roomRef.child(`highResCanvases/${clientId}`).remove();
       roomRef.child(`students/${clientId}`).update({
         wipeTimestamp: Date.now()
       });
@@ -1095,6 +1159,7 @@
       if (confirm(`Remove ${name} from the session?`)) {
         roomRef.child(`students/${clientId}`).update({ kicked: true });
         roomRef.child(`canvases/${clientId}`).remove();
+        roomRef.child(`highResCanvases/${clientId}`).remove();
         setTimeout(() => {
           roomRef.child(`students/${clientId}`).remove();
         }, 300);
@@ -1118,12 +1183,14 @@
       if (confirm("Reset the entire room and remove all student sessions?")) {
         roomRef.child('students').remove();
         roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
           wipeAllTimestamp: Date.now(),
           showcaseImage: null,
-          showcaseCaption: null
+          showcaseCaption: null,
+          requestHighRes: null
         });
       }
     }
