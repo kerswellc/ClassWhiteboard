@@ -22,7 +22,7 @@
       --ga-navy-panel: #091b38;
       --ga-navy-card: #0e254c;
       --ga-navy-border: rgba(255, 255, 255, 0.09);
-      --ga-navy-border-hover: rgba(223, 155, 53, 0.35);
+      --ga-navy-border-hover: rgba(223, 155, 53, 0.4);
       --ga-navy-input: #020914;
       --ga-gold: #df9b35;
       --ga-gold-hover: #c98526;
@@ -900,6 +900,8 @@
       max-height: 100%;
       object-fit: contain;
       display: block;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
     .spotlight-footer {
       padding: 10px 16px;
@@ -1522,14 +1524,14 @@
   <div class="modal-overlay" id="peer-review-modal">
     <div class="card" style="margin: 0; max-width: 460px; width: 95%;">
       <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Start Timed Peer Review</h3>
-      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Pairs students in a deterministic evaluation cycle to critique current whiteboard work.</p>
+      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Assigns each student a partner's board to review and critique.</p>
       
       <label>Session Duration (Seconds)</label>
       <input type="number" id="peer-duration-input" value="90" min="20" max="600">
 
       <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
         <input type="checkbox" id="peer-anonymise-check" checked style="width: auto; margin: 0;">
-        <label for="peer-anonymise-check" style="margin: 0; cursor: pointer; color: #ffffff;">Anonymise peer identifiers during review</label>
+        <label for="peer-anonymise-check" style="margin: 0; cursor: pointer; color: #ffffff;">Hide peer names during review</label>
       </div>
 
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -1543,22 +1545,22 @@
   <div class="modal-overlay" id="hinge-modal">
     <div class="card" style="margin: 0; max-width: 520px; width: 95%;">
       <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Deploy Hinge Question</h3>
-      <label>Prompt Description (Optional)</label>
+      <label>Question Prompt (Optional)</label>
       <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate completes the circuit?">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Response Structure</label>
+          <label>Answer Choices</label>
           <select id="hinge-layout-select" onchange="handleHingeLayoutChange()">
             <option value="ABCD">A, B, C, D</option>
             <option value="TF">True / False</option>
-            <option value="CUSTOM">Custom Entries...</option>
+            <option value="CUSTOM">Custom Choices...</option>
           </select>
         </div>
         <div>
-          <label>Key Answer</label>
+          <label>Correct Key</label>
           <select id="hinge-correct-select">
-            <option value="NONE">Unscored Formative Poll</option>
+            <option value="NONE">Unscored Poll</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
@@ -1568,7 +1570,7 @@
       </div>
 
       <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-navy-border);">
-        <label style="margin-top: 0;">Custom Options (One entry per line):</label>
+        <label style="margin-top: 0;">Custom Options (One per line):</label>
         <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
       </div>
 
@@ -1578,7 +1580,7 @@
           <input type="number" id="hinge-duration-input" value="30" min="5" max="300">
         </div>
         <div>
-          <label>Score Weight</label>
+          <label>Points to Award</label>
           <input type="number" id="hinge-points-input" value="10" min="1" max="100">
         </div>
       </div>
@@ -1598,7 +1600,7 @@
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeLeaderboardModal()">✕</button>
       </div>
       <div class="leaderboard-list" id="t-leaderboard-list">
-        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded in this session.</span>
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px; flex-wrap: wrap;">
         <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">
@@ -1627,7 +1629,7 @@
           </button>
         </div>
       </div>
-      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Distribute structured diagrams, scaffolding cards, or tables to all whiteboards.</p>
+      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Push diagrams, code cards, or tables to all whiteboards.</p>
       
       <input type="file" id="tpl-json-importer" accept=".json" style="display: none;" onchange="handleTemplateJsonImport(event)">
       <div class="template-grid" id="template-library-grid"></div>
@@ -1637,18 +1639,18 @@
           <label>Placement Structure</label>
           <select id="tpl-position-select">
             <option value="TOP_LEFT">Corner Question Card (38% Scale)</option>
-            <option value="FULL">Full Canvas Canvas Background</option>
+            <option value="FULL">Full Canvas Background</option>
           </select>
         </div>
         <div>
-          <label>Import Image Source</label>
+          <label>Upload From Image File</label>
           <input type="file" id="tpl-file-input" accept="image/*" onchange="handleTemplateUpload(event)" style="padding: 6px 10px; font-size: 0.85rem;">
         </div>
       </div>
 
       <div style="display: flex; gap: 8px; margin-top: 18px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTemplateModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">Distribute to Students</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">Push to Students</button>
       </div>
     </div>
   </div>
@@ -1738,825 +1740,12 @@
   </div>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBrX32u_UUaocG6j318EG3Qu501r2vMjPw",
-      authDomain: "ga-whiteboard.firebaseapp.com",
-      databaseURL: "https://ga-whiteboard-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "ga-whiteboard",
-      storageBucket: "ga-whiteboard.firebasestorage.app",
-      messagingSenderId: "1021006153972",
-      appId: "1:1021006153972:web:d1ff0c33355020be4ff6a1"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let activeRoom = "";
-    let studentSeat = "";
-    let studentClientId = "";
-    let streamDebounceTimer = null;
-    let isBoardLocked = true;
-    let teacherLockFlag = false;
-    let lastLocalWipe = 0;
-
-    let studentRef = null;
-    let canvasRef = null;
-    let roomRef = null;
-
-    let pendingTextCoords = { x: 0, y: 0 };
-    let isAnonymised = false;
-    let activeSpotlightClientId = null;
-
-    let currentHingeConfig = null;
-    let mySelectedHingeAnswer = null;
-    let currentLeaderboard = {};
-    let isBroadcastingLeaderboard = false;
-
-    let activeTemplateImageObj = null;
-    let activeTemplateConfig = null;
-    let selectedTemplateId = 'trace_table';
-
-    let currentPeerAssignment = null;
-    let sortMode = 'JOINED';
-
-    let activeMarkupClientId = null;
-    let markupTool = 'pen';
-    let selectedStamp = null;
-
-    const teacherMarkupCache = new Map();
-
-    function generateInstanceClientId() {
-      return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-    }
-
-    let activeTimerEndEpoch = 0;
-    setInterval(tickClocksLocally, 1000);
-
-    function tickClocksLocally() {
-      const now = Date.now();
-      const sPill = document.getElementById('s-timer-pill');
-      const tPill = document.getElementById('t-timer-pill');
-      const sHingePill = document.getElementById('s-hinge-timer-pill');
-      const sPeerPill = document.getElementById('s-peer-timer-pill');
-
-      if (activeTimerEndEpoch > 0) {
-        if (now < activeTimerEndEpoch) {
-          const remaining = Math.ceil((activeTimerEndEpoch - now) / 1000);
-          const formatted = formatTime(remaining);
-          if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
-          if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
-          if (sHingePill) sHingePill.innerText = formatted;
-          if (sPeerPill) sPeerPill.innerText = formatted;
-          setStudentHingeLocked(false);
-        } else {
-          activeTimerEndEpoch = 0;
-          if (sPill) sPill.style.display = 'none';
-          if (tPill) tPill.style.display = 'none';
-          if (sHingePill) sHingePill.innerText = '00:00 (Locked)';
-          if (sPeerPill) sPeerPill.innerText = '00:00 (Concluded)';
-          setStudentHingeLocked(true);
-          updateStudentLockState(true);
-        }
-      } else {
-        if (sPill) sPill.style.display = 'none';
-        if (tPill) tPill.style.display = 'none';
-        if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
-          setStudentHingeLocked(true);
-        }
-      }
-    }
-
-    function formatTime(totalSecs) {
-      const mins = Math.floor(totalSecs / 60);
-      const secs = totalSecs % 60;
-      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function setStudentHingeLocked(isLocked) {
-      document.querySelectorAll('.btn-hinge-choice').forEach(b => {
-        b.disabled = isLocked;
-      });
-    }
-
-    function setStudentToolbarMode(mode) {
-      const basicTab = document.getElementById('mode-tab-basic');
-      const advTab = document.getElementById('mode-tab-advanced');
-      const advTools = document.getElementById('student-adv-tools');
-
-      if (mode === 'basic') {
-        basicTab.classList.add('active');
-        advTab.classList.remove('active');
-        advTools.style.display = 'none';
-        if (['line', 'arrow', 'rect', 'circle', 'fill', 'text'].includes(currentTool)) {
-          setTool('pen');
-        }
-      } else {
-        advTab.classList.add('active');
-        basicTab.classList.remove('active');
-        advTools.style.display = 'flex';
-      }
-      refreshIcons();
-    }
-
-    // --- STUDENT ENGINE ---
-    function joinAsStudent() {
-      const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-      const rawSeat = document.getElementById('join-seat').value.trim();
-      const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
-
-      if (!room || !seat) {
-        return alert("Please enter both the Room Code and your Identifier.");
-      }
-
-      activeRoom = room;
-      studentSeat = seat;
-      studentClientId = generateInstanceClientId();
-
-      document.getElementById('join-view').style.display = 'none';
-      const drawView = document.getElementById('student-draw-view');
-      drawView.style.display = 'flex';
-      document.getElementById('s-display-seat').innerText = studentSeat;
-      document.getElementById('s-room-tag').innerText = ` (Room ${activeRoom})`;
-
-      updateStudentLockState(true);
-      setupCanvas();
-
-      connectStudentFirebase();
-      window.addEventListener('resize', resizeCanvasPreserve);
-      refreshIcons();
-    }
-
-    function connectStudentFirebase() {
-      roomRef = db.ref(`rooms/${activeRoom}`);
-      studentRef = roomRef.child(`students/${studentClientId}`);
-      canvasRef = roomRef.child(`canvases/${studentClientId}`);
-
-      studentRef.onDisconnect().remove();
-      canvasRef.onDisconnect().remove();
-      roomRef.child(`highResCanvases/${studentClientId}`).onDisconnect().remove();
-
-      setInterval(() => {
-        if (studentRef) studentRef.child('lastSeen').set(Date.now());
-      }, 15000);
-
-      roomRef.child('students').once('value', (snapshot) => {
-        const students = snapshot.val() || {};
-        let count = 0;
-        Object.values(students).forEach(s => {
-          if (s.seat && s.seat.toLowerCase().startsWith(studentSeat.toLowerCase()) && s.clientId !== studentClientId) {
-            count++;
-          }
-        });
-        if (count > 0 && !studentSeat.includes('(')) {
-          studentSeat = `${studentSeat} (${count + 1})`;
-          document.getElementById('s-display-seat').innerText = studentSeat;
-        }
-
-        studentRef.set({
-          clientId: studentClientId,
-          seat: studentSeat,
-          lastSeen: Date.now(),
-          individualLock: false
-        });
-      });
-
-      roomRef.child('controls').on('value', (snapshot) => {
-        const ctrl = snapshot.val() || {};
-        activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
-        const now = Date.now();
-
-        if (activeTimerEndEpoch > 0) {
-          updateStudentLockState(now >= activeTimerEndEpoch);
-        } else {
-          updateStudentLockState(Boolean(ctrl.locked));
-        }
-
-        if (ctrl.wipeAllTimestamp && ctrl.wipeAllTimestamp > lastLocalWipe) {
-          lastLocalWipe = ctrl.wipeAllTimestamp;
-          wipeCanvasLocal();
-        }
-
-        if (ctrl.requestHighRes === studentClientId) {
-          uploadHighResSnapshot();
-        }
-
-        const showcaseOverlay = document.getElementById('s-showcase-overlay');
-        const showcaseImg = document.getElementById('s-showcase-img');
-        const showcaseCap = document.getElementById('s-showcase-caption');
-
-        if (ctrl.showcaseImage) {
-          showcaseImg.src = ctrl.showcaseImage;
-          showcaseCap.innerText = ctrl.showcaseCaption || "Featured Board";
-          showcaseOverlay.style.display = 'flex';
-        } else {
-          showcaseOverlay.style.display = 'none';
-          showcaseImg.removeAttribute('src');
-        }
-
-        const studentLbOverlay = document.getElementById('s-leaderboard-overlay');
-        const isStudentActive = document.getElementById('student-draw-view').style.display === 'flex';
-        if (ctrl.broadcastLeaderboard && isStudentActive) {
-          renderStudentBroadcastLeaderboard();
-          studentLbOverlay.style.display = 'flex';
-        } else {
-          studentLbOverlay.style.display = 'none';
-        }
-
-        if (ctrl.templateData) {
-          if (!activeTemplateConfig || activeTemplateConfig.timestamp !== ctrl.templateData.timestamp) {
-            applyRemoteTemplate(ctrl.templateData);
-          }
-        } else if (activeTemplateConfig) {
-          activeTemplateConfig = null;
-          activeTemplateImageObj = null;
-          wipeCanvasLocal();
-        }
-
-        const peerOverlay = document.getElementById('s-peer-overlay');
-        if (ctrl.peerReviewActive) {
-          peerOverlay.style.display = 'flex';
-        } else {
-          peerOverlay.style.display = 'none';
-        }
-
-        tickClocksLocally();
-      });
-
-      roomRef.child(`markup/${studentClientId}`).on('value', (snapshot) => {
-        const markupData = snapshot.val();
-        renderStudentTeacherMarkup(markupData);
-      });
-
-      roomRef.child(`peerReview/assignments/${studentClientId}`).on('value', (snapshot) => {
-        const assignment = snapshot.val();
-        currentPeerAssignment = assignment;
-        if (assignment) {
-          document.getElementById('s-peer-partner-tag').innerText = `Critiquing: ${assignment.peerName}`;
-          document.getElementById('s-peer-board-img').src = assignment.peerImage || '';
-        }
-      });
-
-      roomRef.child(`peerReview/feedback/${studentClientId}`).on('value', (snapshot) => {
-        const fb = snapshot.val();
-        if (fb && fb.comment) {
-          document.getElementById('s-feedback-text').innerText = `"${fb.comment}"`;
-          document.getElementById('s-feedback-card').style.display = 'block';
-        }
-      });
-
-      roomRef.child('hinge/active').on('value', (snapshot) => {
-        const hinge = snapshot.val();
-        currentHingeConfig = hinge;
-        const overlay = document.getElementById('s-hinge-overlay');
-
-        if (hinge && hinge.status === 'ACTIVE') {
-          overlay.style.display = 'flex';
-          mySelectedHingeAnswer = null;
-
-          const qBox = document.getElementById('s-hinge-qbox');
-          const qText = document.getElementById('s-hinge-qtext');
-          if (hinge.prompt && hinge.prompt.trim() !== "") {
-            qBox.style.display = 'block';
-            qText.innerText = hinge.prompt;
-          } else {
-            qBox.style.display = 'none';
-          }
-
-          const grid = document.getElementById('s-hinge-grid');
-          grid.innerHTML = '';
-          const choices = hinge.choices || (hinge.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D']);
-          
-          choices.forEach(ch => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-hinge-choice';
-            btn.innerText = ch;
-            btn.id = `btn_hinge_${encodeURIComponent(ch)}`;
-            btn.onclick = () => selectHingeAnswer(ch);
-            grid.appendChild(btn);
-          });
-
-          if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
-            setStudentHingeLocked(true);
-          }
-
-          roomRef.child(`hinge/responses/${studentClientId}`).once('value', snap => {
-            const val = snap.val();
-            if (val && val.answer) {
-              selectHingeAnswer(val.answer, false);
-            }
-          });
-        } else {
-          overlay.style.display = 'none';
-        }
-      });
-
-      roomRef.child('leaderboard').on('value', (snapshot) => {
-        currentLeaderboard = snapshot.val() || {};
-        const myData = currentLeaderboard[studentClientId];
-        const score = (myData && myData.score) ? myData.score : 0;
-        document.getElementById('s-points-pill').innerText = `${score} pts`;
-        if (document.getElementById('s-leaderboard-overlay').style.display === 'flex') {
-          renderStudentBroadcastLeaderboard();
-        }
-      });
-
-      studentRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        if (data.assignedSeat && data.assignedSeat !== studentSeat) {
-          studentSeat = data.assignedSeat;
-          document.getElementById('s-display-seat').innerText = studentSeat;
-        }
-
-        if (data.wipeTimestamp && data.wipeTimestamp > lastLocalWipe) {
-          lastLocalWipe = data.wipeTimestamp;
-          wipeCanvasLocal();
-        }
-
-        if (data.kicked) {
-          alert("Session disconnected by teacher.");
-          location.reload();
-        }
-
-        if (data.individualLock) {
-          document.getElementById('s-lock-msg').innerText = "Board paused individually by teacher.";
-          updateStudentLockState(true);
-        } else if (!teacherLockFlag && activeTimerEndEpoch === 0) {
-          document.getElementById('s-lock-msg').innerText = "Input paused for teacher instruction.";
-          updateStudentLockState(false);
-        }
-      });
-    }
-
-    function renderStudentTeacherMarkup(markupData) {
-      const markupCanvas = document.getElementById('board-markup');
-      const mctx = markupCanvas.getContext('2d');
-
-      if (markupCanvas.width !== canvas.width || markupCanvas.height !== canvas.height) {
-        markupCanvas.width = canvas.width;
-        markupCanvas.height = canvas.height;
-      }
-      mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
-
-      if (!markupData || !markupData.image) return;
-
-      const img = new Image();
-      img.onload = () => {
-        mctx.drawImage(img, 0, 0, markupCanvas.width, markupCanvas.height);
-      };
-      img.src = markupData.image;
-    }
-
-    async function sendPeerFeedback() {
-      if (!currentPeerAssignment || !currentPeerAssignment.peerClientId) {
-        return alert("No peer assigned.");
-      }
-      const comment = document.getElementById('s-peer-feedback-input').value.trim();
-      if (!comment) return alert("Please enter feedback before submitting.");
-
-      await roomRef.child(`peerReview/feedback/${currentPeerAssignment.peerClientId}`).set({
-        fromSeat: studentSeat,
-        comment: comment,
-        timestamp: Date.now()
-      });
-
-      await roomRef.child(`peerReview/submitted/${studentClientId}`).set(true);
-      alert("Feedback transmitted to classmate.");
-    }
-
-    function selectHingeAnswer(choice, shouldWrite = true) {
-      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) return;
-
-      mySelectedHingeAnswer = choice;
-      document.querySelectorAll('.btn-hinge-choice').forEach(b => b.classList.remove('selected'));
-      const activeBtn = document.getElementById(`btn_hinge_${encodeURIComponent(choice)}`);
-      if (activeBtn) activeBtn.classList.add('selected');
-
-      if (shouldWrite && roomRef) {
-        roomRef.child(`hinge/responses/${studentClientId}`).set({
-          clientId: studentClientId,
-          seat: studentSeat,
-          answer: choice,
-          timestamp: Date.now()
-        });
-      }
-    }
-
-    function renderStudentBroadcastLeaderboard() {
-      const list = document.getElementById('s-leaderboard-list');
-      if (!list) return;
-
-      const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
-      if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet.</span>`;
-        return;
-      }
-
-      list.innerHTML = '';
-      entries.forEach((e, idx) => {
-        const row = document.createElement('div');
-        row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
-        const badge = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `#${idx + 1}`;
-        const isMe = e.clientId === studentClientId;
-
-        row.innerHTML = `
-          <span><strong>${badge}</strong> &nbsp; ${escapeHTML(e.seat)} ${isMe ? '<strong style="color:var(--ga-gold);">(You)</strong>' : ''}</span>
-          <span style="font-weight: 800; color: var(--ga-gold);">${e.score} pts</span>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function updateStudentLockState(locked) {
-      isBoardLocked = Boolean(locked);
-      const overlay = document.getElementById('s-lock-overlay');
-      const clearBtn = document.getElementById('s-clear-btn');
-
-      if (isBoardLocked) {
-        closeCanvasTextModal();
-        overlay.style.display = 'flex';
-        clearBtn.disabled = true;
-      } else {
-        overlay.style.display = 'none';
-        clearBtn.disabled = false;
-      }
-    }
-
-    function openCanvasTextModal(x, y) {
-      pendingTextCoords = { x, y };
-      const modal = document.getElementById('s-text-modal');
-      const input = document.getElementById('s-text-input');
-      modal.style.display = 'flex';
-      input.value = '';
-      input.focus();
-    }
-
-    function closeCanvasTextModal() {
-      document.getElementById('s-text-modal').style.display = 'none';
-    }
-
-    function confirmCanvasText() {
-      if (isOperationBlocked()) {
-        closeCanvasTextModal();
-        return;
-      }
-      const text = document.getElementById('s-text-input').value.trim();
-      if (text) {
-        saveStudentHistoryState();
-        ctx.font = "bold 60px 'Plus Jakarta Sans', sans-serif";
-        ctx.fillStyle = currentColor;
-        ctx.fillText(text, pendingTextCoords.x, pendingTextCoords.y);
-        queueAutoSync();
-      }
-      closeCanvasTextModal();
-    }
-
-    function queueAutoSync() {
-      if (isBoardLocked || !canvasRef) return;
-      clearTimeout(streamDebounceTimer);
-      streamDebounceTimer = setTimeout(sendBoardPayload, 600);
-    }
-
-    function sendBoardImmediate() {
-      if (isBoardLocked) return;
-      sendBoardPayload();
-    }
-
-    function sendBoardPayload() {
-      if (!canvasRef || isBoardLocked) return;
-
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = 300;
-      exportCanvas.height = 180;
-      const expCtx = exportCanvas.getContext('2d');
-      expCtx.fillStyle = '#ffffff';
-      expCtx.fillRect(0, 0, 300, 180);
-      expCtx.drawImage(canvas, 0, 0, 300, 180);
-
-      const imgData = exportCanvas.toDataURL('image/jpeg', 0.35);
-
-      canvasRef.set({
-        image: imgData,
-        updatedAt: Date.now()
-      });
-    }
-
-    function uploadHighResSnapshot() {
-      if (!roomRef || !studentClientId) return;
-
-      const highResCanvas = document.createElement('canvas');
-      highResCanvas.width = 1200;
-      highResCanvas.height = 720;
-      const hrCtx = highResCanvas.getContext('2d');
-      hrCtx.fillStyle = '#ffffff';
-      hrCtx.fillRect(0, 0, 1200, 720);
-      hrCtx.drawImage(canvas, 0, 0, 1200, 720);
-
-      const highResData = highResCanvas.toDataURL('image/jpeg', 0.75);
-
-      roomRef.child(`highResCanvases/${studentClientId}`).set({
-        image: highResData,
-        updatedAt: Date.now()
-      });
-    }
-
-    function applyRemoteTemplate(tplData) {
-      activeTemplateConfig = tplData;
-      const img = new Image();
-      img.onload = () => {
-        activeTemplateImageObj = img;
-        renderTemplateToCanvas();
-        queueAutoSync();
-      };
-      img.src = tplData.image;
-    }
-
-    function renderTemplateToCanvas() {
-      if (!activeTemplateImageObj || !activeTemplateConfig) return;
-
-      if (activeTemplateConfig.position === 'FULL') {
-        ctx.drawImage(activeTemplateImageObj, 0, 0, canvas.width, canvas.height);
-      } else {
-        const targetW = canvas.width * 0.38;
-        const aspect = activeTemplateImageObj.width / activeTemplateImageObj.height;
-        const targetH = targetW / aspect;
-
-        ctx.save();
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(8, 8, targetW + 8, targetH + 8);
-        ctx.strokeStyle = '#04142d';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(8, 8, targetW + 8, targetH + 8);
-        ctx.drawImage(activeTemplateImageObj, 12, 12, targetW, targetH);
-        ctx.restore();
-      }
-    }
-
-    // --- TEACHER ENGINE ---
-    const teacherRoster = new Map();
-    const teacherCanvasCache = new Map();
-    let currentHingeResponses = {};
-
-    function openTeacherLogin() {
-      document.getElementById('login-modal').style.display = 'flex';
-      const existingRoom = document.getElementById('join-room').value.trim();
-      if (existingRoom) document.getElementById('teacher-target-room').value = existingRoom;
-      document.getElementById('teacher-pin').focus();
-      refreshIcons();
-    }
-
-    function closeTeacherLogin() {
-      document.getElementById('login-modal').style.display = 'none';
-      document.getElementById('teacher-pin').value = '';
-    }
-
-    async function unlockTeacher() {
-      const room = document.getElementById('teacher-target-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
-      const enteredPin = document.getElementById('teacher-pin').value.trim();
-      const unlockBtn = document.getElementById('unlock-btn');
-
-      if (!room) return alert("Please enter the Room Code.");
-      if (!enteredPin) return alert("Please enter the PIN.");
-
-      unlockBtn.disabled = true;
-      unlockBtn.innerText = "Verifying...";
-
-      try {
-        const snap = await db.ref('admin/pin').once('value');
-        const validPin = snap.val();
-
-        if (validPin === null || validPin === undefined) {
-          alert("Admin PIN unconfigured in database.");
-          unlockBtn.disabled = false;
-          unlockBtn.innerText = "Authenticate";
-          return;
-        }
-
-        if (String(enteredPin) !== String(validPin).trim()) {
-          alert("Incorrect security PIN.");
-          unlockBtn.disabled = false;
-          unlockBtn.innerText = "Authenticate";
-          return;
-        }
-
-        closeTeacherLogin();
-        activeRoom = room;
-
-        document.getElementById('join-view').style.display = 'none';
-        document.getElementById('student-draw-view').style.display = 'none';
-        document.getElementById('teacher-switch-btn').style.display = 'none';
-        document.getElementById('teacher-view').style.display = 'block';
-        document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
-
-        connectTeacherFirebase();
-        refreshIcons();
-      } catch (err) {
-        alert("Authentication network error.");
-      } finally {
-        unlockBtn.disabled = false;
-        unlockBtn.innerText = "Authenticate";
-      }
-    }
-
-    function connectTeacherFirebase() {
-      roomRef = db.ref(`rooms/${activeRoom}`);
-
-      roomRef.child('students').on('child_added', (snapshot) => {
-        const student = snapshot.val();
-        if (!student || !student.clientId) return;
-
-        teacherRoster.set(student.clientId, student);
-        upsertStudentCard(student);
-        updateRosterUI();
-        reorderTeacherGrid();
-
-        roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
-          const cData = canvasSnap.val();
-          const img = cData ? cData.image : null;
-          teacherCanvasCache.set(student.clientId, img);
-          recompositeTeacherCardImage(student.clientId);
-        });
-
-        roomRef.child(`markup/${student.clientId}`).on('value', (markupSnap) => {
-          const mData = markupSnap.val();
-          const img = mData ? mData.image : null;
-          teacherMarkupCache.set(student.clientId, img);
-          recompositeTeacherCardImage(student.clientId);
-          updateCardMarkupBtnState(student.clientId, Boolean(img));
-        });
-      });
-
-      roomRef.child('highResCanvases').on('child_added', (snapshot) => {
-        handleHighResDelivery(snapshot.key, snapshot.val());
-      });
-      roomRef.child('highResCanvases').on('child_changed', (snapshot) => {
-        handleHighResDelivery(snapshot.key, snapshot.val());
-      });
-
-      roomRef.child('students').on('child_changed', (snapshot) => {
-        const student = snapshot.val();
-        if (!student || !student.clientId) return;
-
-        teacherRoster.set(student.clientId, student);
-        updateCardMeta(student);
-        updateRosterUI();
-        if (sortMode === 'ALPHA') reorderTeacherGrid();
-      });
-
-      roomRef.child('students').on('child_removed', (snapshot) => {
-        const clientId = snapshot.key;
-        teacherRoster.delete(clientId);
-        teacherCanvasCache.delete(clientId);
-        teacherMarkupCache.delete(clientId);
-        removeStudentCard(clientId);
-        updateRosterUI();
-
-        if (activeSpotlightClientId === clientId) closeSpotlightModal();
-        if (activeMarkupClientId === clientId) closeMarkupModal();
-
-        roomRef.child(`canvases/${clientId}`).off();
-        roomRef.child(`markup/${clientId}`).off();
-        roomRef.child(`highResCanvases/${clientId}`).remove();
-        roomRef.child(`markup/${clientId}`).remove();
-      });
-
-      roomRef.child('controls').on('value', (snapshot) => {
-        const ctrl = snapshot.val() || {};
-        teacherLockFlag = Boolean(ctrl.locked);
-        updateLockBtnUI(teacherLockFlag);
-        activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
-
-        const stopBtn = document.getElementById('end-showcase-btn');
-        stopBtn.style.display = ctrl.showcaseImage ? 'inline-flex' : 'none';
-
-        const stopPeerBtn = document.getElementById('end-peer-btn');
-        const peerPanel = document.getElementById('t-peer-status-panel');
-        if (ctrl.peerReviewActive) {
-          stopPeerBtn.style.display = 'inline-flex';
-          peerPanel.style.display = 'block';
-        } else {
-          stopPeerBtn.style.display = 'none';
-          peerPanel.style.display = 'none';
-        }
-
-        isBroadcastingLeaderboard = Boolean(ctrl.broadcastLeaderboard);
-        const bcastBtn = document.getElementById('broadcast-lb-btn');
-        if (bcastBtn) {
-          if (isBroadcastingLeaderboard) {
-            bcastBtn.innerHTML = `<i data-lucide="radio-tower"></i> Stop Broadcast`;
-            bcastBtn.className = "btn-danger btn-action-mini";
-          } else {
-            bcastBtn.innerHTML = `<i data-lucide="radio"></i> Broadcast to Class`;
-            bcastBtn.className = "btn-gold btn-action-mini";
-          }
-          refreshIcons();
-        }
-
-        const clearTplBtn = document.getElementById('t-clear-tpl-btn');
-        clearTplBtn.style.display = ctrl.templateData ? 'inline-flex' : 'none';
-
-        tickClocksLocally();
-      });
-
-      roomRef.child('peerReview/submitted').on('value', (snapshot) => {
-        const submitted = snapshot.val() || {};
-        const total = teacherRoster.size;
-        const count = Object.keys(submitted).length;
-        document.getElementById('t-peer-counter').innerText = `${count} / ${total} reviews completed`;
-
-        const rosterWrap = document.getElementById('t-peer-roster-status');
-        rosterWrap.innerHTML = '';
-        teacherRoster.forEach(s => {
-          const isDone = Boolean(submitted[s.clientId]);
-          const badge = document.createElement('span');
-          badge.style.padding = '3px 8px';
-          badge.style.borderRadius = '4px';
-          badge.style.background = isDone ? '#064e3b' : 'var(--ga-navy-input)';
-          badge.style.color = isDone ? '#34d399' : 'var(--ga-text-muted)';
-          badge.innerText = `${s.seat}: ${isDone ? 'Completed' : 'Drafting'}`;
-          rosterWrap.appendChild(badge);
-        });
-      });
-
-      roomRef.child('hinge/active').on('value', (snapshot) => {
-        currentHingeConfig = snapshot.val();
-        const panel = document.getElementById('t-hinge-stats-panel');
-        if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
-          panel.style.display = 'block';
-          document.getElementById('t-hinge-qdisplay').innerText = currentHingeConfig.prompt ? `Question: "${currentHingeConfig.prompt}"` : 'Question active';
-        } else {
-          panel.style.display = 'none';
-        }
-      });
-
-      roomRef.child('hinge/responses').on('value', (snapshot) => {
-        currentHingeResponses = snapshot.val() || {};
-        renderHingeStatsVisualisation();
-      });
-
-      roomRef.child('leaderboard').on('value', (snapshot) => {
-        currentLeaderboard = snapshot.val() || {};
-        renderLeaderboardUI();
-      });
-    }
-
-    function handleHighResDelivery(clientId, data) {
-      if (!data || !data.image) return;
-      if (activeSpotlightClientId === clientId) {
-        recompositeTeacherCardImage(clientId, true);
-      }
-      if (activeMarkupClientId === clientId) {
-        document.getElementById('markup-underlay-img').src = data.image;
-      }
-    }
-
-    function getDisplayName(student, index) {
-      return isAnonymised ? `Student ${index + 1}` : student.seat;
-    }
-
-    function upsertStudentCard(student) {
-      const grid = document.getElementById('teacher-grid');
-      let card = document.getElementById(`card_${student.clientId}`);
-
-      if (!card) {
-        card = document.createElement('div');
-        card.id = `card_${student.clientId}`;
-        card.className = 'board-card';
-        card.innerHTML = `
-          <div class="board-placeholder" id="ph_${student.clientId}" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">Waiting for student activity...</div>
-          <img id="img_${student.clientId}" style="display: none;" alt="Board" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">
-          <div class="board-meta">
-            <span class="seat-tag" id="tag_${student.clientId}"></span>
-            <div class="meta-actions">
-              <button class="btn-action-mini btn-gold" onclick="openMarkupModal('${escapeHTML(student.clientId)}')">
-                <i data-lucide="pen-tool"></i> Markup
-              </button>
-              <button class="btn-action-mini btn-secondary" id="clr_m_btn_${student.clientId}" onclick="clearSingleStudentMarkup('${escapeHTML(student.clientId)}')" style="display: none;">
-                <i data-lucide="eraser"></i> Clear
-              </button>
-              <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">
-                <i data-lucide="presentation"></i> Exhibit
-              </button>
-              <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">
-                <i data-lucide="lock"></i> Lock
-              </button>
-              <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
-              <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(student.clientId)}')">Wipe</button>
-              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">
-                <i data-lucide="user-x"></i>
-              </button>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-        refreshIcons();
-      }
-      updateCardMeta(student);
-    }
+    // --- HIGH-RES SPOTLIGHT & COMPOSITING ENGINE ---
+    const teacherHighResCache = new Map();
 
     function recompositeTeacherCardImage(clientId, isSpotlight = false) {
-      const baseImg = teacherCanvasCache.get(clientId);
+      // If rendering for Spotlight, prioritize high-res snapshot; otherwise low-res
+      const baseImg = (isSpotlight && teacherHighResCache.get(clientId)) || teacherCanvasCache.get(clientId);
       const markupImg = teacherMarkupCache.get(clientId);
 
       const imgEl = document.getElementById(`img_${clientId}`);
@@ -2569,23 +1758,32 @@
           imgEl.style.display = 'none';
           phEl.style.display = 'flex';
         }
+        if (isSpotlight && spotlightEl) {
+          spotlightEl.removeAttribute('src');
+        }
         return;
       }
 
+      // Dynamic Resolution: 1200x720 for spotlight, 600x360 for grid thumbnail
+      const renderWidth = isSpotlight ? 1200 : 600;
+      const renderHeight = isSpotlight ? 720 : 360;
+
       const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 600;
-      tempCanvas.height = 360;
+      tempCanvas.width = renderWidth;
+      tempCanvas.height = renderHeight;
       const tctx = tempCanvas.getContext('2d');
+      tctx.imageSmoothingEnabled = true;
+      tctx.imageSmoothingQuality = 'high';
       tctx.fillStyle = '#ffffff';
-      tctx.fillRect(0, 0, 600, 360);
+      tctx.fillRect(0, 0, renderWidth, renderHeight);
 
       const bImg = new Image();
       bImg.onload = () => {
-        tctx.drawImage(bImg, 0, 0, 600, 360);
+        tctx.drawImage(bImg, 0, 0, renderWidth, renderHeight);
         if (markupImg) {
           const mImg = new Image();
           mImg.onload = () => {
-            tctx.drawImage(mImg, 0, 0, 600, 360);
+            tctx.drawImage(mImg, 0, 0, renderWidth, renderHeight);
             applyCompositedData();
           };
           mImg.src = markupImg;
@@ -2595,18 +1793,30 @@
       };
 
       function applyCompositedData() {
-        const compositeData = tempCanvas.toDataURL('image/jpeg', 0.6);
-        if (imgEl && phEl) {
+        const compositeData = tempCanvas.toDataURL('image/jpeg', isSpotlight ? 0.85 : 0.6);
+        if (imgEl && phEl && !isSpotlight) {
           imgEl.src = compositeData;
           imgEl.style.display = 'block';
           phEl.style.display = 'none';
         }
-        if (activeSpotlightClientId === clientId) {
+        if (isSpotlight && spotlightEl) {
           spotlightEl.src = compositeData;
         }
       }
 
       bImg.src = baseImg || '';
+    }
+
+    function handleHighResDelivery(clientId, data) {
+      if (!data || !data.image) return;
+      teacherHighResCache.set(clientId, data.image);
+      
+      if (activeSpotlightClientId === clientId) {
+        recompositeTeacherCardImage(clientId, true);
+      }
+      if (activeMarkupClientId === clientId) {
+        document.getElementById('markup-underlay-img').src = data.image;
+      }
     }
 
     function updateCardMarkupBtnState(clientId, hasMarkup) {
@@ -2684,7 +1894,7 @@
       const btn = document.getElementById('sort-toggle-btn');
       if (sortMode === 'JOINED') {
         sortMode = 'ALPHA';
-        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: A-Z / Seat`;
+        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: A-Z / Desk`;
         btn.className = "btn-gold";
       } else {
         sortMode = 'JOINED';
@@ -2759,7 +1969,7 @@
       refreshIcons();
     }
 
-    // --- STREAMLINED CHIPS ENGINE ---
+    // --- CHIPS / STAMPS ENGINE ---
     const defaultStamps = [
       { id: 'st_wd', text: 'Well Done', icon: 'check-circle-2', color: '#10b981' },
       { id: 'st_gw', text: 'Great Work', icon: 'thumbs-up', color: '#10b981' },
@@ -2866,7 +2076,7 @@
       document.getElementById('markup-title').innerText = `Live Intervention: ${getDisplayName(s, idx)}`;
 
       const underlay = document.getElementById('markup-underlay-img');
-      const imgData = teacherCanvasCache.get(clientId);
+      const imgData = teacherHighResCache.get(clientId) || teacherCanvasCache.get(clientId);
 
       underlay.onload = () => {
         markupCanvas.width = underlay.clientWidth;
@@ -2997,7 +2207,7 @@
       }
       teacherMarkupCache.delete(clientId);
       updateCardMarkupBtnState(clientId, false);
-      recompositeTeacherCardImage(clientId);
+      recompositeTeacherCardImage(clientId, activeSpotlightClientId === clientId);
       if (roomRef) {
         await roomRef.child(`markup/${clientId}`).remove();
       }
@@ -3313,1052 +2523,6 @@
 
     function escapeHTML(str) {
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-    }
-
-    // --- PEER REVIEW ENGINE ---
-    function openPeerReviewModal() {
-      document.getElementById('peer-review-modal').style.display = 'flex';
-      refreshIcons();
-    }
-
-    function closePeerReviewModal() {
-      document.getElementById('peer-review-modal').style.display = 'none';
-    }
-
-    async function launchPeerReview() {
-      const now = Date.now();
-      const activeStudents = Array.from(teacherRoster.values()).filter(s => {
-        return s.lastSeen && (now - s.lastSeen < 45000);
-      });
-
-      if (activeStudents.length < 2) {
-        return alert("At least 2 active connected students are required for Peer Review.");
-      }
-
-      const durationSecs = parseInt(document.getElementById('peer-duration-input').value, 10) || 90;
-      const anonymise = document.getElementById('peer-anonymise-check').checked;
-      closePeerReviewModal();
-
-      const shuffled = [...activeStudents].sort(() => Math.random() - 0.5);
-      const assignments = {};
-
-      for (let i = 0; i < shuffled.length; i++) {
-        const reviewer = shuffled[i];
-        const reviewedPeer = shuffled[(i + 1) % shuffled.length];
-        
-        let peerImage = teacherCanvasCache.get(reviewedPeer.clientId);
-        if (!peerImage) {
-          const fallbackCanvas = document.createElement('canvas');
-          fallbackCanvas.width = 300; fallbackCanvas.height = 180;
-          const fcx = fallbackCanvas.getContext('2d');
-          fcx.fillStyle = '#ffffff'; fcx.fillRect(0, 0, 300, 180);
-          peerImage = fallbackCanvas.toDataURL('image/jpeg', 0.5);
-        }
-
-        assignments[reviewer.clientId] = {
-          peerClientId: reviewedPeer.clientId,
-          peerName: anonymise ? "Anonymous Classmate" : reviewedPeer.seat,
-          peerImage: peerImage
-        };
-      }
-
-      const targetEnd = Date.now() + (durationSecs * 1000);
-      activeTimerEndEpoch = targetEnd;
-      tickClocksLocally();
-
-      await roomRef.child('peerReview/submitted').remove();
-      await roomRef.child('peerReview/assignments').set(assignments);
-      await roomRef.child('controls').update({
-        peerReviewActive: true,
-        locked: false,
-        timerEnd: targetEnd
-      });
-    }
-
-    async function endPeerReviewSession() {
-      if (confirm("Conclude evaluation mode and return to individual whiteboards?")) {
-        await roomRef.child('controls').update({
-          peerReviewActive: false,
-          timerEnd: 0
-        });
-      }
-    }
-
-    // --- TEMPLATES ---
-    const defaultTemplates = [
-      { id: 'trace_table', title: 'Trace Table', dataUri: generateTraceTableDataUri() },
-      { id: 'coord_grid', title: 'Coordinate Grid', dataUri: generateGridDataUri() },
-      { id: 'logic_boxes', title: 'Flowchart Box', dataUri: generateFlowchartDataUri() }
-    ];
-
-    function getSavedTemplates() {
-      try {
-        const saved = localStorage.getItem('ga_saved_templates');
-        return saved ? JSON.parse(saved) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveCustomTemplate(title, dataUri) {
-      const current = getSavedTemplates();
-      current.push({ id: 'custom_' + Date.now(), title, dataUri });
-      localStorage.setItem('ga_saved_templates', JSON.stringify(current));
-    }
-
-    function deleteCustomTemplate(id, e) {
-      e.stopPropagation();
-      if (confirm("Delete template entry?")) {
-        let current = getSavedTemplates();
-        current = current.filter(t => t.id !== id);
-        localStorage.setItem('ga_saved_templates', JSON.stringify(current));
-        renderTemplateLibraryGrid();
-      }
-    }
-
-    function downloadSingleTemplate(id, e) {
-      e.stopPropagation();
-      const all = [...defaultTemplates, ...getSavedTemplates()];
-      const tpl = all.find(t => t.id === id);
-      if (!tpl) return;
-
-      const exportData = {
-        type: "GA_WHITEBOARD_TEMPLATE",
-        version: "1.0",
-        template: tpl
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${tpl.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-template.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportTemplateLibrary() {
-      const custom = getSavedTemplates();
-      if (custom.length === 0) return alert("No custom templates available to export.");
-
-      const exportData = {
-        type: "GA_WHITEBOARD_LIBRARY",
-        version: "1.0",
-        templates: custom
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `whiteboard-template-library-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function triggerImportTemplateFile() {
-      document.getElementById('tpl-json-importer').click();
-    }
-
-    function handleTemplateJsonImport(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          let current = getSavedTemplates();
-          let addedCount = 0;
-
-          if (parsed.type === "GA_WHITEBOARD_TEMPLATE" && parsed.template) {
-            parsed.template.id = 'custom_' + Date.now();
-            current.push(parsed.template);
-            addedCount = 1;
-          } else if (parsed.type === "GA_WHITEBOARD_LIBRARY" && Array.isArray(parsed.templates)) {
-            parsed.templates.forEach(t => {
-              t.id = 'custom_' + Date.now() + Math.random().toString(36).substring(2, 6);
-              current.push(t);
-              addedCount++;
-            });
-          } else {
-            return alert("Unrecognized format.");
-          }
-
-          localStorage.setItem('ga_saved_templates', JSON.stringify(current));
-          renderTemplateLibraryGrid();
-          alert(`Successfully imported ${addedCount} template(s).`);
-        } catch (err) {
-          alert("Invalid template JSON.");
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function openTemplateModal() {
-      renderTemplateLibraryGrid();
-      document.getElementById('template-modal').style.display = 'flex';
-      refreshIcons();
-    }
-
-    function closeTemplateModal() {
-      document.getElementById('template-modal').style.display = 'none';
-    }
-
-    function renderTemplateLibraryGrid() {
-      const grid = document.getElementById('template-library-grid');
-      grid.innerHTML = '';
-
-      const all = [...defaultTemplates, ...getSavedTemplates()];
-      all.forEach(t => {
-        const card = document.createElement('div');
-        card.className = `template-card ${t.id === selectedTemplateId ? 'active' : ''}`;
-        card.id = `tpl_${t.id}`;
-        card.onclick = () => selectTemplate(t.id);
-        
-        const isCustom = t.id.startsWith('custom_');
-        const actionBtns = `
-          <div class="template-card-actions">
-            <button class="template-card-btn" title="Download" onclick="downloadSingleTemplate('${t.id}', event)">
-              <i data-lucide="download" style="width:10px;height:10px;"></i>
-            </button>
-            ${isCustom ? `<button class="template-card-btn del" title="Delete" onclick="deleteCustomTemplate('${t.id}', event)">✕</button>` : ''}
-          </div>
-        `;
-
-        card.innerHTML = `
-          ${actionBtns}
-          <img src="${t.dataUri}" alt="${escapeHTML(t.title)}">
-          <div class="template-card-title">${escapeHTML(t.title)}</div>
-        `;
-        grid.appendChild(card);
-      });
-      refreshIcons();
-    }
-
-    function selectTemplate(id) {
-      selectedTemplateId = id;
-      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
-      const activeCard = document.getElementById(`tpl_${id}`);
-      if (activeCard) activeCard.classList.add('active');
-    }
-
-    function handleTemplateUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const img = new Image();
-        img.onload = function() {
-          const maxDim = 1000;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = (h * maxDim) / w;
-              w = maxDim;
-            } else {
-              w = (w * maxDim) / h;
-              h = maxDim;
-            }
-          }
-
-          const c = document.createElement('canvas');
-          c.width = w;
-          c.height = h;
-          const cx = c.getContext('2d');
-          cx.fillStyle = "#ffffff";
-          cx.fillRect(0, 0, w, h);
-          cx.drawImage(img, 0, 0, w, h);
-
-          const compressed = c.toDataURL('image/jpeg', 0.6);
-          const name = file.name.replace(/\.[^/.]+$/, "").substring(0, 16);
-          saveCustomTemplate(name, compressed);
-          selectedTemplateId = 'custom_' + Date.now();
-          renderTemplateLibraryGrid();
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function pushSelectedTemplate() {
-      const all = [...defaultTemplates, ...getSavedTemplates()];
-      const tpl = all.find(t => t.id === selectedTemplateId);
-      if (!tpl) return alert("Select a template.");
-
-      const position = document.getElementById('tpl-position-select').value;
-      closeTemplateModal();
-
-      await roomRef.child('controls').update({
-        templateData: {
-          image: tpl.dataUri,
-          position: position,
-          timestamp: Date.now()
-        }
-      });
-    }
-
-    async function clearActiveTemplate() {
-      if (confirm("Clear active template across all student whiteboards?")) {
-        await roomRef.child('controls').update({ templateData: null });
-      }
-    }
-
-    function generateTraceTableDataUri() {
-      const c = document.createElement('canvas');
-      c.width = 600; c.height = 360;
-      const x = c.getContext('2d');
-      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
-      x.strokeStyle = '#04142d'; x.lineWidth = 2;
-      x.strokeRect(10, 10, 580, 340);
-      x.beginPath();
-      x.moveTo(140, 10); x.lineTo(140, 350);
-      x.moveTo(270, 10); x.lineTo(270, 350);
-      x.moveTo(400, 10); x.lineTo(400, 350);
-      x.moveTo(10, 60); x.lineTo(590, 60);
-      for (let r = 110; r < 350; r += 45) {
-        x.moveTo(10, r); x.lineTo(590, r);
-      }
-      x.stroke();
-      x.fillStyle = '#04142d'; x.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
-      x.fillText('Step / Line', 35, 42);
-      x.fillText('Variable A', 165, 42);
-      x.fillText('Variable B', 295, 42);
-      x.fillText('Output', 455, 42);
-      return c.toDataURL('image/jpeg', 0.8);
-    }
-
-    function generateGridDataUri() {
-      const c = document.createElement('canvas');
-      c.width = 600; c.height = 360;
-      const x = c.getContext('2d');
-      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
-      x.strokeStyle = '#e2e8f0'; x.lineWidth = 1;
-      for (let i = 20; i < 600; i += 25) {
-        x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 360); x.stroke();
-      }
-      for (let j = 20; j < 360; j += 25) {
-        x.beginPath(); x.moveTo(0, j); x.lineTo(600, j); x.stroke();
-      }
-      x.strokeStyle = '#04142d'; x.lineWidth = 2.5;
-      x.beginPath();
-      x.moveTo(300, 0); x.lineTo(300, 360);
-      x.moveTo(0, 180); x.lineTo(600, 180);
-      x.stroke();
-      return c.toDataURL('image/jpeg', 0.8);
-    }
-
-    function generateFlowchartDataUri() {
-      const c = document.createElement('canvas');
-      c.width = 600; c.height = 360;
-      const x = c.getContext('2d');
-      x.fillStyle = '#ffffff'; x.fillRect(0, 0, 600, 360);
-      x.strokeStyle = '#04142d'; x.lineWidth = 2;
-      x.strokeRect(60, 40, 160, 80);
-      x.beginPath();
-      x.moveTo(220, 80); x.lineTo(360, 80);
-      x.lineTo(350, 70); x.moveTo(360, 80); x.lineTo(350, 90);
-      x.stroke();
-      x.beginPath();
-      x.moveTo(440, 40); x.lineTo(520, 80); x.lineTo(440, 120); x.lineTo(360, 80); x.closePath();
-      x.stroke();
-      x.fillStyle = '#04142d'; x.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
-      x.fillText('Instruction', 105, 86);
-      x.fillText('Condition', 410, 86);
-      return c.toDataURL('image/jpeg', 0.8);
-    }
-
-    function drawArrow(targetCtx, fromx, fromy, tox, toy) {
-      const headlen = 16;
-      const angle = Math.atan2(toy - fromy, tox - fromx);
-      targetCtx.beginPath();
-      targetCtx.moveTo(fromx, fromy);
-      targetCtx.lineTo(tox, toy);
-      targetCtx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-      targetCtx.moveTo(tox, toy);
-      targetCtx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-      targetCtx.stroke();
-    }
-
-    function floodFill(targetCtx, startX, startY, fillHex, width, height) {
-      const imgData = targetCtx.getImageData(0, 0, width, height);
-      const data = imgData.data;
-
-      const fillRgb = hexToRgb(fillHex);
-      const startIdx = (startY * width + startX) * 4;
-
-      const startR = data[startIdx];
-      const startG = data[startIdx + 1];
-      const startB = data[startIdx + 2];
-      const startA = data[startIdx + 3];
-
-      if (colorsMatch(startR, startG, startB, startA, fillRgb.r, fillRgb.g, fillRgb.b, 255)) {
-        return;
-      }
-
-      const pixelStack = [[startX, startY]];
-      const seen = new Uint8Array(width * height);
-
-      while (pixelStack.length > 0) {
-        const [x, y] = pixelStack.pop();
-        let currentY = y;
-        let pixelIdx = (currentY * width + x) * 4;
-
-        while (currentY >= 0 && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
-          currentY--;
-          pixelIdx -= width * 4;
-        }
-
-        pixelIdx += width * 4;
-        currentY++;
-
-        let reachLeft = false;
-        let reachRight = false;
-
-        while (currentY < height && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
-          const flatCoord = currentY * width + x;
-          if (seen[flatCoord]) break;
-          seen[flatCoord] = 1;
-
-          data[pixelIdx] = fillRgb.r;
-          data[pixelIdx + 1] = fillRgb.g;
-          data[pixelIdx + 2] = fillRgb.b;
-          data[pixelIdx + 3] = 255;
-
-          if (x > 0) {
-            if (matchStartColor(pixelIdx - 4, data, startR, startG, startB, startA)) {
-              if (!reachLeft) {
-                pixelStack.push([x - 1, currentY]);
-                reachLeft = true;
-              }
-            } else if (reachLeft) {
-              reachLeft = false;
-            }
-          }
-
-          if (x < width - 1) {
-            if (matchStartColor(pixelIdx + 4, data, startR, startG, startB, startA)) {
-              if (!reachRight) {
-                pixelStack.push([x + 1, currentY]);
-                reachRight = true;
-              }
-            } else if (reachRight) {
-              reachRight = false;
-            }
-          }
-
-          currentY++;
-          pixelIdx += width * 4;
-        }
-      }
-
-      targetCtx.putImageData(imgData, 0, 0);
-    }
-
-    function matchStartColor(idx, data, r, g, b, a) {
-      return (
-        Math.abs(data[idx] - r) <= 28 &&
-        Math.abs(data[idx + 1] - g) <= 28 &&
-        Math.abs(data[idx + 2] - b) <= 28 &&
-        Math.abs(data[idx + 3] - a) <= 28
-      );
-    }
-
-    function colorsMatch(r1, g1, b1, a1, r2, g2, b2, a2) {
-      return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
-    }
-
-    function hexToRgb(hex) {
-      let c = hex.replace('#', '');
-      if (c.length === 3) c = c.split('').map(x => x + x).join('');
-      const num = parseInt(c, 16);
-      return {
-        r: (num >> 16) & 255,
-        g: (num >> 8) & 255,
-        b: num & 255
-      };
-    }
-
-    // --- STUDENT CANVAS ENGINE ---
-    const canvas = document.getElementById('board');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let currentColor = '#000000';
-    let currentTool = 'pen';
-    let startCoords = { x: 0, y: 0 };
-    let liveSnapshot = null;
-
-    const studentUndoStack = [];
-    const studentRedoStack = [];
-
-    function saveStudentHistoryState() {
-      if (studentUndoStack.length >= 20) studentUndoStack.shift();
-      studentUndoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      studentRedoStack.length = 0;
-    }
-
-    function studentUndo() {
-      if (isOperationBlocked() || studentUndoStack.length === 0) return;
-      studentRedoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      const prev = studentUndoStack.pop();
-      ctx.putImageData(prev, 0, 0);
-      queueAutoSync();
-    }
-
-    function studentRedo() {
-      if (isOperationBlocked() || studentRedoStack.length === 0) return;
-      studentUndoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      const next = studentRedoStack.pop();
-      ctx.putImageData(next, 0, 0);
-      queueAutoSync();
-    }
-
-    window.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        if (e.shiftKey) studentRedo();
-        else studentUndo();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-        studentRedo();
-      }
-    });
-
-    function setupCanvas() {
-      setTimeout(() => {
-        const container = canvas.parentElement;
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-
-        const markupCanvas = document.getElementById('board-markup');
-        markupCanvas.width = container.clientWidth;
-        markupCanvas.height = container.clientHeight;
-
-        wipeCanvasLocal();
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-      }, 50);
-    }
-
-    function resizeCanvasPreserve() {
-      const container = canvas.parentElement;
-      if (!container || container.clientWidth === 0) return;
-
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(canvas, 0, 0);
-
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
-
-      const markupCanvas = document.getElementById('board-markup');
-      markupCanvas.width = container.clientWidth;
-      markupCanvas.height = container.clientHeight;
-
-      wipeCanvasLocal();
-      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
-    }
-
-    function setColor(color, element) {
-      currentColor = color;
-      document.querySelectorAll('#student-draw-view .color-dot').forEach(d => d.classList.remove('active'));
-      if (element && element.classList.contains('color-dot')) {
-        element.classList.add('active');
-      }
-      if (currentTool === 'eraser') {
-        setTool('pen');
-      }
-    }
-
-    function setTool(tool) {
-      currentTool = tool;
-      document.querySelectorAll('#student-draw-view .tool-btn').forEach(b => {
-        if (b.id.includes('-tool-btn')) b.classList.remove('active');
-      });
-      const activeBtn = document.getElementById(`${tool}-tool-btn`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-
-    function getCoords(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    }
-
-    function isOperationBlocked() {
-      if (isBoardLocked) return true;
-      if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') return true;
-      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
-        updateStudentLockState(true);
-        return true;
-      }
-      return false;
-    }
-
-    function startDraw(e) {
-      if (isOperationBlocked()) return;
-      const coords = getCoords(e);
-      startCoords = coords;
-
-      if (currentTool === 'fill') {
-        e.preventDefault();
-        saveStudentHistoryState();
-        floodFill(ctx, Math.round(coords.x), Math.round(coords.y), currentColor, canvas.width, canvas.height);
-        queueAutoSync();
-        return;
-      }
-
-      if (currentTool === 'text') {
-        e.preventDefault();
-        openCanvasTextModal(coords.x, coords.y);
-        return;
-      }
-
-      saveStudentHistoryState();
-      drawing = true;
-      liveSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      if (currentTool === 'pen' || currentTool === 'eraser') {
-        ctx.beginPath();
-        ctx.moveTo(coords.x, coords.y);
-        if (currentTool === 'eraser') {
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 26;
-        } else {
-          ctx.strokeStyle = currentColor;
-          ctx.lineWidth = 4.5;
-        }
-      }
-    }
-
-    function draw(e) {
-      if (!drawing || isOperationBlocked() || currentTool === 'text' || currentTool === 'fill') return;
-      e.preventDefault();
-      const coords = getCoords(e);
-
-      if (currentTool === 'pen' || currentTool === 'eraser') {
-        ctx.lineTo(coords.x, coords.y);
-        ctx.stroke();
-        return;
-      }
-
-      ctx.putImageData(liveSnapshot, 0, 0);
-      ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 3.5;
-
-      if (currentTool === 'line') {
-        ctx.beginPath();
-        ctx.moveTo(startCoords.x, startCoords.y);
-        ctx.lineTo(coords.x, coords.y);
-        ctx.stroke();
-      } else if (currentTool === 'arrow') {
-        drawArrow(ctx, startCoords.x, startCoords.y, coords.x, coords.y);
-      } else if (currentTool === 'rect') {
-        const w = coords.x - startCoords.x;
-        const h = coords.y - startCoords.y;
-        ctx.strokeRect(startCoords.x, startCoords.y, w, h);
-      } else if (currentTool === 'circle') {
-        const radius = Math.hypot(coords.x - startCoords.x, coords.y - startCoords.y);
-        ctx.beginPath();
-        ctx.arc(startCoords.x, startCoords.y, radius, 0, 2 * Math.PI);
-        ctx.stroke();
-      }
-    }
-
-    function stopDraw() {
-      if (drawing) {
-        drawing = false;
-        ctx.beginPath();
-        queueAutoSync();
-      }
-    }
-
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchend', stopDraw);
-    canvas.addEventListener('touchmove', draw, { passive: false });
-
-    const peerOverlayEl = document.getElementById('s-peer-overlay');
-    ['touchstart', 'touchmove', 'touchend', 'mousedown', 'pointerdown'].forEach(evtName => {
-      peerOverlayEl.addEventListener(evtName, (e) => {
-        e.stopPropagation();
-      }, { passive: true });
-    });
-
-    const feedbackTextarea = document.getElementById('s-peer-feedback-input');
-    feedbackTextarea.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      feedbackTextarea.focus();
-    });
-
-    function clearCanvas() {
-      if (isOperationBlocked()) return;
-      saveStudentHistoryState();
-      wipeCanvasLocal();
-      queueAutoSync();
-    }
-
-    function wipeCanvasLocal() {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      if (activeTemplateImageObj) {
-        renderTemplateToCanvas();
-      }
-    }
-
-    // --- STUDIO ENGINE ---
-    const studioCanvas = document.getElementById('studio-canvas');
-    const sctx = studioCanvas.getContext('2d');
-    let studioTool = 'pen';
-    let studioCurrentColor = '#04142d';
-    let studioDrawing = false;
-    let studioStartCoords = { x: 0, y: 0 };
-    let studioSnapshot = null;
-
-    const studioUndoStack = [];
-    const studioRedoStack = [];
-
-    function saveStudioHistoryState() {
-      if (studioUndoStack.length >= 20) studioUndoStack.shift();
-      studioUndoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
-      studioRedoStack.length = 0;
-    }
-
-    function studioUndo() {
-      if (studioUndoStack.length === 0) return;
-      studioRedoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
-      const prev = studioUndoStack.pop();
-      sctx.putImageData(prev, 0, 0);
-    }
-
-    function studioRedo() {
-      if (studioRedoStack.length === 0) return;
-      studioUndoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
-      const next = studioRedoStack.pop();
-      sctx.putImageData(next, 0, 0);
-    }
-
-    function openStudioModal() {
-      closeTemplateModal();
-      document.getElementById('studio-modal').style.display = 'flex';
-      clearStudioCanvas();
-      refreshIcons();
-    }
-
-    function closeStudioModal() {
-      document.getElementById('studio-modal').style.display = 'none';
-      openTemplateModal();
-    }
-
-    function clearStudioCanvas() {
-      sctx.fillStyle = "#ffffff";
-      sctx.fillRect(0, 0, studioCanvas.width, studioCanvas.height);
-      sctx.lineCap = 'round';
-      sctx.lineJoin = 'round';
-      studioUndoStack.length = 0;
-      studioRedoStack.length = 0;
-    }
-
-    function setStudioTool(tool) {
-      studioTool = tool;
-      document.querySelectorAll('.studio-toolbar .tool-btn').forEach(b => {
-        if (b.id.startsWith('st-tool-')) b.classList.remove('active');
-      });
-      const activeBtn = document.getElementById(`st-tool-${tool}`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-
-    function getStudioCoords(e) {
-      const rect = studioCanvas.getBoundingClientRect();
-      const scaleX = studioCanvas.width / rect.width;
-      const scaleY = studioCanvas.height / rect.height;
-      return {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY
-      };
-    }
-
-    function startStudioDraw(e) {
-      const coords = getStudioCoords(e);
-      studioStartCoords = coords;
-
-      if (studioTool === 'fill') {
-        saveStudioHistoryState();
-        floodFill(sctx, Math.round(coords.x), Math.round(coords.y), studioCurrentColor, studioCanvas.width, studioCanvas.height);
-        return;
-      }
-
-      if (studioTool === 'text') {
-        const text = prompt("Annotation text:", "");
-        if (text) {
-          saveStudioHistoryState();
-          sctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
-          sctx.fillStyle = studioCurrentColor;
-          sctx.fillText(text, coords.x, coords.y);
-        }
-        return;
-      }
-
-      saveStudioHistoryState();
-      studioDrawing = true;
-      studioSnapshot = sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height);
-
-      if (studioTool === 'pen') {
-        sctx.beginPath();
-        sctx.moveTo(coords.x, coords.y);
-      }
-    }
-
-    function drawStudio(e) {
-      if (!studioDrawing) return;
-      const coords = getStudioCoords(e);
-
-      if (studioTool === 'pen') {
-        sctx.strokeStyle = studioCurrentColor;
-        sctx.lineWidth = 3;
-        sctx.lineTo(coords.x, coords.y);
-        sctx.stroke();
-        return;
-      }
-
-      sctx.putImageData(studioSnapshot, 0, 0);
-      sctx.strokeStyle = studioCurrentColor;
-      sctx.lineWidth = 3;
-
-      if (studioTool === 'line') {
-        sctx.beginPath();
-        sctx.moveTo(studioStartCoords.x, studioStartCoords.y);
-        sctx.lineTo(coords.x, coords.y);
-        sctx.stroke();
-      } else if (studioTool === 'arrow') {
-        drawArrow(sctx, studioStartCoords.x, studioStartCoords.y, coords.x, coords.y);
-      } else if (studioTool === 'rect') {
-        const w = coords.x - studioStartCoords.x;
-        const h = coords.y - studioStartCoords.y;
-        sctx.strokeRect(studioStartCoords.x, studioStartCoords.y, w, h);
-      } else if (studioTool === 'circle') {
-        const radius = Math.hypot(coords.x - studioStartCoords.x, coords.y - studioStartCoords.y);
-        sctx.beginPath();
-        sctx.arc(studioStartCoords.x, studioStartCoords.y, radius, 0, 2 * Math.PI);
-        sctx.stroke();
-      }
-    }
-
-    function stopStudioDraw() {
-      studioDrawing = false;
-    }
-
-    function stampStudioTablePrompt() {
-      const rows = parseInt(prompt("Table rows:", "4"), 10);
-      const cols = parseInt(prompt("Table columns:", "3"), 10);
-      if (!rows || !cols || rows <= 0 || cols <= 0) return;
-
-      saveStudioHistoryState();
-      const pad = 40;
-      const w = studioCanvas.width - (pad * 2);
-      const h = studioCanvas.height - (pad * 2);
-      const colW = w / cols;
-      const rowH = h / rows;
-
-      sctx.strokeStyle = studioCurrentColor;
-      sctx.lineWidth = 2;
-      sctx.strokeRect(pad, pad, w, h);
-
-      sctx.beginPath();
-      for (let c = 1; c < cols; c++) {
-        sctx.moveTo(pad + (c * colW), pad);
-        sctx.lineTo(pad + (c * colW), pad + h);
-      }
-      for (let r = 1; r < rows; r++) {
-        sctx.moveTo(pad, pad + (r * rowH));
-        sctx.lineTo(pad + w, pad + (r * rowH));
-      }
-      sctx.stroke();
-    }
-
-    studioCanvas.addEventListener('mousedown', startStudioDraw);
-    studioCanvas.addEventListener('mousemove', drawStudio);
-    studioCanvas.addEventListener('mouseup', stopStudioDraw);
-
-    function saveStudioTemplate() {
-      const name = document.getElementById('studio-name-input').value.trim() || 'Template';
-      const dataUri = studioCanvas.toDataURL('image/jpeg', 0.8);
-      saveCustomTemplate(name, dataUri);
-      closeStudioModal();
-    }
-
-    // --- HINGE EVALUATION ---
-    function openHingeModal() {
-      document.getElementById('hinge-modal').style.display = 'flex';
-      document.getElementById('hinge-prompt-input').focus();
-      refreshIcons();
-    }
-
-    function closeHingeModal() {
-      document.getElementById('hinge-modal').style.display = 'none';
-    }
-
-    function handleHingeLayoutChange() {
-      const layout = document.getElementById('hinge-layout-select').value;
-      const customBox = document.getElementById('custom-choices-container');
-
-      if (layout === 'CUSTOM') {
-        customBox.style.display = 'block';
-        populateCustomCorrectDropdown();
-      } else {
-        customBox.style.display = 'none';
-        const correctSelect = document.getElementById('hinge-correct-select');
-        correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
-
-        const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
-        opts.forEach(o => {
-          const opt = document.createElement('option');
-          opt.value = o;
-          opt.innerText = o;
-          correctSelect.appendChild(opt);
-        });
-      }
-    }
-
-    function populateCustomCorrectDropdown() {
-      const text = document.getElementById('custom-choices-text').value;
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const correctSelect = document.getElementById('hinge-correct-select');
-      
-      const currentSelected = correctSelect.value;
-      correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
-
-      lines.forEach(line => {
-        const opt = document.createElement('option');
-        opt.value = line;
-        opt.innerText = line;
-        if (line === currentSelected) opt.selected = true;
-        correctSelect.appendChild(opt);
-      });
-    }
-
-    async function launchHingeQuestion() {
-      const prompt = document.getElementById('hinge-prompt-input').value.trim();
-      const layout = document.getElementById('hinge-layout-select').value;
-      let correct = document.getElementById('hinge-correct-select').value;
-      const durationSecs = parseInt(document.getElementById('hinge-duration-input').value, 10) || 30;
-      const points = parseInt(document.getElementById('hinge-points-input').value, 10) || 10;
-
-      let choices = ['A', 'B', 'C', 'D'];
-      if (layout === 'TF') {
-        choices = ['True', 'False'];
-      } else if (layout === 'CUSTOM') {
-        const text = document.getElementById('custom-choices-text').value;
-        choices = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (choices.length < 2) {
-          return alert("Enter at least two answer options.");
-        }
-      }
-
-      closeHingeModal();
-
-      const targetEnd = Date.now() + (durationSecs * 1000);
-      activeTimerEndEpoch = targetEnd;
-      tickClocksLocally();
-
-      await roomRef.child('hinge/responses').remove();
-      await roomRef.child('hinge/active').set({
-        status: 'ACTIVE',
-        prompt: prompt,
-        layout: layout,
-        choices: choices,
-        correctAnswer: correct,
-        points: points,
-        startedAt: Date.now()
-      });
-
-      await roomRef.child('controls').update({
-        locked: false,
-        timerEnd: targetEnd
-      });
-    }
-
-    function endHingeSession() {
-      if (confirm("Close question session?")) {
-        roomRef.child('hinge/active').update({ status: 'CLOSED' });
-      }
-    }
-
-    function renderHingeStatsVisualisation() {
-      const bars = document.getElementById('t-stats-bars');
-      if (!bars || !currentHingeConfig) return;
-
-      const keys = currentHingeConfig.choices || (currentHingeConfig.layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D']);
-      const counts = {};
-      const rosters = {};
-      keys.forEach(k => { counts[k] = 0; rosters[k] = []; });
-
-      const responses = Object.values(currentHingeResponses);
-      const totalAnswers = responses.length;
-
-      responses.forEach(r => {
-        if (counts[r.answer] !== undefined) {
-          counts[r.answer]++;
-          const s = teacherRoster.get(r.clientId);
-          const idx = Array.from(teacherRoster.keys()).indexOf(r.clientId);
-          const name = s ? getDisplayName(s, idx) : (r.seat || 'Student');
-          rosters[r.answer].push(name);
-        }
-      });
-
-      bars.innerHTML = '';
-      keys.forEach(k => {
-        const count = counts[k];
-        const pct = totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0;
-        const isCorrect = currentHingeConfig.correctAnswer === k;
-
-        const col = document.createElement('div');
-        col.className = `stat-col ${isCorrect ? 'correct-key' : ''}`;
-        col.innerHTML = `
-          <div class="stat-col-letter">${escapeHTML(k)} ${isCorrect ? '✓' : ''}</div>
-          <div class="stat-col-count" style="color: ${isCorrect ? 'var(--ga-green)' : 'var(--ga-gold)'}">${count}</div>
-          <div class="stat-col-percent">${pct}% (${count}/${totalAnswers})</div>
-          <div class="stat-roster-list">${rosters[k].map(n => escapeHTML(n)).join(', ') || '<em>None</em>'}</div>
-        `;
-        bars.appendChild(col);
-      });
-    }
-
-    async function awardHingePoints() {
-      if (!currentHingeConfig || currentHingeConfig.correctAnswer === 'NONE') {
-        return alert("This question has no correct answer specified.");
-      }
-
-      const correctChoice = currentHingeConfig.correctAnswer;
-      const ptsToAward = currentHingeConfig.points || 10;
-      let countAwarded = 0;
-
-      const updates = {};
-      Object.values(currentHingeResponses).forEach(r => {
-        if (r.answer === correctChoice) {
-          const currentScore = (currentLeaderboard[r.clientId] && currentLeaderboard[r.clientId].score) || 0;
-          updates[`leaderboard/${r.clientId}`] = {
-            clientId: r.clientId,
-            seat: r.seat,
-            score: currentScore + ptsToAward
-          };
-          countAwarded++;
-        }
-      });
-
-      if (countAwarded > 0) {
-        await roomRef.update(updates);
-        alert(`Awarded +${ptsToAward} points to ${countAwarded} student(s).`);
-      } else {
-        alert("No correct responses recorded.");
-      }
     }
 
     function refreshIcons() {
