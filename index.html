@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Digital Whiteboard</title>
-  <!-- Plus Jakarta Sans Font -->
+  
+  <!-- Lexend Font: Friendly, Modern, and Designed for Readability -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Lucide Vector Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -29,7 +30,7 @@
       --ga-gold-hover: #c98526;
       --ga-gold-light: #f5b453;
       --ga-white: #ffffff;
-      --ga-text-muted: #8499b8;
+      --ga-text-muted: #8ca3c3;
       --ga-green: #10b981;
       --ga-red: #f43f5e;
       --ga-blue: #3b82f6;
@@ -37,8 +38,7 @@
 
     * { box-sizing: border-box; }
     body { 
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-feature-settings: "cv02", "cv04", "tnum";
+      font-family: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0; 
       padding: 0 0 16px 0; 
       background: var(--ga-navy-deep); 
@@ -86,7 +86,7 @@
       color: #04142d; 
       border: 1.5px solid #04142d; 
       padding: 7px 15px; 
-      border-radius: 6px; 
+      border-radius: 8px; 
       font-size: 0.85rem; 
       cursor: pointer; 
       font-weight: 700;
@@ -107,7 +107,7 @@
     .card { 
       background: var(--ga-navy-panel); 
       padding: 28px; 
-      border-radius: 10px; 
+      border-radius: 12px; 
       max-width: 440px; 
       margin: 30px auto; 
       border: 1px solid var(--ga-border); 
@@ -120,19 +120,18 @@
       letter-spacing: -0.02em;
     }
     label { 
-      font-size: 0.75rem; 
-      font-weight: 700; 
+      font-size: 0.78rem; 
+      font-weight: 600; 
       color: var(--ga-text-muted); 
       display: block; 
       margin-top: 14px; 
       margin-bottom: 6px; 
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
     }
     input, select, textarea { 
       width: 100%; 
       padding: 10px 14px; 
-      border-radius: 6px; 
+      border-radius: 8px; 
       border: 1px solid var(--ga-border); 
       background: var(--ga-navy-input); 
       color: white; 
@@ -148,7 +147,7 @@
     button { 
       font-family: inherit;
       padding: 8px 14px; 
-      border-radius: 6px; 
+      border-radius: 8px; 
       border: none; 
       font-weight: 600; 
       cursor: pointer; 
@@ -197,7 +196,6 @@
     }
     .btn-gold:hover { background: var(--ga-gold-light); }
 
-    /* Teacher Quick Key Indicator */
     kbd {
       background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--ga-border);
@@ -232,8 +230,8 @@
       gap: 6px; 
       align-items: center; 
       background: var(--ga-navy-panel); 
-      padding: 6px 12px; 
-      border-radius: 8px; 
+      padding: 7px 12px; 
+      border-radius: 10px; 
       margin-bottom: 8px; 
       border: 1px solid var(--ga-border); 
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -279,7 +277,7 @@
       background: var(--ga-navy-card); 
       color: var(--ga-white); 
       padding: 6px 11px; 
-      border-radius: 6px; 
+      border-radius: 7px; 
       font-size: 0.8rem; 
       border: 1px solid var(--ga-border); 
     }
@@ -298,7 +296,7 @@
       display: flex;
       background: var(--ga-navy-deep);
       padding: 2px;
-      border-radius: 6px;
+      border-radius: 7px;
       border: 1px solid var(--ga-border);
       margin-right: 4px;
     }
@@ -308,7 +306,7 @@
       color: var(--ga-text-muted);
       font-size: 0.75rem;
       padding: 4px 10px;
-      border-radius: 4px;
+      border-radius: 5px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -322,7 +320,7 @@
       flex: 1; 
       width: 100%; 
       min-height: 400px; 
-      border-radius: 10px; 
+      border-radius: 12px; 
       overflow: hidden; 
       background: white; 
       border: 1px solid var(--ga-border); 
@@ -407,7 +405,7 @@
       flex: 1.6;
       background: #ffffff;
       border: 1px solid var(--ga-gold);
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -422,7 +420,7 @@
       flex: 1;
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-border);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -438,7 +436,7 @@
       background: var(--ga-navy-input);
       color: #ffffff;
       border: 1px solid var(--ga-border);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 12px;
       font-size: 0.95rem;
     }
@@ -454,7 +452,7 @@
       right: 14px;
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 14px 18px;
       max-width: 380px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
@@ -478,7 +476,7 @@
     .hinge-question-box {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px 24px;
       max-width: 800px;
       width: 100%;
@@ -496,11 +494,11 @@
       min-height: 80px;
       padding: 14px 18px;
       font-size: 1.25rem;
-      font-weight: 800;
+      font-weight: 700;
       background: var(--ga-navy-card);
       border: 1px solid var(--ga-border);
       color: var(--ga-white);
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -540,7 +538,7 @@
     .student-leaderboard-box {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 10px;
+      border-radius: 12px;
       max-width: 540px;
       width: 100%;
       padding: 22px;
@@ -590,7 +588,7 @@
       align-items: center;
       justify-content: center;
       background: #ffffff;
-      border-radius: 6px;
+      border-radius: 8px;
       overflow: hidden;
       border: 2px solid var(--ga-gold);
     }
@@ -614,7 +612,7 @@
     .text-modal-box {
       background: var(--ga-navy-panel);
       padding: 20px;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 1px solid var(--ga-gold);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       width: 90%;
@@ -644,7 +642,7 @@
     
     .action-toolbar { 
       background: var(--ga-navy-panel); 
-      border-radius: 8px; 
+      border-radius: 10px; 
       padding: 8px 12px; 
       margin-bottom: 16px; 
       border: 1px solid var(--ga-border); 
@@ -657,7 +655,7 @@
     .timer-input { 
       width: 74px; 
       padding: 6px 10px; 
-      border-radius: 4px; 
+      border-radius: 6px; 
       border: 1px solid var(--ga-border); 
       background: var(--ga-navy-input); 
       color: white; 
@@ -675,7 +673,7 @@
       left: 0;
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 60;
       min-width: 210px;
@@ -692,7 +690,7 @@
       border: none;
       text-align: left;
       padding: 8px 12px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
@@ -715,7 +713,7 @@
     .hinge-stats-panel {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px;
       margin-bottom: 16px;
       display: none;
@@ -735,7 +733,7 @@
     .stat-col {
       background: var(--ga-navy-input);
       border: 1px solid var(--ga-border);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 10px;
       text-align: center;
       position: relative;
@@ -772,7 +770,7 @@
     /* Class Roster */
     .roster-panel { 
       background: var(--ga-navy-panel); 
-      border-radius: 8px; 
+      border-radius: 10px; 
       padding: 10px 14px; 
       margin-bottom: 16px; 
       border: 1px solid var(--ga-border); 
@@ -782,11 +780,10 @@
       justify-content: space-between; 
       align-items: center; 
       font-size: 0.75rem; 
-      font-weight: bold; 
+      font-weight: 700; 
       margin-bottom: 6px; 
       color: var(--ga-text-muted); 
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
     .roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .student-chip { 
@@ -816,7 +813,7 @@
     }
     .board-card { 
       background: var(--ga-navy-panel); 
-      border-radius: 8px; 
+      border-radius: 10px; 
       overflow: hidden; 
       border: 1px solid var(--ga-border); 
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -870,9 +867,9 @@
     
     .meta-actions { display: flex; gap: 4px; flex-wrap: wrap; }
     .btn-action-mini { 
-      padding: 4px 7px; 
-      border-radius: 4px; 
-      font-size: 0.72rem; 
+      padding: 4px 8px; 
+      border-radius: 6px; 
+      font-size: 0.75rem; 
     }
     .btn-action-mini i, .btn-action-mini svg {
       width: 12px;
@@ -893,7 +890,7 @@
     .spotlight-content {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 10px;
+      border-radius: 12px;
       width: 95vw;
       max-width: 1300px;
       height: 90vh;
@@ -956,7 +953,7 @@
     .markup-content {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 10px;
+      border-radius: 12px;
       width: 95vw;
       max-width: 1200px;
       height: 92vh;
@@ -1007,21 +1004,51 @@
       background: var(--ga-navy-input);
       border: 1px solid var(--ga-border);
       color: var(--ga-white);
-      padding: 5px 11px;
-      border-radius: 14px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       transition: all 0.12s ease;
+      position: relative;
     }
     .stamp-pill:hover, .stamp-pill.active {
       background: var(--ga-gold);
       color: #04142d;
       border-color: var(--ga-gold);
+    }
+    .stamp-del-btn {
+      display: none;
+      background: rgba(0, 0, 0, 0.45);
+      color: white;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      font-size: 9px;
+      align-items: center;
+      justify-content: center;
+      margin-left: 2px;
+    }
+    .stamp-pill:hover .stamp-del-btn {
+      display: inline-flex;
+    }
+
+    /* Palette Pill Quick Swatches */
+    .color-swatch-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .color-swatch-btn:hover, .color-swatch-btn.active {
+      transform: scale(1.15);
+      border-color: white;
     }
 
     /* Template Engine Modals */
@@ -1034,12 +1061,12 @@
       margin: 12px 0;
       background: var(--ga-navy-input);
       padding: 10px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid var(--ga-border);
     }
     .template-card {
       border: 1px solid var(--ga-border);
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 6px;
       cursor: pointer;
       background: var(--ga-navy-panel);
@@ -1107,7 +1134,7 @@
     .studio-box {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
-      border-radius: 10px;
+      border-radius: 12px;
       max-width: 980px;
       width: 100%;
       height: 92vh;
@@ -1147,7 +1174,7 @@
     #studio-canvas {
       background: #ffffff;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: crosshair;
     }
 
@@ -1191,7 +1218,7 @@
       border: 1px solid var(--ga-border);
       color: var(--ga-white);
       padding: 11px 18px;
-      border-radius: 8px;
+      border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       font-size: 0.85rem;
       font-weight: 600;
@@ -1217,7 +1244,7 @@
       border-left: 4px solid var(--ga-gold);
     }
 
-    /* IN-APP CONFIRMATION & PROMPT MODAL */
+    /* IN-APP DIALOGS */
     #dialog-modal {
       position: fixed;
       inset: 0;
@@ -1231,8 +1258,8 @@
     .dialog-box {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-border-gold);
-      border-radius: 10px;
-      max-width: 400px;
+      border-radius: 12px;
+      max-width: 420px;
       width: 100%;
       padding: 22px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
@@ -1241,7 +1268,7 @@
       margin: 14px 0;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
   </style>
 </head>
@@ -1265,7 +1292,7 @@
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
       <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Login</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter the room code and your desk identifier.</p>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.88rem;">Enter the room code and your desk identifier.</p>
       <label>Room Code</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
       <label>Desk / Name</label>
@@ -1374,7 +1401,7 @@
         <div class="lock-overlay" id="s-lock-overlay">
           <i data-lucide="lock" style="width: 42px; height: 42px; stroke-width: 1.5; margin-bottom: 12px; color: var(--ga-gold);"></i>
           <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Eyes on the Front</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Input paused for class discussion.</p>
+          <p style="margin: 0; font-size: 0.88rem; color: var(--ga-text-muted);" id="s-lock-msg">Input paused for class discussion.</p>
         </div>
 
         <!-- Student Showcase Overlay -->
@@ -1593,7 +1620,7 @@
         <span style="font-size: 0.75rem; font-weight: 700; color: var(--ga-text-muted); text-transform: uppercase;">Feedback Chips:</span>
         <div class="stamp-chips-scroll" id="markup-stamps-bar"></div>
 
-        <button class="btn-gold btn-action-mini" onclick="openCreateStampPrompt()">
+        <button class="btn-gold btn-action-mini" onclick="openCreateStampModal()">
           <i data-lucide="plus"></i> New
         </button>
         <button class="btn-secondary btn-action-mini" onclick="exportStampLibrary()">
@@ -1666,7 +1693,7 @@
         </div>
       </div>
 
-      <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-border);">
+      <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 8px; border: 1px solid var(--ga-border);">
         <label style="margin-top: 0;">Options (One per line):</label>
         <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
       </div>
@@ -1928,7 +1955,7 @@
       }, 3500);
     }
 
-    // --- IN-APP CONFIRMATION & PROMPT SYSTEM ---
+    // --- IN-APP DIALOGS (REPLACING NATIVE ALERTS) ---
     function showConfirm(title, message, onConfirm, confirmText = 'Confirm', isDanger = false) {
       const modal = document.getElementById('dialog-modal');
       const titleEl = document.getElementById('dialog-title');
@@ -2427,7 +2454,7 @@
       const text = document.getElementById('s-text-input').value.trim();
       if (text) {
         saveStudentHistoryState();
-        ctx.font = "bold 60px 'Plus Jakarta Sans', sans-serif";
+        ctx.font = "bold 54px 'Lexend', sans-serif";
         ctx.fillStyle = currentColor;
         ctx.fillText(text, pendingTextCoords.x, pendingTextCoords.y);
         queueAutoSync();
@@ -2692,7 +2719,7 @@
           const isDone = Boolean(submitted[s.clientId]);
           const badge = document.createElement('span');
           badge.style.padding = '3px 8px';
-          badge.style.borderRadius = '4px';
+          badge.style.borderRadius = '6px';
           badge.style.background = isDone ? '#064e3b' : 'var(--ga-navy-input)';
           badge.style.color = isDone ? '#34d399' : 'var(--ga-text-muted)';
           badge.innerText = `${s.seat}: ${isDone ? 'Completed' : 'Drafting'}`;
@@ -2990,14 +3017,14 @@
       refreshIcons();
     }
 
-    // --- CHIPS / STAMPS ENGINE ---
+    // --- CHIPS & STAMP ENGINE (WITH DELETION & COLOUR PICKER) ---
     const defaultStamps = [
       { id: 'st_wd', text: 'Well Done', icon: 'check-circle-2', color: '#10b981' },
       { id: 'st_gw', text: 'Great Work', icon: 'thumbs-up', color: '#10b981' },
       { id: 'st_cw', text: 'Check Work', icon: 'help-circle', color: '#df9b35' },
       { id: 'st_ta', text: 'Try Again', icon: 'rotate-ccw', color: '#f43f5e' },
-      { id: 'st_rq', text: 'Re-read Question', icon: 'book-open', color: '#3b82f6' },
-      { id: 'st_er', text: 'Error Found', icon: 'x-circle', color: '#be123c' }
+      { id: 'st_rq', text: 'Re-read Prompt', icon: 'book-open', color: '#3b82f6' },
+      { id: 'st_er', text: 'Check Error', icon: 'x-circle', color: '#be123c' }
     ];
 
     function getCustomStamps() {
@@ -3009,24 +3036,60 @@
       }
     }
 
+    function getHiddenStamps() {
+      try {
+        const hidden = localStorage.getItem('ga_hidden_stamps');
+        return hidden ? JSON.parse(hidden) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
     function saveCustomStamp(text, icon, color) {
       const custom = getCustomStamps();
-      custom.push({ id: 'cst_' + Date.now(), text, icon: icon || 'tag', color });
+      custom.push({ id: 'cst_' + Date.now(), text, icon: icon || 'message-square', color });
       localStorage.setItem('ga_custom_stamps', JSON.stringify(custom));
       renderMarkupStampsToolbar();
-      showToast("Feedback chip created", "success");
+      showToast("Feedback chip created.", "success");
+    }
+
+    function deleteOrHideStamp(id, e) {
+      e.stopPropagation();
+      showConfirm("Remove Chip", "Remove this feedback chip from your toolbar?", () => {
+        if (id.startsWith('cst_')) {
+          let custom = getCustomStamps().filter(s => s.id !== id);
+          localStorage.setItem('ga_custom_stamps', JSON.stringify(custom));
+        } else {
+          let hidden = getHiddenStamps();
+          hidden.push(id);
+          localStorage.setItem('ga_hidden_stamps', JSON.stringify(hidden));
+        }
+        if (selectedStamp && selectedStamp.id === id) {
+          selectedStamp = null;
+          setMarkupTool('pen');
+        }
+        renderMarkupStampsToolbar();
+        showToast("Chip removed.", "info");
+      }, "Remove", true);
     }
 
     function renderMarkupStampsToolbar() {
       const bar = document.getElementById('markup-stamps-bar');
       bar.innerHTML = '';
 
-      const all = [...defaultStamps, ...getCustomStamps()];
+      const hidden = getHiddenStamps();
+      const visibleDefaults = defaultStamps.filter(s => !hidden.includes(s.id));
+      const all = [...visibleDefaults, ...getCustomStamps()];
+
       all.forEach(st => {
         const pill = document.createElement('div');
         pill.className = `stamp-pill ${selectedStamp && selectedStamp.id === st.id ? 'active' : ''}`;
         pill.style.borderColor = st.color;
-        pill.innerHTML = `<i data-lucide="${st.icon || 'tag'}" style="width:13px; height:13px;"></i><span>${escapeHTML(st.text)}</span>`;
+        pill.innerHTML = `
+          <i data-lucide="${st.icon || 'tag'}" style="width:13px; height:13px;"></i>
+          <span>${escapeHTML(st.text)}</span>
+          <span class="stamp-del-btn" title="Delete chip" onclick="deleteOrHideStamp('${st.id}', event)">✕</span>
+        `;
         pill.onclick = () => selectMarkupStamp(st);
         bar.appendChild(pill);
       });
@@ -3039,14 +3102,65 @@
       renderMarkupStampsToolbar();
     }
 
-    function openCreateStampPrompt() {
-      showPrompt("Create Feedback Chip", [
-        { key: "text", label: "Chip Text", placeholder: "e.g. Missing Semi-colon" },
-        { key: "color", label: "Border Color Hex", value: "#df9b35" }
-      ], (vals) => {
-        if (!vals.text.trim()) return showToast("Chip text cannot be blank.", "error");
-        saveCustomStamp(vals.text.trim(), 'message-square', vals.color.trim() || '#df9b35');
-      });
+    // Modal with Color Picker and Swatches
+    function openCreateStampModal() {
+      const modal = document.getElementById('dialog-modal');
+      const titleEl = document.getElementById('dialog-title');
+      const msgEl = document.getElementById('dialog-msg');
+      const fieldsEl = document.getElementById('dialog-fields');
+      const confirmBtn = document.getElementById('dialog-confirm-btn');
+      const cancelBtn = document.getElementById('dialog-cancel-btn');
+
+      titleEl.innerText = "New Feedback Chip";
+      msgEl.innerText = "Create a custom feedback badge for individual markups.";
+      fieldsEl.innerHTML = `
+        <div>
+          <label style="margin-top:0;">Badge Label</label>
+          <input type="text" id="custom-stamp-text-input" placeholder="e.g. Missing Semi-colon" maxlength="24">
+        </div>
+        <div>
+          <label>Badge Highlight Colour</label>
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+            <input type="color" id="custom-stamp-color-input" value="#df9b35" style="width: 44px; height: 38px; padding: 2px; border-radius: 6px; cursor: pointer;">
+            <div style="display: flex; gap: 6px;" id="stamp-swatch-picker">
+              <div class="color-swatch-btn active" style="background:#df9b35;" onclick="setCustomStampColorSwatch('#df9b35', this)"></div>
+              <div class="color-swatch-btn" style="background:#10b981;" onclick="setCustomStampColorSwatch('#10b981', this)"></div>
+              <div class="color-swatch-btn" style="background:#3b82f6;" onclick="setCustomStampColorSwatch('#3b82f6', this)"></div>
+              <div class="color-swatch-btn" style="background:#f43f5e;" onclick="setCustomStampColorSwatch('#f43f5e', this)"></div>
+              <div class="color-swatch-btn" style="background:#8b5cf6;" onclick="setCustomStampColorSwatch('#8b5cf6', this)"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      confirmBtn.innerText = "Create Chip";
+      confirmBtn.className = "btn-primary";
+      confirmBtn.style.width = "auto";
+      confirmBtn.style.margin = "0";
+
+      modal.style.display = "flex";
+      document.getElementById('custom-stamp-text-input').focus();
+
+      const cleanup = () => {
+        modal.style.display = 'none';
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+      };
+
+      confirmBtn.onclick = () => {
+        const text = document.getElementById('custom-stamp-text-input').value.trim();
+        const color = document.getElementById('custom-stamp-color-input').value;
+        if (!text) return showToast("Chip label cannot be empty.", "error");
+        cleanup();
+        saveCustomStamp(text, 'message-square', color);
+      };
+      cancelBtn.onclick = cleanup;
+    }
+
+    function setCustomStampColorSwatch(hex, el) {
+      document.getElementById('custom-stamp-color-input').value = hex;
+      document.querySelectorAll('#stamp-swatch-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
     }
 
     function exportStampLibrary() {
@@ -3081,7 +3195,7 @@
             showToast(`Imported ${parsed.stamps.length} feedback chips.`, "success");
           }
         } catch (err) {
-          showToast("Invalid chip format.", "error");
+          showToast("Invalid chip file.", "error");
         }
       };
       reader.readAsText(file);
@@ -3191,7 +3305,7 @@
       mctx.save();
       mctx.globalCompositeOperation = 'source-over';
       const text = stamp.text;
-      mctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+      mctx.font = "600 15px 'Lexend', sans-serif";
       const tw = mctx.measureText(text).width;
       const ph = 32;
       const pw = tw + 28;
@@ -3203,7 +3317,7 @@
       const rx = x - pw / 2;
       const ry = y - ph / 2;
       mctx.beginPath();
-      mctx.roundRect(rx, ry, pw, ph, 6);
+      mctx.roundRect(rx, ry, pw, ph, 8);
       mctx.fill();
       mctx.stroke();
 
@@ -3241,7 +3355,7 @@
     }
 
     async function clearAllRoomMarkups() {
-      showConfirm("Clear Markups", "Remove all red pen and feedback chips from all boards?", async () => {
+      showConfirm("Clear Markups", "Remove all red pen annotations and feedback chips from all boards?", async () => {
         teacherMarkupCache.clear();
         teacherRoster.forEach(s => {
           updateCardMarkupBtnState(s.clientId, false);
@@ -3250,7 +3364,7 @@
         if (roomRef) {
           await roomRef.child('markup').remove();
         }
-        showToast("Cleared all teacher markups.", "info");
+        showToast("Cleared all markups.", "info");
       }, "Clear All", true);
     }
 
@@ -3286,7 +3400,7 @@
       const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
 
       if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet.</span>`;
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded in this session.</span>`;
         return;
       }
 
@@ -3313,7 +3427,7 @@
       roomRef.child('controls').update({
         broadcastLeaderboard: isBroadcastingLeaderboard
       });
-      showToast(isBroadcastingLeaderboard ? "Broadcasting standings to class" : "Stopped broadcast", "info");
+      showToast(isBroadcastingLeaderboard ? "Broadcasting standings to class." : "Stopped broadcast.", "info");
     }
 
     async function resetLeaderboard() {
@@ -3431,7 +3545,7 @@
           showcaseCaption: caption,
           requestHighRes: null
         });
-        showToast(`Broadcasting ${getDisplayName(s, idx)} to the room`, "success");
+        showToast(`Broadcasting ${getDisplayName(s, idx)} to the room.`, "success");
       }, 350);
     }
 
@@ -3882,7 +3996,7 @@
         x.moveTo(10, r); x.lineTo(590, r);
       }
       x.stroke();
-      x.fillStyle = '#04142d'; x.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
+      x.fillStyle = '#04142d'; x.font = "bold 16px 'Lexend', sans-serif";
       x.fillText('Step / Line', 35, 42);
       x.fillText('Variable A', 165, 42);
       x.fillText('Variable B', 295, 42);
@@ -3924,7 +4038,7 @@
       x.beginPath();
       x.moveTo(440, 40); x.lineTo(520, 80); x.lineTo(440, 120); x.lineTo(360, 80); x.closePath();
       x.stroke();
-      x.fillStyle = '#04142d'; x.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+      x.fillStyle = '#04142d'; x.font = "bold 15px 'Lexend', sans-serif";
       x.fillText('Instruction', 105, 86);
       x.fillText('Condition', 410, 86);
       return c.toDataURL('image/jpeg', 0.8);
@@ -4076,7 +4190,6 @@
     }
 
     window.addEventListener('keydown', (e) => {
-      // Hotkey: Space toggles lock state when on teacher console
       if (e.code === 'Space' && document.getElementById('teacher-view').style.display === 'block' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
         e.preventDefault();
         toggleLockState();
@@ -4364,7 +4477,7 @@
         showPrompt("Stamp Text", [{ key: "text", label: "Text", placeholder: "e.g. Logic gate label" }], (vals) => {
           if (vals.text && vals.text.trim()) {
             saveStudioHistoryState();
-            sctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
+            sctx.font = "bold 20px 'Lexend', sans-serif";
             sctx.fillStyle = studioCurrentColor;
             sctx.fillText(vals.text.trim(), coords.x, coords.y);
           }
@@ -4635,6 +4748,44 @@
     }
 
     // --- SPOTLIGHT CONTROLS ---
+    function openSpotlightModal(clientId) {
+      const s = teacherRoster.get(clientId);
+      if (!s) return;
+
+      activeSpotlightClientId = clientId;
+      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+
+      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+      recompositeTeacherCardImage(clientId, true);
+
+      updateSpotlightLockBtnUI(Boolean(s.individualLock));
+      document.getElementById('t-spotlight-modal').style.display = 'flex';
+      roomRef.child('controls').update({ requestHighRes: clientId });
+      refreshIcons();
+    }
+
+    function closeSpotlightModal() {
+      activeSpotlightClientId = null;
+      document.getElementById('t-spotlight-modal').style.display = 'none';
+      if (roomRef) {
+        roomRef.child('controls').update({ requestHighRes: null });
+      }
+    }
+
+    function updateSpotlightLockBtnUI(isLocked) {
+      const btn = document.getElementById('spotlight-lock-btn');
+      if (btn) {
+        if (isLocked) {
+          btn.innerHTML = `<i data-lucide="unlock"></i> Unlock`;
+          btn.className = "btn-gold btn-action-mini";
+        } else {
+          btn.innerHTML = `<i data-lucide="lock"></i> Lock`;
+          btn.className = "btn-secondary btn-action-mini";
+        }
+        refreshIcons();
+      }
+    }
+
     function openMarkupFromSpotlight() {
       if (!activeSpotlightClientId) return;
       const id = activeSpotlightClientId;
@@ -4709,6 +4860,131 @@
       if (!activeSpotlightClientId) return;
       exhibitDirectly(activeSpotlightClientId);
       closeSpotlightModal();
+    }
+
+    function stopShowcaseBroadcast() {
+      roomRef.child('controls').update({
+        showcaseImage: null,
+        showcaseCaption: null,
+        requestHighRes: null
+      });
+      showToast("Showcase closed.", "info");
+    }
+
+    function toggleLockState() {
+      teacherLockFlag = !teacherLockFlag;
+      roomRef.child('controls').update({
+        locked: teacherLockFlag,
+        timerEnd: 0
+      });
+      showToast(teacherLockFlag ? "Locked all student boards" : "Unlocked all student boards", "info");
+    }
+
+    function startTimer() {
+      const secs = parseInt(document.getElementById('timer-seconds').value, 10);
+      if (isNaN(secs) || secs <= 0) return showToast("Enter valid timer seconds.", "error");
+
+      teacherLockFlag = false;
+      updateLockBtnUI(false);
+
+      const targetEnd = Date.now() + (secs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      roomRef.child('controls').update({
+        locked: false,
+        timerEnd: targetEnd
+      });
+      showToast(`Timer started (${secs}s)`, "info");
+    }
+
+    function updateLockBtnUI(locked) {
+      const btn = document.getElementById('lock-toggle-btn');
+      if (locked) {
+        btn.innerHTML = `<i data-lucide="unlock"></i> Unlock Boards <kbd>Space</kbd>`;
+        btn.className = "btn-secondary";
+      } else {
+        btn.innerHTML = `<i data-lucide="lock"></i> Lock Boards <kbd>Space</kbd>`;
+        btn.className = "btn-gold";
+      }
+      refreshIcons();
+    }
+
+    function wipeAllStudentBoards() {
+      showConfirm("Wipe Boards", "Clear all student drawings? Active templates will remain intact.", () => {
+        roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
+        roomRef.child('controls').update({
+          wipeAllTimestamp: Date.now()
+        });
+        showToast("All whiteboards wiped.", "info");
+      }, "Wipe Boards", true);
+    }
+
+    function wipeSingleStudent(clientId) {
+      roomRef.child(`canvases/${clientId}`).remove();
+      roomRef.child(`highResCanvases/${clientId}`).remove();
+      roomRef.child(`students/${clientId}`).update({
+        wipeTimestamp: Date.now()
+      });
+      showToast("Student board cleared.", "info");
+    }
+
+    function kickStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const name = s ? s.seat : "Student";
+      showConfirm("Remove Student", `Remove ${name} from this session?`, () => {
+        roomRef.child(`students/${clientId}`).update({ kicked: true });
+        roomRef.child(`canvases/${clientId}`).remove();
+        roomRef.child(`highResCanvases/${clientId}`).remove();
+        setTimeout(() => {
+          roomRef.child(`students/${clientId}`).remove();
+        }, 300);
+        showToast(`Removed ${name}.`, "info");
+      }, "Remove", true);
+    }
+
+    function renameStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const currentName = s ? s.seat : "";
+      showPrompt("Rename Student", [{ key: "name", label: "Identifier", value: currentName }], (vals) => {
+        const newName = vals.name.trim();
+        if (newName && newName !== currentName) {
+          const clean = newName.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
+          roomRef.child(`students/${clientId}`).update({
+            seat: clean,
+            assignedSeat: clean
+          });
+          showToast(`Renamed to ${clean}`, "success");
+        }
+      });
+    }
+
+    function clearTeacherRoom() {
+      showConfirm("Reset Session", "Clear the entire room and disconnect all students?", () => {
+        roomRef.child('students').remove();
+        roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
+        roomRef.child('hinge').remove();
+        roomRef.child('peerReview').remove();
+        roomRef.child('markup').remove();
+        roomRef.child('controls').set({
+          locked: false,
+          timerEnd: 0,
+          wipeAllTimestamp: Date.now(),
+          showcaseImage: null,
+          showcaseCaption: null,
+          requestHighRes: null,
+          broadcastLeaderboard: false,
+          templateData: null,
+          peerReviewActive: false
+        });
+        showToast("Room reset successfully.", "info");
+      }, "Reset Room", true);
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
     function refreshIcons() {
