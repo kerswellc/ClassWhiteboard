@@ -164,7 +164,6 @@
     .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; flex-shrink: 0; }
     .color-dot.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 0 2px var(--ga-gold); }
     
-    /* Native Color Picker Wrapper */
     .color-picker-wrapper {
       position: relative;
       width: 26px;
@@ -189,6 +188,30 @@
     .tool-btn { background: var(--ga-navy-card); color: var(--ga-white); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--ga-navy-border); }
     .tool-btn.active { background: var(--ga-gold); color: #04142d; font-weight: 700; border-color: var(--ga-gold); }
 
+    /* Student Mode Segmented Tabs */
+    .mode-tab-group {
+      display: flex;
+      background: var(--ga-navy-deep);
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--ga-navy-border);
+      margin-right: 4px;
+    }
+    .mode-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--ga-text-muted);
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mode-tab-btn.active {
+      background: var(--ga-navy-card);
+      color: var(--ga-gold);
+    }
+
     .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid var(--ga-navy-border); }
     canvas { width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
     
@@ -196,7 +219,7 @@
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
     .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
 
-    /* Student Peer Review Split View (Touch & Focus Isolated) */
+    /* Student Peer Review Split View */
     .peer-review-overlay {
       position: absolute;
       inset: 0;
@@ -448,6 +471,49 @@
     
     .action-toolbar { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--ga-navy-border); background: var(--ga-navy-input); color: white; }
+
+    /* Teacher Expandable Dropdown Menu */
+    .dropdown-container {
+      position: relative;
+      display: inline-block;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: var(--ga-navy-panel);
+      border: 1.5px solid var(--ga-gold);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      z-index: 60;
+      min-width: 210px;
+      padding: 6px;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .dropdown-menu.show {
+      display: flex;
+    }
+    .dropdown-item {
+      background: transparent;
+      color: var(--ga-white);
+      border: none;
+      text-align: left;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .dropdown-item:hover {
+      background: #14356f;
+      color: var(--ga-gold);
+    }
 
     /* Teacher Live Hinge Stats Panel */
     .hinge-stats-panel {
@@ -799,8 +865,15 @@
         </div>
       </div>
 
+      <!-- Segmented Student Toolbar -->
       <div class="tool-bar">
-        <!-- Preset Color Dots -->
+        <!-- Segmented Mode Tabs -->
+        <div class="mode-tab-group">
+          <button class="mode-tab-btn active" id="mode-tab-basic" onclick="setStudentToolbarMode('basic')">✏️ Basic</button>
+          <button class="mode-tab-btn" id="mode-tab-advanced" onclick="setStudentToolbarMode('advanced')">🛠️ Advanced</button>
+        </div>
+
+        <!-- Palette (Always Available) -->
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
         <div class="color-dot" style="background:#04142d;" onclick="setColor('#04142d', this)"></div>
         <div class="color-dot" style="background:#df9b35;" onclick="setColor('#df9b35', this)"></div>
@@ -817,23 +890,26 @@
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
         <!-- Undo & Redo -->
-        <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">↩ Undo</button>
-        <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">↪ Redo</button>
+        <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">↩</button>
+        <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">↪</button>
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <!-- Drawing & Vector Tools -->
+        <!-- Core Tools (Basic Mode) -->
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
-        <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">📏 Line</button>
-        <button class="tool-btn" id="arrow-tool-btn" onclick="setTool('arrow')">↗️ Arrow</button>
-        <button class="tool-btn" id="rect-tool-btn" onclick="setTool('rect')">⬜ Box</button>
-        <button class="tool-btn" id="circle-tool-btn" onclick="setTool('circle')">⭕ Circle</button>
-        <button class="tool-btn" id="fill-tool-btn" onclick="setTool('fill')">🪣 Fill</button>
         <button class="tool-btn" id="eraser-tool-btn" onclick="setTool('eraser')">🧹 Eraser</button>
-        <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Text</button>
+
+        <!-- Advanced Vector & Fill Tools (Hidden in Basic Mode) -->
+        <div id="student-adv-tools" style="display: none; align-items: center; gap: 6px;">
+          <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">📏 Line</button>
+          <button class="tool-btn" id="arrow-tool-btn" onclick="setTool('arrow')">↗️ Arrow</button>
+          <button class="tool-btn" id="rect-tool-btn" onclick="setTool('rect')">⬜ Box</button>
+          <button class="tool-btn" id="circle-tool-btn" onclick="setTool('circle')">⭕ Circle</button>
+          <button class="tool-btn" id="fill-tool-btn" onclick="setTool('fill')">🪣 Fill</button>
+          <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Text</button>
+        </div>
 
         <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">Wipe Board</button>
-        <button class="btn-secondary" onclick="sendBoardImmediate()">Sync Now</button>
       </div>
       
       <div class="canvas-container">
@@ -887,7 +963,7 @@
           </div>
         </div>
 
-        <!-- Student Peer Review Split-Screen Overlay (Event-Isolated) -->
+        <!-- Student Peer Review Split-Screen Overlay -->
         <div class="peer-review-overlay" id="s-peer-overlay">
           <div class="peer-review-header">
             <div>
@@ -935,14 +1011,23 @@
         </div>
       </div>
 
+      <!-- Cleaned & Grouped Action Toolbar -->
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">🔤 Sort: Order Joined</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
-        <button class="btn-secondary" onclick="openHingeModal()">🎯 Hinge Question</button>
-        <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openPeerReviewModal()">👥 Peer Review</button>
-        <button class="btn-secondary" onclick="openLeaderboardModal()">🏆 Leaderboard</button>
-        <button class="btn-secondary" onclick="openTemplateModal()">📋 Templates</button>
+
+        <!-- Grouped Formative Assessment Menu -->
+        <div class="dropdown-container">
+          <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="toggleAssessmentMenu(event)">🎯 Formative Assessment ▾</button>
+          <div class="dropdown-menu" id="assessment-dropdown">
+            <button class="dropdown-item" onclick="openHingeModal(); closeAssessmentMenu();">🎯 Hinge Questions</button>
+            <button class="dropdown-item" onclick="openPeerReviewModal(); closeAssessmentMenu();">👥 Timed Peer Review</button>
+            <button class="dropdown-item" onclick="openLeaderboardModal(); closeAssessmentMenu();">🏆 Session Leaderboard</button>
+            <button class="dropdown-item" onclick="openTemplateModal(); closeAssessmentMenu();">📋 Template Library & Studio</button>
+          </div>
+        </div>
+
         <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
@@ -1237,7 +1322,7 @@
     let selectedTemplateId = 'trace_table';
 
     let currentPeerAssignment = null;
-    let sortMode = 'JOINED'; // 'JOINED' or 'ALPHA'
+    let sortMode = 'JOINED';
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -1291,6 +1376,26 @@
       document.querySelectorAll('.btn-hinge-choice').forEach(b => {
         b.disabled = isLocked;
       });
+    }
+
+    // --- STUDENT TOOLBAR SEGMENTATION (BASIC VS ADVANCED) ---
+    function setStudentToolbarMode(mode) {
+      const basicTab = document.getElementById('mode-tab-basic');
+      const advTab = document.getElementById('mode-tab-advanced');
+      const advTools = document.getElementById('student-adv-tools');
+
+      if (mode === 'basic') {
+        basicTab.classList.add('active');
+        advTab.classList.remove('active');
+        advTools.style.display = 'none';
+        if (['line', 'arrow', 'rect', 'circle', 'fill', 'text'].includes(currentTool)) {
+          setTool('pen');
+        }
+      } else {
+        advTab.classList.add('active');
+        basicTab.classList.remove('active');
+        advTools.style.display = 'flex';
+      }
     }
 
     // --- STUDENT LOGIC ---
@@ -1634,11 +1739,6 @@
 
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(sendBoardPayload, 600);
-    }
-
-    function sendBoardImmediate() {
-      if (isBoardLocked) return;
-      sendBoardPayload();
     }
 
     function sendBoardPayload() {
@@ -2018,6 +2118,25 @@
       students.forEach(s => updateCardMeta(s));
     }
 
+    // --- TEACHER EXPANDABLE ASSESSMENT DROPDOWN ---
+    function toggleAssessmentMenu(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('assessment-dropdown');
+      menu.classList.toggle('show');
+    }
+
+    function closeAssessmentMenu() {
+      const menu = document.getElementById('assessment-dropdown');
+      if (menu) menu.classList.remove('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown-container')) {
+        closeAssessmentMenu();
+      }
+    });
+
     // --- TEACHER SORTING ---
     function toggleSortOrder() {
       const btn = document.getElementById('sort-toggle-btn');
@@ -2091,6 +2210,74 @@
           const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
           document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
         }
+      }
+    }
+
+    // --- PEER REVIEW ENGINE (STALE-CLIENT SAFE) ---
+    function openPeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'flex';
+    }
+
+    function closePeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'none';
+    }
+
+    async function launchPeerReview() {
+      const now = Date.now();
+      const activeStudents = Array.from(teacherRoster.values()).filter(s => {
+        return s.lastSeen && (now - s.lastSeen < 45000);
+      });
+
+      if (activeStudents.length < 2) {
+        return alert("At least 2 active connected students are required for Peer Review.");
+      }
+
+      const durationSecs = parseInt(document.getElementById('peer-duration-input').value, 10) || 90;
+      const anonymise = document.getElementById('peer-anonymise-check').checked;
+      closePeerReviewModal();
+
+      const shuffled = [...activeStudents].sort(() => Math.random() - 0.5);
+      const assignments = {};
+
+      for (let i = 0; i < shuffled.length; i++) {
+        const reviewer = shuffled[i];
+        const reviewedPeer = shuffled[(i + 1) % shuffled.length];
+        
+        let peerImage = teacherCanvasCache.get(reviewedPeer.clientId);
+        if (!peerImage) {
+          const fallbackCanvas = document.createElement('canvas');
+          fallbackCanvas.width = 300; fallbackCanvas.height = 180;
+          const fcx = fallbackCanvas.getContext('2d');
+          fcx.fillStyle = '#ffffff'; fcx.fillRect(0, 0, 300, 180);
+          peerImage = fallbackCanvas.toDataURL('image/jpeg', 0.5);
+        }
+
+        assignments[reviewer.clientId] = {
+          peerClientId: reviewedPeer.clientId,
+          peerName: anonymise ? "Anonymous Classmate" : reviewedPeer.seat,
+          peerImage: peerImage
+        };
+      }
+
+      const targetEnd = Date.now() + (durationSecs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      await roomRef.child('peerReview/submitted').remove();
+      await roomRef.child('peerReview/assignments').set(assignments);
+      await roomRef.child('controls').update({
+        peerReviewActive: true,
+        locked: false,
+        timerEnd: targetEnd
+      });
+    }
+
+    async function endPeerReviewSession() {
+      if (confirm("Conclude Peer Review and restore drawing boards?")) {
+        await roomRef.child('controls').update({
+          peerReviewActive: false,
+          timerEnd: 0
+        });
       }
     }
 
