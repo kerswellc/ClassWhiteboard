@@ -413,29 +413,7 @@
       font-size: 0.8rem; 
     }
 
-    /* Phase 7: Teacher Lesson Stepper Bar */
-    .lesson-stepper-bar {
-      background: var(--ga-navy-card);
-      border: 1px solid var(--ga-border-gold);
-      border-radius: 8px;
-      padding: 8px 14px;
-      margin-bottom: 12px;
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .lesson-step-tag {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--ga-gold);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Phase 7: Floating Scaffolding Bulk Action Toolbar */
+    /* Floating Scaffolding Bulk Action Toolbar */
     .scaffold-bulk-bar {
       position: fixed;
       bottom: 24px;
@@ -762,7 +740,7 @@
       border-radius: 10px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 60;
-      min-width: 220px;
+      min-width: 210px;
       padding: 6px;
       flex-direction: column;
       gap: 2px;
@@ -917,7 +895,6 @@
       box-shadow: 0 0 14px rgba(223, 155, 53, 0.35);
     }
     
-    /* Phase 7: Scaffolding Checkbox on Cards */
     .scaffold-card-check {
       position: absolute;
       top: 8px;
@@ -1372,18 +1349,6 @@
       background-color: #04142d;
     }
 
-    /* Lesson Planner Sequence Modal */
-    .sequence-step-row {
-      background: var(--ga-navy-input);
-      border: 1px solid var(--ga-border);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
     /* In-App Toast System */
     #toast-container {
       position: fixed;
@@ -1672,21 +1637,6 @@
         </div>
       </div>
 
-      <!-- Phase 7: Persistent Lesson Stepper Bar -->
-      <div class="lesson-stepper-bar" id="lesson-stepper-bar">
-        <div class="lesson-step-tag">
-          <i data-lucide="list-ordered"></i>
-          <span id="step-active-title">Activity 1: Starter</span>
-          <span id="step-active-num" style="color: var(--ga-text-muted); font-size: 0.8rem;">(Step 1 of 3)</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button class="btn-gold btn-action-mini" onclick="advanceLessonSequenceStep()">
-            <i data-lucide="skip-forward"></i> Next Activity
-          </button>
-          <button class="btn-secondary btn-action-mini" onclick="endLessonSequence()">Stop Sequence</button>
-        </div>
-      </div>
-
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">
           <i data-lucide="lock"></i> Lock Boards <kbd>Space</kbd>
@@ -1714,9 +1664,6 @@
             </button>
             <button class="dropdown-item" onclick="openTemplateModal(); closeAssessmentMenu();">
               <i data-lucide="layout-template"></i> Template Studio
-            </button>
-            <button class="dropdown-item" onclick="openLessonPlanModal(); closeAssessmentMenu();">
-              <i data-lucide="list-ordered"></i> Lesson Plan Stepper
             </button>
           </div>
         </div>
@@ -1783,7 +1730,7 @@
     </div>
   </div>
 
-  <!-- Phase 7: Floating Scaffolding Bulk Action Toolbar -->
+  <!-- Floating Scaffolding Bulk Action Toolbar -->
   <div class="scaffold-bulk-bar" id="scaffold-bulk-bar">
     <span style="font-size: 0.85rem; font-weight: 700; color: var(--ga-gold);" id="scaffold-count-tag">0 desks selected</span>
     <button class="btn-secondary btn-action-mini" onclick="selectAllDesksForScaffolding()">Select All</button>
@@ -1791,35 +1738,6 @@
     <button class="btn-gold btn-action-mini" onclick="openTemplateModalForSelected()">
       <i data-lucide="layers"></i> Push Template / Hint
     </button>
-  </div>
-
-  <!-- Phase 7: Lesson Plan Sequencer Modal -->
-  <div class="modal-overlay" id="sequence-modal">
-    <div class="card" style="margin: 0; max-width: 580px; width: 95%;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin: 0; color: var(--ga-gold);">Lesson Sequence Plan</h3>
-        <div style="display: flex; gap: 6px;">
-          <button class="btn-secondary btn-action-mini" onclick="exportLessonPack()"><i data-lucide="download"></i> Export</button>
-          <input type="file" id="lesson-pack-importer" accept=".json" style="display:none;" onchange="importLessonPack(event)">
-          <button class="btn-secondary btn-action-mini" onclick="document.getElementById('lesson-pack-importer').click()"><i data-lucide="upload"></i> Import</button>
-        </div>
-      </div>
-      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Pre-queue classroom activities and step through the lesson seamlessly.</p>
-
-      <div id="sequence-steps-list"></div>
-
-      <div style="display: flex; gap: 8px; margin-top: 14px;">
-        <button class="btn-secondary btn-action-mini" onclick="addLessonStepPrompt()">➕ Add Activity</button>
-        <button class="btn-secondary btn-action-mini" onclick="resetLessonPlanToDefaults()">Reset Defaults</button>
-      </div>
-
-      <div style="display: flex; gap: 8px; margin-top: 20px;">
-        <button class="btn-secondary" style="flex:1;" onclick="closeLessonPlanModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="startLessonSequence()">
-          <i data-lucide="play"></i> Start Sequence
-        </button>
-      </div>
-    </div>
   </div>
 
   <!-- TEACHER PIN MODAL -->
@@ -2120,6 +2038,7 @@
       <button class="btn-ghost" style="padding: 2px 8px;" onclick="toggleAccessDrawer(event)">✕</button>
     </div>
 
+    <!-- 1. OpenDyslexic Toggle -->
     <div class="access-toggle-row">
       <div>
         <strong style="font-size: 0.88rem;">OpenDyslexic Font</strong>
@@ -2131,6 +2050,7 @@
       </label>
     </div>
 
+    <!-- 2. Dark Mode Shell Toggle -->
     <div class="access-toggle-row">
       <div>
         <strong style="font-size: 0.88rem;">Deep Dark Mode</strong>
@@ -2142,6 +2062,7 @@
       </label>
     </div>
 
+    <!-- 3. High-Contrast Blackboard Canvas Toggle -->
     <div class="access-toggle-row">
       <div>
         <strong style="font-size: 0.88rem;">Inverted Canvas</strong>
@@ -2153,6 +2074,7 @@
       </label>
     </div>
 
+    <!-- Teacher Remote Push -->
     <div id="teacher-access-push-box" style="display: none; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--ga-border);">
       <button class="btn-gold" style="width: 100%;" onclick="pushAccessibilityToRoom()">
         <i data-lucide="radio"></i> Push Display Settings to Room
@@ -2226,14 +2148,8 @@
     let currentStrokeWeight = 5;
     let isCanvasInverted = false;
 
-    // Phase 7 State
+    // Scaffolding Multi-Select State
     const selectedScaffoldClients = new Set();
-    let lessonPlanSequence = [
-      { id: "step_1", title: "1. Starter Whiteboard", type: "WHITEBOARD", duration: 300 },
-      { id: "step_2", title: "2. Formative Check", type: "HINGE", prompt: "Identify the logic operator", duration: 60 },
-      { id: "step_3", title: "3. Trace Worksheet", type: "TEMPLATE", templateId: "trace_table", duration: 600 }
-    ];
-    let currentLessonStepIndex = -1;
 
     const teacherRoster = new Map();
     const teacherCanvasCache = new Map();
@@ -2385,7 +2301,7 @@
       localStorage.setItem('ga_pref_canvas_inverted', enable ? '1' : '0');
       wipeCanvasLocal();
       queueAutoSync();
-      showToast(enable ? "Inverted slate board active." : "Standard whiteboard active.", "info");
+      showToast(enable ? "Inverted board active." : "Standard whiteboard active.", "info");
     }
 
     function handleStrokeSliderInput(val) {
@@ -2602,7 +2518,6 @@
           studentLbOverlay.style.display = 'none';
         }
 
-        // Room-wide template sync
         if (ctrl.templateData) {
           if (!activeTemplateConfig || activeTemplateConfig.timestamp !== ctrl.templateData.timestamp) {
             applyRemoteTemplate(ctrl.templateData);
@@ -2637,7 +2552,6 @@
         tickClocksLocally();
       });
 
-      // Individual Scaffolding Template Listener (Phase 7)
       studentRef.child('individualTemplate').on('value', (snapshot) => {
         const indTpl = snapshot.val();
         if (indTpl) {
@@ -3170,7 +3084,7 @@
       return isAnonymised ? `Student ${index + 1}` : student.seat;
     }
 
-    // Phase 7: Upsert Student Card with Scaffolding Checkbox
+    // Upsert Student Card with Scaffolding Checkbox
     function upsertStudentCard(student) {
       const grid = document.getElementById('teacher-grid');
       let card = document.getElementById(`card_${student.clientId}`);
@@ -3212,7 +3126,6 @@
       updateCardMeta(student);
     }
 
-    // Phase 7: Multi-Select Scaffolding Actions
     function toggleScaffoldDeskSelection(clientId, isChecked) {
       if (isChecked) {
         selectedScaffoldClients.add(clientId);
@@ -4139,7 +4052,6 @@
           templateData: null,
           peerReviewActive: false
         });
-        endLessonSequence();
         showToast("Room reset successfully.", "info");
       }, "Reset Room", true);
     }
@@ -4423,7 +4335,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Phase 7: Differentiated Push (Room-wide or Selected Desks Only)
     async function pushSelectedTemplate() {
       const all = [...defaultTemplates, ...getSavedTemplates()];
       const tpl = all.find(t => t.id === selectedTemplateId);
@@ -4458,7 +4369,6 @@
     async function clearActiveTemplate() {
       showConfirm("Remove Template", "Remove background template from all whiteboards?", async () => {
         await roomRef.child('controls').update({ templateData: null });
-        // Clear any individual templates
         teacherRoster.forEach(s => {
           roomRef.child(`students/${s.clientId}/individualTemplate`).remove();
         });
@@ -5233,44 +5143,6 @@
     }
 
     // --- SPOTLIGHT CONTROLS ---
-    function openSpotlightModal(clientId) {
-      const s = teacherRoster.get(clientId);
-      if (!s) return;
-
-      activeSpotlightClientId = clientId;
-      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-
-      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
-      recompositeTeacherCardImage(clientId, true);
-
-      updateSpotlightLockBtnUI(Boolean(s.individualLock));
-      document.getElementById('t-spotlight-modal').style.display = 'flex';
-      roomRef.child('controls').update({ requestHighRes: clientId });
-      refreshIcons();
-    }
-
-    function closeSpotlightModal() {
-      activeSpotlightClientId = null;
-      document.getElementById('t-spotlight-modal').style.display = 'none';
-      if (roomRef) {
-        roomRef.child('controls').update({ requestHighRes: null });
-      }
-    }
-
-    function updateSpotlightLockBtnUI(isLocked) {
-      const btn = document.getElementById('spotlight-lock-btn');
-      if (btn) {
-        if (isLocked) {
-          btn.innerHTML = `<i data-lucide="unlock"></i> Unlock`;
-          btn.className = "btn-gold btn-action-mini";
-        } else {
-          btn.innerHTML = `<i data-lucide="lock"></i> Lock`;
-          btn.className = "btn-secondary btn-action-mini";
-        }
-        refreshIcons();
-      }
-    }
-
     function openMarkupFromSpotlight() {
       if (!activeSpotlightClientId) return;
       const id = activeSpotlightClientId;
@@ -5365,8 +5237,8 @@
       showToast(teacherLockFlag ? "Locked all student boards" : "Unlocked all student boards", "info");
     }
 
-    function startTimer(duration = null) {
-      const secs = duration || parseInt(document.getElementById('timer-seconds').value, 10);
+    function startTimer() {
+      const secs = parseInt(document.getElementById('timer-seconds').value, 10);
       if (isNaN(secs) || secs <= 0) return showToast("Enter valid timer seconds.", "error");
 
       teacherLockFlag = false;
@@ -5464,161 +5336,12 @@
           templateData: null,
           peerReviewActive: false
         });
-        endLessonSequence();
         showToast("Room reset successfully.", "info");
       }, "Reset Room", true);
     }
 
-    // --- PHASE 7: LESSON SEQUENCING ENGINE ---
-    function openLessonPlanModal() {
-      renderLessonPlanStepsList();
-      document.getElementById('sequence-modal').style.display = 'flex';
-      refreshIcons();
-    }
-
-    function closeLessonPlanModal() {
-      document.getElementById('sequence-modal').style.display = 'none';
-    }
-
-    function renderLessonPlanStepsList() {
-      const list = document.getElementById('sequence-steps-list');
-      list.innerHTML = '';
-
-      lessonPlanSequence.forEach((step, idx) => {
-        const row = document.createElement('div');
-        row.className = 'sequence-step-row';
-        row.innerHTML = `
-          <strong style="color: var(--ga-gold); font-size: 0.85rem;">#${idx + 1}</strong>
-          <input type="text" value="${escapeHTML(step.title)}" onchange="updateLessonStepProperty(${idx}, 'title', this.value)" style="flex:2; font-size: 0.85rem; padding: 4px 8px;">
-          <select onchange="updateLessonStepProperty(${idx}, 'type', this.value)" style="flex:1.2; font-size: 0.85rem; padding: 4px 8px;">
-            <option value="WHITEBOARD" ${step.type==='WHITEBOARD'?'selected':''}>Whiteboard</option>
-            <option value="HINGE" ${step.type==='HINGE'?'selected':''}>Quick Check</option>
-            <option value="TEMPLATE" ${step.type==='TEMPLATE'?'selected':''}>Template</option>
-            <option value="PEER" ${step.type==='PEER'?'selected':''}>Peer Review</option>
-          </select>
-          <input type="number" value="${step.duration || 60}" min="10" max="1800" onchange="updateLessonStepProperty(${idx}, 'duration', parseInt(this.value,10))" style="width: 70px; font-size: 0.85rem; padding: 4px 8px;" title="Duration (Seconds)">
-          <button class="btn-danger btn-action-mini" onclick="removeLessonStep(${idx})">✕</button>
-        `;
-        list.appendChild(row);
-      });
-      refreshIcons();
-    }
-
-    function updateLessonStepProperty(index, prop, value) {
-      if (lessonPlanSequence[index]) {
-        lessonPlanSequence[index][prop] = value;
-      }
-    }
-
-    function addLessonStepPrompt() {
-      lessonPlanSequence.push({
-        id: "step_" + Date.now(),
-        title: `${lessonPlanSequence.length + 1}. Activity`,
-        type: "WHITEBOARD",
-        duration: 300
-      });
-      renderLessonPlanStepsList();
-    }
-
-    function removeLessonStep(index) {
-      lessonPlanSequence.splice(index, 1);
-      renderLessonPlanStepsList();
-    }
-
-    function resetLessonPlanToDefaults() {
-      lessonPlanSequence = [
-        { id: "step_1", title: "1. Starter Whiteboard", type: "WHITEBOARD", duration: 300 },
-        { id: "step_2", title: "2. Formative Check", type: "HINGE", prompt: "Identify the logic operator", duration: 60 },
-        { id: "step_3", title: "3. Trace Worksheet", type: "TEMPLATE", templateId: "trace_table", duration: 600 }
-      ];
-      renderLessonPlanStepsList();
-    }
-
-    function exportLessonPack() {
-      const exportData = { type: "GA_LESSON_PACK", version: "1.0", sequence: lessonPlanSequence };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `lesson-sequence-plan-${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast("Exported lesson pack.", "success");
-    }
-
-    function importLessonPack(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        try {
-          const parsed = JSON.parse(evt.target.result);
-          if (parsed.type === "GA_LESSON_PACK" && Array.isArray(parsed.sequence)) {
-            lessonPlanSequence = parsed.sequence;
-            renderLessonPlanStepsList();
-            showToast("Imported lesson sequence.", "success");
-          }
-        } catch (err) {
-          showToast("Invalid lesson file.", "error");
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = '';
-    }
-
-    function startLessonSequence() {
-      if (lessonPlanSequence.length === 0) return showToast("No activities queued.", "error");
-      closeLessonPlanModal();
-      currentLessonStepIndex = -1;
-      advanceLessonSequenceStep();
-    }
-
-    async function advanceLessonSequenceStep() {
-      currentLessonStepIndex++;
-      if (currentLessonStepIndex >= lessonPlanSequence.length) {
-        endLessonSequence();
-        showToast("Lesson sequence complete!", "success");
-        return;
-      }
-
-      const step = lessonPlanSequence[currentLessonStepIndex];
-      const stepperBar = document.getElementById('lesson-stepper-bar');
-      const stepTitle = document.getElementById('step-active-title');
-      const stepNum = document.getElementById('step-active-num');
-
-      stepperBar.style.display = 'flex';
-      stepTitle.innerText = step.title;
-      stepNum.innerText = `(Step ${currentLessonStepIndex + 1} of ${lessonPlanSequence.length})`;
-
-      // Clean active overlays
-      if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
-        roomRef.child('hinge/active').update({ status: 'CLOSED' });
-      }
-
-      // Execute Step Type
-      if (step.type === 'WHITEBOARD') {
-        clearActiveTemplate();
-        startTimer(step.duration || 300);
-      } else if (step.type === 'HINGE') {
-        document.getElementById('hinge-prompt-input').value = step.prompt || step.title;
-        document.getElementById('hinge-duration-input').value = step.duration || 60;
-        launchHingeQuestion();
-      } else if (step.type === 'TEMPLATE') {
-        selectedTemplateId = step.templateId || 'trace_table';
-        pushSelectedTemplate();
-        startTimer(step.duration || 600);
-      } else if (step.type === 'PEER') {
-        document.getElementById('peer-duration-input').value = step.duration || 90;
-        launchPeerReview();
-      }
-
-      showToast(`Advanced to: ${step.title}`, "info");
-      refreshIcons();
-    }
-
-    function endLessonSequence() {
-      currentLessonStepIndex = -1;
-      document.getElementById('lesson-stepper-bar').style.display = 'none';
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
     function refreshIcons() {
