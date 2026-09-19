@@ -18,17 +18,18 @@
   
   <style>
     :root {
-      --ga-navy-deep: #031024;
-      --ga-navy-panel: #091b38;
-      --ga-navy-card: #0e254c;
-      --ga-navy-border: rgba(255, 255, 255, 0.09);
-      --ga-navy-border-hover: rgba(223, 155, 53, 0.4);
-      --ga-navy-input: #020914;
+      --ga-navy-deep: #030d1d;
+      --ga-navy-panel: #08162d;
+      --ga-navy-card: #0d2142;
+      --ga-navy-input: #020710;
+      --ga-border: rgba(255, 255, 255, 0.08);
+      --ga-border-subtle: rgba(255, 255, 255, 0.04);
+      --ga-border-gold: rgba(223, 155, 53, 0.45);
       --ga-gold: #df9b35;
       --ga-gold-hover: #c98526;
       --ga-gold-light: #f5b453;
       --ga-white: #ffffff;
-      --ga-text-muted: #8da4c4;
+      --ga-text-muted: #8499b8;
       --ga-green: #10b981;
       --ga-red: #f43f5e;
       --ga-blue: #3b82f6;
@@ -61,13 +62,13 @@
       gap: 14px;
     }
     .brand-logo {
-      height: 42px;
+      height: 40px;
       width: auto;
       display: block;
     }
     .brand-divider {
       width: 1px;
-      height: 24px;
+      height: 22px;
       background: #cbd5e1;
     }
     .brand-title {
@@ -84,7 +85,7 @@
       background: transparent; 
       color: #04142d; 
       border: 1.5px solid #04142d; 
-      padding: 7px 16px; 
+      padding: 7px 15px; 
       border-radius: 6px; 
       font-size: 0.85rem; 
       cursor: pointer; 
@@ -109,8 +110,8 @@
       border-radius: 10px; 
       max-width: 440px; 
       margin: 30px auto; 
-      border: 1px solid var(--ga-navy-border); 
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45); 
+      border: 1px solid var(--ga-border); 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 36px rgba(0, 0, 0, 0.45); 
     }
     h2, h3 { 
       margin-top: 0; 
@@ -119,20 +120,20 @@
       letter-spacing: -0.02em;
     }
     label { 
-      font-size: 0.8rem; 
-      font-weight: 600; 
+      font-size: 0.75rem; 
+      font-weight: 700; 
       color: var(--ga-text-muted); 
       display: block; 
       margin-top: 14px; 
       margin-bottom: 6px; 
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
     input, select, textarea { 
       width: 100%; 
       padding: 10px 14px; 
       border-radius: 6px; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
       background: var(--ga-navy-input); 
       color: white; 
       font-size: 0.95rem; 
@@ -169,21 +170,45 @@
       padding: 11px; 
       font-weight: 700;
       border: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
     .btn-primary:hover { background: var(--ga-gold-light); }
     .btn-secondary { 
       background: var(--ga-navy-card); 
       color: var(--ga-white); 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
     }
     .btn-secondary:hover { 
-      background: #143264; 
-      border-color: var(--ga-navy-border-hover); 
+      background: #132b52; 
+      border-color: var(--ga-border-gold); 
     }
-    .btn-danger { background: #be123c; color: white; }
+    .btn-danger { 
+      background: #be123c; 
+      color: white; 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
     .btn-danger:hover { background: #9f1239; }
-    .btn-gold { background: var(--ga-gold); color: #04142d; font-weight: 700; }
+    .btn-gold { 
+      background: var(--ga-gold); 
+      color: #04142d; 
+      font-weight: 700; 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
     .btn-gold:hover { background: var(--ga-gold-light); }
+
+    /* Teacher Quick Key Indicator */
+    kbd {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--ga-border);
+      color: var(--ga-text-muted);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 0.7rem;
+      font-family: inherit;
+      font-weight: 700;
+      margin-left: 2px;
+    }
 
     /* Student Viewport */
     #student-draw-view { 
@@ -210,7 +235,8 @@
       padding: 6px 12px; 
       border-radius: 8px; 
       margin-bottom: 8px; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       flex-wrap: wrap; 
     }
     .color-dot { 
@@ -235,7 +261,7 @@
       border-radius: 50%;
       overflow: hidden;
       cursor: pointer;
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
       flex-shrink: 0;
     }
@@ -255,7 +281,7 @@
       padding: 6px 11px; 
       border-radius: 6px; 
       font-size: 0.8rem; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
     }
     .tool-btn.active { 
       background: var(--ga-gold); 
@@ -273,7 +299,7 @@
       background: var(--ga-navy-deep);
       padding: 2px;
       border-radius: 6px;
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       margin-right: 4px;
     }
     .mode-tab-btn {
@@ -299,7 +325,7 @@
       border-radius: 10px; 
       overflow: hidden; 
       background: white; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
     }
     canvas { 
       width: 100%; 
@@ -321,7 +347,7 @@
     .lock-overlay { 
       position: absolute; 
       inset: 0; 
-      background: rgba(3, 16, 36, 0.94); 
+      background: rgba(3, 13, 29, 0.95); 
       display: none; 
       flex-direction: column; 
       align-items: center; 
@@ -354,16 +380,16 @@
     .peer-review-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(3, 16, 36, 0.98);
-      display: none;
-      flex-direction: column;
-      z-index: 100;
-      padding: 16px;
-      overflow: hidden;
-      touch-action: auto !important;
-      pointer-events: auto !important;
-      user-select: auto !important;
-      -webkit-user-select: auto !important;
+      background: rgba(3, 13, 29, 0.98); 
+      display: none; 
+      flex-direction: column; 
+      z-index: 100; 
+      padding: 16px; 
+      overflow: hidden; 
+      touch-action: auto !important; 
+      pointer-events: auto !important; 
+      user-select: auto !important; 
+      -webkit-user-select: auto !important; 
     }
     .peer-review-header {
       display: flex;
@@ -395,7 +421,7 @@
     .peer-feedback-panel {
       flex: 1;
       background: var(--ga-navy-panel);
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       border-radius: 8px;
       padding: 16px;
       display: flex;
@@ -411,7 +437,7 @@
       -webkit-user-select: text !important;
       background: var(--ga-navy-input);
       color: #ffffff;
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       border-radius: 6px;
       padding: 12px;
       font-size: 0.95rem;
@@ -421,7 +447,7 @@
       border-color: var(--ga-gold);
     }
 
-    /* Student Peer Feedback Delivery Notification */
+    /* Student Peer Feedback Received Card */
     .feedback-notice-card {
       position: absolute;
       top: 14px;
@@ -436,11 +462,11 @@
       display: none;
     }
 
-    /* Student Hinge Question Overlay */
+    /* Student Quick Check Overlay */
     .hinge-student-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(3, 16, 36, 0.97);
+      background: rgba(3, 13, 29, 0.97);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -472,7 +498,7 @@
       font-size: 1.25rem;
       font-weight: 800;
       background: var(--ga-navy-card);
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       color: var(--ga-white);
       border-radius: 8px;
       cursor: pointer;
@@ -503,7 +529,7 @@
     .student-leaderboard-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(2, 9, 20, 0.96);
+      background: rgba(2, 7, 16, 0.96);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -528,7 +554,7 @@
     .showcase-overlay { 
       position: absolute; 
       inset: 0; 
-      background: #020914; 
+      background: #020710; 
       display: none; 
       flex-direction: column; 
       align-items: center; 
@@ -579,7 +605,7 @@
     .text-modal-overlay { 
       position: absolute; 
       inset: 0; 
-      background: rgba(3, 16, 36, 0.6); 
+      background: rgba(3, 13, 29, 0.6); 
       display: none; 
       align-items: center; 
       justify-content: center; 
@@ -601,7 +627,7 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      border-bottom: 1px solid var(--ga-navy-border); 
+      border-bottom: 1px solid var(--ga-border); 
       padding-bottom: 14px; 
       margin-bottom: 14px; 
       flex-wrap: wrap; 
@@ -621,17 +647,18 @@
       border-radius: 8px; 
       padding: 8px 12px; 
       margin-bottom: 16px; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       display: flex; 
       align-items: center; 
       gap: 8px; 
       flex-wrap: wrap; 
     }
     .timer-input { 
-      width: 76px; 
+      width: 74px; 
       padding: 6px 10px; 
       border-radius: 4px; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
       background: var(--ga-navy-input); 
       color: white; 
     }
@@ -684,7 +711,7 @@
       stroke-width: 1.75px;
     }
 
-    /* Live Hinge Panel */
+    /* Live Analytics Panel */
     .hinge-stats-panel {
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-gold);
@@ -707,7 +734,7 @@
     }
     .stat-col {
       background: var(--ga-navy-input);
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       border-radius: 6px;
       padding: 10px;
       text-align: center;
@@ -748,23 +775,23 @@
       border-radius: 8px; 
       padding: 10px 14px; 
       margin-bottom: 16px; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
     }
     .roster-header { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      font-size: 0.8rem; 
+      font-size: 0.75rem; 
       font-weight: bold; 
       margin-bottom: 6px; 
       color: var(--ga-text-muted); 
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
     .roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .student-chip { 
       background: var(--ga-navy-input); 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
       color: var(--ga-white); 
       padding: 4px 10px; 
       border-radius: 12px; 
@@ -791,13 +818,14 @@
       background: var(--ga-navy-panel); 
       border-radius: 8px; 
       overflow: hidden; 
-      border: 1px solid var(--ga-navy-border); 
+      border: 1px solid var(--ga-border); 
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
       display: flex; 
       flex-direction: column; 
       transition: border-color 0.15s ease, transform 0.15s ease; 
     }
     .board-card:hover { 
-      border-color: var(--ga-navy-border-hover); 
+      border-color: var(--ga-border-gold); 
       transform: translateY(-1px);
     }
     .board-card img { 
@@ -805,7 +833,7 @@
       height: 180px; 
       object-fit: contain; 
       background: #ffffff; 
-      border-bottom: 1px solid var(--ga-navy-border); 
+      border-bottom: 1px solid var(--ga-border); 
       display: block; 
       cursor: zoom-in; 
     }
@@ -819,7 +847,7 @@
       color: var(--ga-text-muted); 
       font-size: 0.85rem; 
       font-style: italic; 
-      border-bottom: 1px solid var(--ga-navy-border); 
+      border-bottom: 1px solid var(--ga-border); 
       cursor: pointer; 
     }
     .board-meta { 
@@ -851,11 +879,11 @@
       height: 12px;
     }
 
-    /* Modals & Overlays */
+    /* Spotlight Fullscreen View */
     .spotlight-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 9, 20, 0.94);
+      background: rgba(2, 7, 16, 0.94);
       display: none;
       align-items: center;
       justify-content: center;
@@ -880,7 +908,7 @@
       justify-content: space-between;
       align-items: center;
       background: var(--ga-navy-card);
-      border-bottom: 1px solid var(--ga-navy-border);
+      border-bottom: 1px solid var(--ga-border);
     }
     .spotlight-body {
       background: #ffffff;
@@ -910,15 +938,15 @@
       justify-content: flex-end;
       align-items: center;
       background: var(--ga-navy-card);
-      border-top: 1px solid var(--ga-navy-border);
+      border-top: 1px solid var(--ga-border);
       flex-wrap: wrap;
     }
 
-    /* Red-Pen Markup & Stamp Modal */
+    /* Red-Pen Live Intervention Modal */
     .markup-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 9, 20, 0.95);
+      background: rgba(2, 7, 16, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
@@ -943,12 +971,12 @@
       display: flex;
       gap: 8px;
       align-items: center;
-      border-bottom: 1px solid var(--ga-navy-border);
+      border-bottom: 1px solid var(--ga-border);
       flex-wrap: wrap;
     }
     .markup-canvas-wrap {
       flex: 1;
-      background: #334155;
+      background: #253347;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -977,7 +1005,7 @@
     }
     .stamp-pill {
       background: var(--ga-navy-input);
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       color: var(--ga-white);
       padding: 5px 11px;
       border-radius: 14px;
@@ -1007,10 +1035,10 @@
       background: var(--ga-navy-input);
       padding: 10px;
       border-radius: 6px;
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
     }
     .template-card {
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       border-radius: 6px;
       padding: 6px;
       cursor: pointer;
@@ -1052,7 +1080,7 @@
       gap: 2px;
     }
     .template-card-btn {
-      background: rgba(2, 11, 26, 0.85);
+      background: rgba(2, 7, 16, 0.85);
       color: white;
       border-radius: 4px;
       width: 20px;
@@ -1061,7 +1089,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-border);
       cursor: pointer;
     }
     .template-card-btn.del { background: #be123c; }
@@ -1069,7 +1097,7 @@
     .studio-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 9, 20, 0.95);
+      background: rgba(2, 7, 16, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
@@ -1091,7 +1119,7 @@
     .studio-header {
       padding: 10px 16px;
       background: var(--ga-navy-card);
-      border-bottom: 1px solid var(--ga-navy-border);
+      border-bottom: 1px solid var(--ga-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -1101,7 +1129,7 @@
     .studio-toolbar {
       padding: 8px 14px;
       background: var(--ga-navy-deep);
-      border-bottom: 1px solid var(--ga-navy-border);
+      border-bottom: 1px solid var(--ga-border);
       display: flex;
       gap: 6px;
       align-items: center;
@@ -1127,7 +1155,7 @@
       display: none; 
       position: fixed; 
       inset: 0; 
-      background: rgba(2, 9, 20, 0.85); 
+      background: rgba(2, 7, 16, 0.85); 
       align-items: center; 
       justify-content: center; 
       z-index: 100; 
@@ -1136,7 +1164,7 @@
     .leaderboard-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 9, 20, 0.9);
+      background: rgba(2, 7, 16, 0.9);
       display: none !important;
       align-items: center;
       justify-content: center;
@@ -1145,6 +1173,75 @@
     }
     .leaderboard-modal.active {
       display: flex !important;
+    }
+
+    /* IN-APP TOAST SYSTEM */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast-pill {
+      background: var(--ga-navy-card);
+      border: 1px solid var(--ga-border);
+      color: var(--ga-white);
+      padding: 11px 18px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-pill.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .toast-pill.success {
+      border-left: 4px solid var(--ga-green);
+    }
+    .toast-pill.error {
+      border-left: 4px solid var(--ga-red);
+    }
+    .toast-pill.info {
+      border-left: 4px solid var(--ga-gold);
+    }
+
+    /* IN-APP CONFIRMATION & PROMPT MODAL */
+    #dialog-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 7, 16, 0.8);
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .dialog-box {
+      background: var(--ga-navy-panel);
+      border: 1px solid var(--ga-border-gold);
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+    .dialog-fields-wrap {
+      margin: 14px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
   </style>
 </head>
@@ -1167,14 +1264,14 @@
   <div class="app-wrapper">
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
-      <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Session</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter the room code and your desk or name identifier.</p>
+      <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Login</h2>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter the room code and your desk identifier.</p>
       <label>Room Code</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
-      <label>Student Identifier</label>
+      <label>Desk / Name</label>
       <input type="text" id="join-seat" placeholder="e.g. Desk 4 / Alex" maxlength="16">
       <button class="btn-primary" onclick="joinAsStudent()">
-        <i data-lucide="log-in"></i> Join Session
+        <i data-lucide="log-in"></i> Join Room
       </button>
     </div>
 
@@ -1189,7 +1286,7 @@
         <div style="display: flex; gap: 8px; align-items: center;">
           <span class="timer-pill" id="s-timer-pill">00:00</span>
           <span id="s-sync-status" style="color: var(--ga-green); font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
-            <span class="status-dot"></span> Active
+            <span class="status-dot"></span> Live
           </span>
         </div>
       </div>
@@ -1209,11 +1306,11 @@
         <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
         <div class="color-dot" style="background:#9333ea;" onclick="setColor('#9333ea', this)"></div>
 
-        <div class="color-picker-wrapper" title="Custom Palette">
+        <div class="color-picker-wrapper" title="Palette">
           <input type="color" id="student-custom-color" value="#04142d" onchange="setColor(this.value, this.parentElement)">
         </div>
 
-        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-border); margin: 0 4px;"></div>
 
         <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">
           <i data-lucide="undo-2"></i>
@@ -1222,7 +1319,7 @@
           <i data-lucide="redo-2"></i>
         </button>
 
-        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-border); margin: 0 4px;"></div>
 
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">
           <i data-lucide="pen-tool"></i> Pen
@@ -1253,7 +1350,7 @@
         </div>
 
         <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">
-          <i data-lucide="trash-2"></i> Clear Board
+          <i data-lucide="trash-2"></i> Clear
         </button>
       </div>
       
@@ -1264,33 +1361,33 @@
         <!-- Text Modal -->
         <div class="text-modal-overlay" id="s-text-modal">
           <div class="text-modal-box">
-            <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Canvas Text</h3>
+            <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Text</h3>
             <input type="text" id="s-text-input" placeholder="Type text..." onkeydown="if(event.key==='Enter') confirmCanvasText(); if(event.key==='Escape') closeCanvasTextModal();">
             <div style="display: flex; gap: 8px; margin-top: 14px;">
               <button class="btn-secondary" style="flex:1;" onclick="closeCanvasTextModal()">Cancel</button>
-              <button class="btn-primary" style="flex:1; margin-top:0;" onclick="confirmCanvasText()">Apply</button>
+              <button class="btn-primary" style="flex:1; margin-top:0;" onclick="confirmCanvasText()">Place</button>
             </div>
           </div>
         </div>
 
         <!-- Lock Overlay -->
         <div class="lock-overlay" id="s-lock-overlay">
-          <i data-lucide="lock" style="width: 44px; height: 44px; stroke-width: 1.5; margin-bottom: 12px; color: var(--ga-gold);"></i>
-          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Input paused for teacher instruction.</p>
+          <i data-lucide="lock" style="width: 42px; height: 42px; stroke-width: 1.5; margin-bottom: 12px; color: var(--ga-gold);"></i>
+          <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Eyes on the Front</h3>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Input paused for class discussion.</p>
         </div>
 
         <!-- Student Showcase Overlay -->
         <div class="showcase-overlay" id="s-showcase-overlay">
           <div class="showcase-header-bar">
-            <span class="showcase-tag" id="s-showcase-caption">Featured Whiteboard</span>
+            <span class="showcase-tag" id="s-showcase-caption">Featured Work</span>
           </div>
           <div class="showcase-img-wrap">
-            <img id="s-showcase-img" src="" alt="Showcased Whiteboard">
+            <img id="s-showcase-img" src="" alt="Featured Whiteboard">
           </div>
         </div>
 
-        <!-- Student Hinge Question Overlay -->
+        <!-- Student Quick Check Overlay -->
         <div class="hinge-student-overlay" id="s-hinge-overlay">
           <div class="hinge-question-box" id="s-hinge-qbox" style="display: none;">
             <h3 id="s-hinge-qtext" style="color: var(--ga-gold); margin: 0; font-size: 1.25rem;">Question text</h3>
@@ -1304,7 +1401,7 @@
         <!-- Student Broadcast Leaderboard Overlay -->
         <div class="student-leaderboard-overlay" id="s-leaderboard-overlay">
           <div class="student-leaderboard-box">
-            <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.3rem;">Classroom Leaderboard</h3>
+            <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.3rem;">Class Standings</h3>
             <div class="leaderboard-list" id="s-leaderboard-list"></div>
           </div>
         </div>
@@ -1313,20 +1410,20 @@
         <div class="peer-review-overlay" id="s-peer-overlay">
           <div class="peer-review-header">
             <div>
-              <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review Session</strong>
-              <span id="s-peer-partner-tag" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Assigned Review</span>
+              <strong style="color: var(--ga-gold); font-size: 1.1rem;">Trade & Review</strong>
+              <span id="s-peer-partner-tag" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Assigned Partner</span>
             </div>
             <span class="timer-pill" id="s-peer-timer-pill" style="display: inline-block; font-size: 0.95rem;">00:00</span>
           </div>
           <div class="peer-review-body">
             <div class="peer-board-panel">
-              <img id="s-peer-board-img" src="" alt="Peer Board Snapshot">
+              <img id="s-peer-board-img" src="" alt="Peer Whiteboard">
             </div>
             <div class="peer-feedback-panel">
-              <label style="margin-top:0; font-size: 0.85rem; color: var(--ga-gold);">Peer Evaluation & Constructive Feedback</label>
-              <textarea id="s-peer-feedback-input" placeholder="Provide one point of praise and one specific revision suggestion..."></textarea>
+              <label style="margin-top:0; font-size: 0.8rem; color: var(--ga-gold);">Feedback for your classmate</label>
+              <textarea id="s-peer-feedback-input" placeholder="Give 1 piece of praise and 1 suggestion or fix..."></textarea>
               <button class="btn-primary" style="margin-top: 0;" onclick="sendPeerFeedback()">
-                <i data-lucide="send"></i> Submit Feedback
+                <i data-lucide="send"></i> Send Feedback
               </button>
             </div>
           </div>
@@ -1336,7 +1433,7 @@
         <div class="feedback-notice-card" id="s-feedback-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <strong style="color: var(--ga-gold); display: flex; align-items: center; gap: 6px;">
-              <i data-lucide="message-square" style="width: 16px; height: 16px;"></i> Peer Feedback Received
+              <i data-lucide="message-square" style="width: 15px; height: 15px;"></i> Peer Feedback
             </strong>
             <button class="btn-ghost" style="padding: 2px 6px;" onclick="document.getElementById('s-feedback-card').style.display='none'">✕</button>
           </div>
@@ -1350,14 +1447,14 @@
       <div class="teacher-nav">
         <div>
           <h2 style="margin: 0 0 4px 0; color: var(--ga-gold);">Teacher Console</h2>
-          <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">Active Students: 0</span>
+          <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">0 students active</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <button id="end-showcase-btn" class="btn-gold" style="display: none;" onclick="stopShowcaseBroadcast()">
             <i data-lucide="eye-off"></i> Stop Showcase
           </button>
           <button id="end-peer-btn" class="btn-gold" style="display: none;" onclick="endPeerReviewSession()">
-            <i data-lucide="users-round"></i> Conclude Peer Review
+            <i data-lucide="users-round"></i> End Review
           </button>
           <span class="timer-pill" id="t-timer-pill">00:00</span>
           <span class="room-badge" id="t-room-tag">Room: ---</span>
@@ -1369,10 +1466,10 @@
 
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">
-          <i data-lucide="lock"></i> Lock Boards
+          <i data-lucide="lock"></i> Lock Boards <kbd>Space</kbd>
         </button>
         <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">
-          <i data-lucide="arrow-down-a-z"></i> Sort: Order Joined
+          <i data-lucide="arrow-down-a-z"></i> Sort: Joined
         </button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">
           <i data-lucide="eye-off"></i> Anonymise
@@ -1380,17 +1477,17 @@
 
         <div class="dropdown-container">
           <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="toggleAssessmentMenu(event)">
-            <i data-lucide="sparkles"></i> Formative Tools <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+            <i data-lucide="sparkles"></i> Lesson Tools <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
           </button>
           <div class="dropdown-menu" id="assessment-dropdown">
             <button class="dropdown-item" onclick="openHingeModal(); closeAssessmentMenu();">
-              <i data-lucide="help-circle"></i> Hinge Questions
+              <i data-lucide="help-circle"></i> Quick Check
             </button>
             <button class="dropdown-item" onclick="openPeerReviewModal(); closeAssessmentMenu();">
-              <i data-lucide="users"></i> Timed Peer Review
+              <i data-lucide="users"></i> Trade & Review
             </button>
             <button class="dropdown-item" onclick="openLeaderboardModal(); closeAssessmentMenu();">
-              <i data-lucide="trophy"></i> Classroom Leaderboard
+              <i data-lucide="trophy"></i> Standings
             </button>
             <button class="dropdown-item" onclick="openTemplateModal(); closeAssessmentMenu();">
               <i data-lucide="layout-template"></i> Template Studio
@@ -1402,7 +1499,7 @@
           <i data-lucide="x-circle"></i> Remove Template
         </button>
         <button class="btn-danger" onclick="clearAllRoomMarkups()">
-          <i data-lucide="eraser"></i> Clear All Markups
+          <i data-lucide="eraser"></i> Clear Markups
         </button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">
           <i data-lucide="trash-2"></i> Wipe Boards
@@ -1411,45 +1508,45 @@
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
           <input type="number" id="timer-seconds" class="timer-input" placeholder="Secs" value="60" min="5" max="900">
           <button class="btn-secondary" onclick="startTimer()">
-            <i data-lucide="clock"></i> Start Timer
+            <i data-lucide="clock"></i> Start
           </button>
         </div>
       </div>
 
-      <!-- Live Hinge Question Panel -->
+      <!-- Live Quick Check Panel -->
       <div class="hinge-stats-panel" id="t-hinge-stats-panel">
         <div class="stats-header">
           <div>
-            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Live Question Analytics</strong>
+            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Live Responses</strong>
             <span id="t-hinge-status" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">In Progress</span>
           </div>
           <div style="display: flex; gap: 8px;">
             <button class="btn-gold btn-action-mini" id="t-award-pts-btn" onclick="awardHingePoints()">
-              <i data-lucide="check-check"></i> Award Score
+              <i data-lucide="check-check"></i> Award Points
             </button>
-            <button class="btn-secondary btn-action-mini" onclick="endHingeSession()">Conclude</button>
+            <button class="btn-secondary btn-action-mini" onclick="endHingeSession()">Close</button>
           </div>
         </div>
         <p id="t-hinge-qdisplay" style="font-size: 0.95rem; margin: 0 0 12px 0; color: #ffffff;"></p>
         <div class="stats-bar-container" id="t-stats-bars"></div>
       </div>
 
-      <!-- Live Peer Review Tracker -->
+      <!-- Live Review Tracker -->
       <div class="hinge-stats-panel" id="t-peer-status-panel">
         <div class="stats-header">
           <div>
-            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Peer Review Progress</strong>
+            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Review Progress</strong>
             <span id="t-peer-counter" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">0 / 0 completed</span>
           </div>
-          <button class="btn-danger btn-action-mini" onclick="endPeerReviewSession()">Conclude Session</button>
+          <button class="btn-danger btn-action-mini" onclick="endPeerReviewSession()">End Review</button>
         </div>
         <div id="t-peer-roster-status" style="font-size: 0.8rem; color: var(--ga-text-muted); display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
 
       <div class="roster-panel">
         <div class="roster-header">
-          <span>Active Roster</span>
-          <span id="roster-count" style="color: var(--ga-gold);">0 connected</span>
+          <span>Connected Desks</span>
+          <span id="roster-count" style="color: var(--ga-gold);">0 active</span>
         </div>
         <div class="roster-tags" id="roster-tags">
           <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No students currently connected.</span>
@@ -1463,23 +1560,23 @@
   <!-- TEACHER PIN MODAL -->
   <div class="modal-overlay" id="login-modal">
     <div class="card" style="margin: 0; width: 320px;">
-      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Teacher Verification</h3>
+      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Teacher Sign-In</h3>
       <label>Room Code</label>
       <input type="text" id="teacher-target-room" placeholder="e.g. 234">
       <label>Security PIN</label>
       <input type="password" id="teacher-pin" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') unlockTeacher()">
       <div style="display: flex; gap: 8px; margin-top: 16px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Authenticate</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
       </div>
     </div>
   </div>
 
-  <!-- RED-PEN MARKUP & STAMP MODAL -->
+  <!-- RED-PEN MARKUP & CHIPS MODAL -->
   <div class="markup-modal" id="markup-modal">
     <div class="markup-content">
       <div class="spotlight-header">
-        <h3 id="markup-title" style="margin: 0; color: var(--ga-gold);">Live Intervention</h3>
+        <h3 id="markup-title" style="margin: 0; color: var(--ga-gold);">Individual Feedback</h3>
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeMarkupModal()">✕</button>
       </div>
       
@@ -1491,13 +1588,13 @@
           <i data-lucide="eraser"></i> Eraser
         </button>
         
-        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-border); margin: 0 4px;"></div>
         
         <span style="font-size: 0.75rem; font-weight: 700; color: var(--ga-text-muted); text-transform: uppercase;">Feedback Chips:</span>
         <div class="stamp-chips-scroll" id="markup-stamps-bar"></div>
 
         <button class="btn-gold btn-action-mini" onclick="openCreateStampPrompt()">
-          <i data-lucide="plus"></i> New Chip
+          <i data-lucide="plus"></i> New
         </button>
         <button class="btn-secondary btn-action-mini" onclick="exportStampLibrary()">
           <i data-lucide="download"></i> Export
@@ -1514,19 +1611,19 @@
       </div>
 
       <div class="markup-canvas-wrap" id="markup-canvas-container">
-        <img id="markup-underlay-img" src="" alt="Student Canvas Underlay">
+        <img id="markup-underlay-img" src="" alt="Whiteboard preview">
         <canvas id="markup-draw-canvas"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- PEER REVIEW LAUNCHER MODAL -->
+  <!-- PEER REVIEW MODAL -->
   <div class="modal-overlay" id="peer-review-modal">
-    <div class="card" style="margin: 0; max-width: 460px; width: 95%;">
-      <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Start Timed Peer Review</h3>
-      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Assigns each student a partner's board to review and critique.</p>
+    <div class="card" style="margin: 0; max-width: 440px; width: 95%;">
+      <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Start Trade & Review</h3>
+      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Assigns each student a classmate's current board to review.</p>
       
-      <label>Session Duration (Seconds)</label>
+      <label>Duration (Seconds)</label>
       <input type="number" id="peer-duration-input" value="90" min="20" max="600">
 
       <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
@@ -1536,25 +1633,25 @@
 
       <div style="display: flex; gap: 8px; margin-top: 20px;">
         <button class="btn-secondary" style="flex:1;" onclick="closePeerReviewModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchPeerReview()">Launch Review</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchPeerReview()">Start Review</button>
       </div>
     </div>
   </div>
 
-  <!-- HINGE QUESTION MODAL -->
+  <!-- QUICK CHECK (HINGE) MODAL -->
   <div class="modal-overlay" id="hinge-modal">
-    <div class="card" style="margin: 0; max-width: 520px; width: 95%;">
-      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Deploy Hinge Question</h3>
+    <div class="card" style="margin: 0; max-width: 500px; width: 95%;">
+      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Deploy Quick Check</h3>
       <label>Question Prompt (Optional)</label>
-      <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate completes the circuit?">
+      <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate is this?">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Answer Choices</label>
+          <label>Options</label>
           <select id="hinge-layout-select" onchange="handleHingeLayoutChange()">
             <option value="ABCD">A, B, C, D</option>
             <option value="TF">True / False</option>
-            <option value="CUSTOM">Custom Choices...</option>
+            <option value="CUSTOM">Custom Options...</option>
           </select>
         </div>
         <div>
@@ -1569,8 +1666,8 @@
         </div>
       </div>
 
-      <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-navy-border);">
-        <label style="margin-top: 0;">Custom Options (One per line):</label>
+      <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-border);">
+        <label style="margin-top: 0;">Options (One per line):</label>
         <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
       </div>
 
@@ -1587,7 +1684,7 @@
 
       <div style="display: flex; gap: 8px; margin-top: 20px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeHingeModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchHingeQuestion()">Start Question</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchHingeQuestion()">Deploy</button>
       </div>
     </div>
   </div>
@@ -1595,12 +1692,12 @@
   <!-- LEADERBOARD MODAL -->
   <div class="leaderboard-modal" id="leaderboard-modal" onclick="if(event.target === this) closeLeaderboardModal()">
     <div class="leaderboard-box">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 8px;">
-        <h3 style="margin: 0; color: var(--ga-gold);">Classroom Leaderboard</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-border); padding-bottom: 8px;">
+        <h3 style="margin: 0; color: var(--ga-gold);">Session Standings</h3>
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeLeaderboardModal()">✕</button>
       </div>
       <div class="leaderboard-list" id="t-leaderboard-list">
-        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet.</span>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px; flex-wrap: wrap;">
         <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">
@@ -1612,7 +1709,7 @@
     </div>
   </div>
 
-  <!-- TEMPLATE SELECTION MODAL -->
+  <!-- TEMPLATES MODAL -->
   <div class="modal-overlay" id="template-modal">
     <div class="card" style="margin: 0; max-width: 600px; width: 95%;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -1629,14 +1726,14 @@
           </button>
         </div>
       </div>
-      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Push diagrams, code cards, or tables to all whiteboards.</p>
+      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Distribute worksheets, code traces, or diagrams to student whiteboards.</p>
       
       <input type="file" id="tpl-json-importer" accept=".json" style="display: none;" onchange="handleTemplateJsonImport(event)">
       <div class="template-grid" id="template-library-grid"></div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Placement Structure</label>
+          <label>Layout Style</label>
           <select id="tpl-position-select">
             <option value="TOP_LEFT">Corner Question Card (38% Scale)</option>
             <option value="FULL">Full Canvas Background</option>
@@ -1655,13 +1752,13 @@
     </div>
   </div>
 
-  <!-- TEMPLATE STUDIO MODAL -->
+  <!-- STUDIO MODAL -->
   <div class="studio-modal" id="studio-modal">
     <div class="studio-box">
       <div class="studio-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <strong style="color: var(--ga-gold); font-size: 1.05rem;">Template Authoring Studio</strong>
-          <input type="text" id="studio-name-input" placeholder="Template Label" style="width: 220px; padding: 4px 8px; font-size: 0.85rem;">
+          <input type="text" id="studio-name-input" placeholder="Template Name" style="width: 200px; padding: 4px 8px; font-size: 0.85rem;">
         </div>
         <div style="display: flex; gap: 8px;">
           <button class="btn-gold btn-action-mini" onclick="saveStudioTemplate()">
@@ -1674,7 +1771,7 @@
       <div class="studio-toolbar">
         <button class="tool-btn" id="st-undo-btn" onclick="studioUndo()"><i data-lucide="undo-2"></i></button>
         <button class="tool-btn" id="st-redo-btn" onclick="studioRedo()"><i data-lucide="redo-2"></i></button>
-        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-border); margin: 0 4px;"></div>
 
         <button class="tool-btn active" id="st-tool-pen" onclick="setStudioTool('pen')"><i data-lucide="pen-tool"></i></button>
         <button class="tool-btn" id="st-tool-line" onclick="setStudioTool('line')"><i data-lucide="minus"></i></button>
@@ -1685,7 +1782,7 @@
         <button class="tool-btn" id="st-tool-text" onclick="setStudioTool('text')"><i data-lucide="type"></i></button>
         <button class="tool-btn" id="st-tool-grid" onclick="stampStudioTablePrompt()"><i data-lucide="table"></i></button>
 
-        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-border); margin: 0 4px;"></div>
 
         <div class="color-picker-wrapper" title="Palette Selection">
           <input type="color" id="studio-color-picker" value="#04142d" onchange="studioCurrentColor = this.value;">
@@ -1702,7 +1799,7 @@
     </div>
   </div>
 
-  <!-- ZOOM / SPOTLIGHT MODAL -->
+  <!-- SPOTLIGHT VIEW -->
   <div class="spotlight-modal" id="t-spotlight-modal" onclick="if(event.target === this) closeSpotlightModal()">
     <div class="spotlight-content">
       <div class="spotlight-header">
@@ -1735,6 +1832,22 @@
           <i data-lucide="user-x"></i> Remove
         </button>
         <button class="btn-secondary btn-action-mini" onclick="closeSpotlightModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NATIVE IN-APP TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- NATIVE IN-APP CONFIRMATION & PROMPT MODAL -->
+  <div id="dialog-modal">
+    <div class="dialog-box">
+      <h3 id="dialog-title" style="color: var(--ga-gold); margin-bottom: 8px;">Confirmation</h3>
+      <p id="dialog-msg" style="font-size: 0.88rem; color: var(--ga-text-muted); margin: 0 0 14px 0; line-height: 1.4;"></p>
+      <div id="dialog-fields" class="dialog-fields-wrap"></div>
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button class="btn-secondary" id="dialog-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="dialog-confirm-btn" style="width: auto; margin: 0;">Confirm</button>
       </div>
     </div>
   </div>
@@ -1790,6 +1903,110 @@
     const teacherMarkupCache = new Map();
     const teacherHighResCache = new Map();
     let currentHingeResponses = {};
+
+    // --- IN-APP TOAST SYSTEM ---
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast-pill ${type}`;
+      
+      const iconMap = {
+        success: 'check-circle-2',
+        error: 'alert-circle',
+        info: 'info'
+      };
+      
+      toast.innerHTML = `<i data-lucide="${iconMap[type] || 'info'}" style="width: 16px; height: 16px;"></i><span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+      refreshIcons();
+
+      setTimeout(() => toast.classList.add('show'), 20);
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    // --- IN-APP CONFIRMATION & PROMPT SYSTEM ---
+    function showConfirm(title, message, onConfirm, confirmText = 'Confirm', isDanger = false) {
+      const modal = document.getElementById('dialog-modal');
+      const titleEl = document.getElementById('dialog-title');
+      const msgEl = document.getElementById('dialog-msg');
+      const fieldsEl = document.getElementById('dialog-fields');
+      const confirmBtn = document.getElementById('dialog-confirm-btn');
+      const cancelBtn = document.getElementById('dialog-cancel-btn');
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+      fieldsEl.innerHTML = '';
+      confirmBtn.innerText = confirmText;
+      confirmBtn.className = isDanger ? 'btn-danger' : 'btn-primary';
+      confirmBtn.style.width = 'auto';
+      confirmBtn.style.margin = '0';
+
+      modal.style.display = 'flex';
+
+      const cleanup = () => {
+        modal.style.display = 'none';
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+      };
+
+      confirmBtn.onclick = () => {
+        cleanup();
+        onConfirm();
+      };
+      cancelBtn.onclick = cleanup;
+    }
+
+    function showPrompt(title, fields, onSubmit) {
+      const modal = document.getElementById('dialog-modal');
+      const titleEl = document.getElementById('dialog-title');
+      const msgEl = document.getElementById('dialog-msg');
+      const fieldsEl = document.getElementById('dialog-fields');
+      const confirmBtn = document.getElementById('dialog-confirm-btn');
+      const cancelBtn = document.getElementById('dialog-cancel-btn');
+
+      titleEl.innerText = title;
+      msgEl.innerText = '';
+      fieldsEl.innerHTML = '';
+      confirmBtn.innerText = 'Save';
+      confirmBtn.className = 'btn-primary';
+      confirmBtn.style.width = 'auto';
+      confirmBtn.style.margin = '0';
+
+      const inputs = {};
+      fields.forEach(f => {
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `<label style="margin-top:0;">${escapeHTML(f.label)}</label>`;
+        const inp = document.createElement('input');
+        inp.type = f.type || 'text';
+        inp.value = f.value || '';
+        inp.placeholder = f.placeholder || '';
+        wrap.appendChild(inp);
+        fieldsEl.appendChild(wrap);
+        inputs[f.key] = inp;
+      });
+
+      modal.style.display = 'flex';
+      const firstInp = fieldsEl.querySelector('input');
+      if (firstInp) firstInp.focus();
+
+      const cleanup = () => {
+        modal.style.display = 'none';
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+      };
+
+      confirmBtn.onclick = () => {
+        const values = {};
+        for (const k in inputs) values[k] = inputs[k].value;
+        cleanup();
+        onSubmit(values);
+      };
+      cancelBtn.onclick = cleanup;
+    }
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -1871,7 +2088,7 @@
       const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
 
       if (!room || !seat) {
-        return alert("Please enter both the Room Code and your Identifier.");
+        return showToast("Please enter both the room code and your desk identifier.", "error");
       }
 
       activeRoom = room;
@@ -1952,7 +2169,7 @@
 
         if (ctrl.showcaseImage) {
           showcaseImg.src = ctrl.showcaseImage;
-          showcaseCap.innerText = ctrl.showcaseCaption || "Featured Board";
+          showcaseCap.innerText = ctrl.showcaseCaption || "Featured Work";
           showcaseOverlay.style.display = 'flex';
         } else {
           showcaseOverlay.style.display = 'none';
@@ -1997,7 +2214,7 @@
         const assignment = snapshot.val();
         currentPeerAssignment = assignment;
         if (assignment) {
-          document.getElementById('s-peer-partner-tag').innerText = `Critiquing: ${assignment.peerName}`;
+          document.getElementById('s-peer-partner-tag').innerText = `Reviewing: ${assignment.peerName}`;
           document.getElementById('s-peer-board-img').src = assignment.peerImage || '';
         }
       });
@@ -2081,15 +2298,15 @@
         }
 
         if (data.kicked) {
-          alert("Session disconnected by teacher.");
-          location.reload();
+          showToast("Session disconnected by teacher.", "info");
+          setTimeout(() => location.reload(), 1500);
         }
 
         if (data.individualLock) {
           document.getElementById('s-lock-msg').innerText = "Board paused individually by teacher.";
           updateStudentLockState(true);
         } else if (!teacherLockFlag && activeTimerEndEpoch === 0) {
-          document.getElementById('s-lock-msg').innerText = "Input paused for teacher instruction.";
+          document.getElementById('s-lock-msg').innerText = "Input paused for class discussion.";
           updateStudentLockState(false);
         }
       });
@@ -2116,10 +2333,10 @@
 
     async function sendPeerFeedback() {
       if (!currentPeerAssignment || !currentPeerAssignment.peerClientId) {
-        return alert("No peer assigned.");
+        return showToast("No classmate assigned.", "error");
       }
       const comment = document.getElementById('s-peer-feedback-input').value.trim();
-      if (!comment) return alert("Please enter feedback before submitting.");
+      if (!comment) return showToast("Please write feedback before sending.", "error");
 
       await roomRef.child(`peerReview/feedback/${currentPeerAssignment.peerClientId}`).set({
         fromSeat: studentSeat,
@@ -2128,7 +2345,7 @@
       });
 
       await roomRef.child(`peerReview/submitted/${studentClientId}`).set(true);
-      alert("Feedback transmitted to classmate.");
+      showToast("Feedback sent to your partner.", "success");
     }
 
     function selectHingeAnswer(choice, shouldWrite = true) {
@@ -2318,27 +2535,27 @@
       const enteredPin = document.getElementById('teacher-pin').value.trim();
       const unlockBtn = document.getElementById('unlock-btn');
 
-      if (!room) return alert("Please enter the Room Code.");
-      if (!enteredPin) return alert("Please enter the PIN.");
+      if (!room) return showToast("Enter the room code.", "error");
+      if (!enteredPin) return showToast("Enter your security PIN.", "error");
 
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "Verifying...";
+      unlockBtn.innerText = "Checking...";
 
       try {
         const snap = await db.ref('admin/pin').once('value');
         const validPin = snap.val();
 
         if (validPin === null || validPin === undefined) {
-          alert("Admin PIN unconfigured in database.");
+          showToast("Admin PIN not set in database.", "error");
           unlockBtn.disabled = false;
-          unlockBtn.innerText = "Authenticate";
+          unlockBtn.innerText = "Unlock";
           return;
         }
 
         if (String(enteredPin) !== String(validPin).trim()) {
-          alert("Incorrect security PIN.");
+          showToast("Incorrect security PIN.", "error");
           unlockBtn.disabled = false;
-          unlockBtn.innerText = "Authenticate";
+          unlockBtn.innerText = "Unlock";
           return;
         }
 
@@ -2353,11 +2570,12 @@
 
         connectTeacherFirebase();
         refreshIcons();
+        showToast(`Connected to Room ${activeRoom}`, "success");
       } catch (err) {
-        alert("Authentication network error.");
+        showToast("Connection error.", "error");
       } finally {
         unlockBtn.disabled = false;
-        unlockBtn.innerText = "Authenticate";
+        unlockBtn.innerText = "Unlock";
       }
     }
 
@@ -2657,7 +2875,7 @@
 
     function updateRosterUI() {
       const students = Array.from(teacherRoster.values());
-      document.getElementById('sub-counter').innerText = `Active Students: ${students.length}`;
+      document.getElementById('sub-counter').innerText = `${students.length} students active`;
       document.getElementById('roster-count').innerText = `${students.length} connected`;
 
       const rosterEl = document.getElementById('roster-tags');
@@ -2701,7 +2919,7 @@
         btn.className = "btn-gold";
       } else {
         sortMode = 'JOINED';
-        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: Order Joined`;
+        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: Joined`;
         btn.className = "btn-secondary";
       }
       reorderTeacherGrid();
@@ -2778,7 +2996,7 @@
       { id: 'st_gw', text: 'Great Work', icon: 'thumbs-up', color: '#10b981' },
       { id: 'st_cw', text: 'Check Work', icon: 'help-circle', color: '#df9b35' },
       { id: 'st_ta', text: 'Try Again', icon: 'rotate-ccw', color: '#f43f5e' },
-      { id: 'st_rq', text: 'Re-read Prompt', icon: 'book-open', color: '#3b82f6' },
+      { id: 'st_rq', text: 'Re-read Question', icon: 'book-open', color: '#3b82f6' },
       { id: 'st_er', text: 'Error Found', icon: 'x-circle', color: '#be123c' }
     ];
 
@@ -2796,6 +3014,7 @@
       custom.push({ id: 'cst_' + Date.now(), text, icon: icon || 'tag', color });
       localStorage.setItem('ga_custom_stamps', JSON.stringify(custom));
       renderMarkupStampsToolbar();
+      showToast("Feedback chip created", "success");
     }
 
     function renderMarkupStampsToolbar() {
@@ -2821,15 +3040,18 @@
     }
 
     function openCreateStampPrompt() {
-      const text = prompt("Feedback chip label (e.g. 'Missing Semi-colon'):", "");
-      if (!text || !text.trim()) return;
-      const color = prompt("Border highlight color (e.g. #df9b35, #10b981):", "#df9b35") || "#df9b35";
-      saveCustomStamp(text.trim(), 'message-square', color.trim());
+      showPrompt("Create Feedback Chip", [
+        { key: "text", label: "Chip Text", placeholder: "e.g. Missing Semi-colon" },
+        { key: "color", label: "Border Color Hex", value: "#df9b35" }
+      ], (vals) => {
+        if (!vals.text.trim()) return showToast("Chip text cannot be blank.", "error");
+        saveCustomStamp(vals.text.trim(), 'message-square', vals.color.trim() || '#df9b35');
+      });
     }
 
     function exportStampLibrary() {
       const custom = getCustomStamps();
-      if (custom.length === 0) return alert("No custom feedback chips to export.");
+      if (custom.length === 0) return showToast("No custom feedback chips to export.", "info");
       const exportData = { type: "GA_STAMP_LIBRARY", stamps: custom };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -2838,6 +3060,7 @@
       a.download = `whiteboard-feedback-chips-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("Exported feedback chips.", "success");
     }
 
     function handleStampJsonImport(e) {
@@ -2855,10 +3078,10 @@
             });
             localStorage.setItem('ga_custom_stamps', JSON.stringify(current));
             renderMarkupStampsToolbar();
-            alert(`Imported ${parsed.stamps.length} feedback chips.`);
+            showToast(`Imported ${parsed.stamps.length} feedback chips.`, "success");
           }
         } catch (err) {
-          alert("Invalid chip format.");
+          showToast("Invalid chip format.", "error");
         }
       };
       reader.readAsText(file);
@@ -2876,7 +3099,7 @@
 
       activeMarkupClientId = clientId;
       const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-      document.getElementById('markup-title').innerText = `Live Intervention: ${getDisplayName(s, idx)}`;
+      document.getElementById('markup-title').innerText = `Feedback: ${getDisplayName(s, idx)}`;
 
       const underlay = document.getElementById('markup-underlay-img');
       const imgData = teacherHighResCache.get(clientId) || teacherCanvasCache.get(clientId);
@@ -3014,10 +3237,11 @@
       if (roomRef) {
         await roomRef.child(`markup/${clientId}`).remove();
       }
+      showToast("Cleared markup.", "info");
     }
 
     async function clearAllRoomMarkups() {
-      if (confirm("Remove all teacher annotations from student boards?")) {
+      showConfirm("Clear Markups", "Remove all red pen and feedback chips from all boards?", async () => {
         teacherMarkupCache.clear();
         teacherRoster.forEach(s => {
           updateCardMarkupBtnState(s.clientId, false);
@@ -3026,7 +3250,8 @@
         if (roomRef) {
           await roomRef.child('markup').remove();
         }
-      }
+        showToast("Cleared all teacher markups.", "info");
+      }, "Clear All", true);
     }
 
     async function loadExistingStudentMarkup(clientId) {
@@ -3061,7 +3286,7 @@
       const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
 
       if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded in this session.</span>`;
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet.</span>`;
         return;
       }
 
@@ -3088,15 +3313,17 @@
       roomRef.child('controls').update({
         broadcastLeaderboard: isBroadcastingLeaderboard
       });
+      showToast(isBroadcastingLeaderboard ? "Broadcasting standings to class" : "Stopped broadcast", "info");
     }
 
     async function resetLeaderboard() {
-      if (confirm("Reset class session scores to zero?")) {
+      showConfirm("Reset Scores", "Reset all scores to 0 for this session?", async () => {
         await roomRef.child('leaderboard').remove();
         if (isBroadcastingLeaderboard) {
           toggleBroadcastLeaderboard();
         }
-      }
+        showToast("Leaderboard reset.", "info");
+      }, "Reset Scores", true);
     }
 
     // --- SPOTLIGHT CONTROLS ---
@@ -3192,18 +3419,19 @@
         const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
 
         if (!bestImage) {
-          return alert("Student board is currently empty.");
+          return showToast("Board is empty.", "info");
         }
 
         const s = teacherRoster.get(clientId);
         const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-        const caption = `Exhibited Work: ${getDisplayName(s, idx)}`;
+        const caption = `Featured: ${getDisplayName(s, idx)}`;
 
         roomRef.child('controls').update({
           showcaseImage: bestImage,
           showcaseCaption: caption,
           requestHighRes: null
         });
+        showToast(`Broadcasting ${getDisplayName(s, idx)} to the room`, "success");
       }, 350);
     }
 
@@ -3219,6 +3447,7 @@
         showcaseCaption: null,
         requestHighRes: null
       });
+      showToast("Showcase closed.", "info");
     }
 
     function toggleLockState() {
@@ -3227,11 +3456,12 @@
         locked: teacherLockFlag,
         timerEnd: 0
       });
+      showToast(teacherLockFlag ? "Locked all student boards" : "Unlocked all student boards", "info");
     }
 
     function startTimer() {
       const secs = parseInt(document.getElementById('timer-seconds').value, 10);
-      if (isNaN(secs) || secs <= 0) return alert("Specify valid duration.");
+      if (isNaN(secs) || secs <= 0) return showToast("Enter valid timer seconds.", "error");
 
       teacherLockFlag = false;
       updateLockBtnUI(false);
@@ -3244,28 +3474,30 @@
         locked: false,
         timerEnd: targetEnd
       });
+      showToast(`Timer started (${secs}s)`, "info");
     }
 
     function updateLockBtnUI(locked) {
       const btn = document.getElementById('lock-toggle-btn');
       if (locked) {
-        btn.innerHTML = `<i data-lucide="unlock"></i> Unlock Boards`;
+        btn.innerHTML = `<i data-lucide="unlock"></i> Unlock Boards <kbd>Space</kbd>`;
         btn.className = "btn-secondary";
       } else {
-        btn.innerHTML = `<i data-lucide="lock"></i> Lock Boards`;
+        btn.innerHTML = `<i data-lucide="lock"></i> Lock Boards <kbd>Space</kbd>`;
         btn.className = "btn-gold";
       }
       refreshIcons();
     }
 
     function wipeAllStudentBoards() {
-      if (confirm("Wipe all student boards clean? (Active templates will remain intact)")) {
+      showConfirm("Wipe Boards", "Clear all student drawings? Active templates will remain intact.", () => {
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
         roomRef.child('controls').update({
           wipeAllTimestamp: Date.now()
         });
-      }
+        showToast("All whiteboards wiped.", "info");
+      }, "Wipe Boards", true);
     }
 
     function wipeSingleStudent(clientId) {
@@ -3274,36 +3506,41 @@
       roomRef.child(`students/${clientId}`).update({
         wipeTimestamp: Date.now()
       });
+      showToast("Student board cleared.", "info");
     }
 
     function kickStudent(clientId) {
       const s = teacherRoster.get(clientId);
       const name = s ? s.seat : "Student";
-      if (confirm(`Remove ${name} from the active session?`)) {
+      showConfirm("Remove Student", `Remove ${name} from this session?`, () => {
         roomRef.child(`students/${clientId}`).update({ kicked: true });
         roomRef.child(`canvases/${clientId}`).remove();
         roomRef.child(`highResCanvases/${clientId}`).remove();
         setTimeout(() => {
           roomRef.child(`students/${clientId}`).remove();
         }, 300);
-      }
+        showToast(`Removed ${name}.`, "info");
+      }, "Remove", true);
     }
 
     function renameStudent(clientId) {
       const s = teacherRoster.get(clientId);
       const currentName = s ? s.seat : "";
-      const newSeat = prompt(`Rename ${currentName} to:`, currentName);
-      if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
-        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
-        roomRef.child(`students/${clientId}`).update({
-          seat: cleanName,
-          assignedSeat: cleanName
-        });
-      }
+      showPrompt("Rename Student", [{ key: "name", label: "Identifier", value: currentName }], (vals) => {
+        const newName = vals.name.trim();
+        if (newName && newName !== currentName) {
+          const clean = newName.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
+          roomRef.child(`students/${clientId}`).update({
+            seat: clean,
+            assignedSeat: clean
+          });
+          showToast(`Renamed to ${clean}`, "success");
+        }
+      });
     }
 
     function clearTeacherRoom() {
-      if (confirm("Reset active room state and disconnect all sessions?")) {
+      showConfirm("Reset Session", "Clear the entire room and disconnect all students?", () => {
         roomRef.child('students').remove();
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
@@ -3321,11 +3558,83 @@
           templateData: null,
           peerReviewActive: false
         });
-      }
+        showToast("Room reset successfully.", "info");
+      }, "Reset Room", true);
     }
 
     function escapeHTML(str) {
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+    }
+
+    // --- PEER REVIEW ENGINE ---
+    function openPeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'flex';
+      refreshIcons();
+    }
+
+    function closePeerReviewModal() {
+      document.getElementById('peer-review-modal').style.display = 'none';
+    }
+
+    async function launchPeerReview() {
+      const now = Date.now();
+      const activeStudents = Array.from(teacherRoster.values()).filter(s => {
+        return s.lastSeen && (now - s.lastSeen < 45000);
+      });
+
+      if (activeStudents.length < 2) {
+        return showToast("At least 2 active students are required for review.", "error");
+      }
+
+      const durationSecs = parseInt(document.getElementById('peer-duration-input').value, 10) || 90;
+      const anonymise = document.getElementById('peer-anonymise-check').checked;
+      closePeerReviewModal();
+
+      const shuffled = [...activeStudents].sort(() => Math.random() - 0.5);
+      const assignments = {};
+
+      for (let i = 0; i < shuffled.length; i++) {
+        const reviewer = shuffled[i];
+        const reviewedPeer = shuffled[(i + 1) % shuffled.length];
+        
+        let peerImage = teacherCanvasCache.get(reviewedPeer.clientId);
+        if (!peerImage) {
+          const fallbackCanvas = document.createElement('canvas');
+          fallbackCanvas.width = 300; fallbackCanvas.height = 180;
+          const fcx = fallbackCanvas.getContext('2d');
+          fcx.fillStyle = '#ffffff'; fcx.fillRect(0, 0, 300, 180);
+          peerImage = fallbackCanvas.toDataURL('image/jpeg', 0.5);
+        }
+
+        assignments[reviewer.clientId] = {
+          peerClientId: reviewedPeer.clientId,
+          peerName: anonymise ? "Anonymous Classmate" : reviewedPeer.seat,
+          peerImage: peerImage
+        };
+      }
+
+      const targetEnd = Date.now() + (durationSecs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      await roomRef.child('peerReview/submitted').remove();
+      await roomRef.child('peerReview/assignments').set(assignments);
+      await roomRef.child('controls').update({
+        peerReviewActive: true,
+        locked: false,
+        timerEnd: targetEnd
+      });
+      showToast("Trade & Review launched.", "success");
+    }
+
+    async function endPeerReviewSession() {
+      showConfirm("End Review", "Conclude peer review and return students to their whiteboards?", async () => {
+        await roomRef.child('controls').update({
+          peerReviewActive: false,
+          timerEnd: 0
+        });
+        showToast("Review session ended.", "info");
+      }, "End Review");
     }
 
     // --- TEMPLATES ---
@@ -3348,16 +3657,18 @@
       const current = getSavedTemplates();
       current.push({ id: 'custom_' + Date.now(), title, dataUri });
       localStorage.setItem('ga_saved_templates', JSON.stringify(current));
+      showToast(`Saved template "${title}"`, "success");
     }
 
     function deleteCustomTemplate(id, e) {
       e.stopPropagation();
-      if (confirm("Delete template entry?")) {
+      showConfirm("Delete Template", "Remove this custom template from your library?", () => {
         let current = getSavedTemplates();
         current = current.filter(t => t.id !== id);
         localStorage.setItem('ga_saved_templates', JSON.stringify(current));
         renderTemplateLibraryGrid();
-      }
+        showToast("Template removed.", "info");
+      }, "Delete", true);
     }
 
     function downloadSingleTemplate(id, e) {
@@ -3379,11 +3690,12 @@
       a.download = `${tpl.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-template.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("Template downloaded.", "success");
     }
 
     function exportTemplateLibrary() {
       const custom = getSavedTemplates();
-      if (custom.length === 0) return alert("No custom templates available to export.");
+      if (custom.length === 0) return showToast("No custom templates available to export.", "info");
 
       const exportData = {
         type: "GA_WHITEBOARD_LIBRARY",
@@ -3398,6 +3710,7 @@
       a.download = `whiteboard-template-library-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("Exported template library.", "success");
     }
 
     function triggerImportTemplateFile() {
@@ -3426,14 +3739,14 @@
               addedCount++;
             });
           } else {
-            return alert("Unrecognized format.");
+            return showToast("Unrecognized template format.", "error");
           }
 
           localStorage.setItem('ga_saved_templates', JSON.stringify(current));
           renderTemplateLibraryGrid();
-          alert(`Successfully imported ${addedCount} template(s).`);
+          showToast(`Imported ${addedCount} template(s).`, "success");
         } catch (err) {
-          alert("Invalid template JSON.");
+          showToast("Invalid template JSON.", "error");
         }
       };
       reader.readAsText(file);
@@ -3531,7 +3844,7 @@
     async function pushSelectedTemplate() {
       const all = [...defaultTemplates, ...getSavedTemplates()];
       const tpl = all.find(t => t.id === selectedTemplateId);
-      if (!tpl) return alert("Select a template.");
+      if (!tpl) return showToast("Select a template.", "error");
 
       const position = document.getElementById('tpl-position-select').value;
       closeTemplateModal();
@@ -3543,12 +3856,14 @@
           timestamp: Date.now()
         }
       });
+      showToast(`Pushed "${tpl.title}" to class.`, "success");
     }
 
     async function clearActiveTemplate() {
-      if (confirm("Clear active template across all student whiteboards?")) {
+      showConfirm("Remove Template", "Remove background template from all whiteboards?", async () => {
         await roomRef.child('controls').update({ templateData: null });
-      }
+        showToast("Template removed from boards.", "info");
+      });
     }
 
     function generateTraceTableDataUri() {
@@ -3761,6 +4076,12 @@
     }
 
     window.addEventListener('keydown', (e) => {
+      // Hotkey: Space toggles lock state when on teacher console
+      if (e.code === 'Space' && document.getElementById('teacher-view').style.display === 'block' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        toggleLockState();
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         if (e.shiftKey) studentRedo();
         else studentUndo();
@@ -4040,13 +4361,14 @@
       }
 
       if (studioTool === 'text') {
-        const text = prompt("Annotation text:", "");
-        if (text) {
-          saveStudioHistoryState();
-          sctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
-          sctx.fillStyle = studioCurrentColor;
-          sctx.fillText(text, coords.x, coords.y);
-        }
+        showPrompt("Stamp Text", [{ key: "text", label: "Text", placeholder: "e.g. Logic gate label" }], (vals) => {
+          if (vals.text && vals.text.trim()) {
+            saveStudioHistoryState();
+            sctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
+            sctx.fillStyle = studioCurrentColor;
+            sctx.fillText(vals.text.trim(), coords.x, coords.y);
+          }
+        });
         return;
       }
 
@@ -4100,31 +4422,36 @@
     }
 
     function stampStudioTablePrompt() {
-      const rows = parseInt(prompt("Table rows:", "4"), 10);
-      const cols = parseInt(prompt("Table columns:", "3"), 10);
-      if (!rows || !cols || rows <= 0 || cols <= 0) return;
+      showPrompt("Insert Table", [
+        { key: "rows", label: "Rows", value: "4" },
+        { key: "cols", label: "Columns", value: "3" }
+      ], (vals) => {
+        const rows = parseInt(vals.rows, 10);
+        const cols = parseInt(vals.cols, 10);
+        if (!rows || !cols || rows <= 0 || cols <= 0) return;
 
-      saveStudioHistoryState();
-      const pad = 40;
-      const w = studioCanvas.width - (pad * 2);
-      const h = studioCanvas.height - (pad * 2);
-      const colW = w / cols;
-      const rowH = h / rows;
+        saveStudioHistoryState();
+        const pad = 40;
+        const w = studioCanvas.width - (pad * 2);
+        const h = studioCanvas.height - (pad * 2);
+        const colW = w / cols;
+        const rowH = h / rows;
 
-      sctx.strokeStyle = studioCurrentColor;
-      sctx.lineWidth = 2;
-      sctx.strokeRect(pad, pad, w, h);
+        sctx.strokeStyle = studioCurrentColor;
+        sctx.lineWidth = 2;
+        sctx.strokeRect(pad, pad, w, h);
 
-      sctx.beginPath();
-      for (let c = 1; c < cols; c++) {
-        sctx.moveTo(pad + (c * colW), pad);
-        sctx.lineTo(pad + (c * colW), pad + h);
-      }
-      for (let r = 1; r < rows; r++) {
-        sctx.moveTo(pad, pad + (r * rowH));
-        sctx.lineTo(pad + w, pad + (r * rowH));
-      }
-      sctx.stroke();
+        sctx.beginPath();
+        for (let c = 1; c < cols; c++) {
+          sctx.moveTo(pad + (c * colW), pad);
+          sctx.lineTo(pad + (c * colW), pad + h);
+        }
+        for (let r = 1; r < rows; r++) {
+          sctx.moveTo(pad, pad + (r * rowH));
+          sctx.lineTo(pad + w, pad + (r * rowH));
+        }
+        sctx.stroke();
+      });
     }
 
     studioCanvas.addEventListener('mousedown', startStudioDraw);
@@ -4132,13 +4459,13 @@
     studioCanvas.addEventListener('mouseup', stopStudioDraw);
 
     function saveStudioTemplate() {
-      const name = document.getElementById('studio-name-input').value.trim() || 'Template';
+      const name = document.getElementById('studio-name-input').value.trim() || 'Custom Template';
       const dataUri = studioCanvas.toDataURL('image/jpeg', 0.8);
       saveCustomTemplate(name, dataUri);
       closeStudioModal();
     }
 
-    // --- HINGE EVALUATION ---
+    // --- QUICK CHECK (HINGE) ---
     function openHingeModal() {
       document.getElementById('hinge-modal').style.display = 'flex';
       document.getElementById('hinge-prompt-input').focus();
@@ -4159,7 +4486,7 @@
       } else {
         customBox.style.display = 'none';
         const correctSelect = document.getElementById('hinge-correct-select');
-        correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
+        correctSelect.innerHTML = '<option value="NONE">Unscored Poll</option>';
 
         const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
         opts.forEach(o => {
@@ -4177,7 +4504,7 @@
       const correctSelect = document.getElementById('hinge-correct-select');
       
       const currentSelected = correctSelect.value;
-      correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
+      correctSelect.innerHTML = '<option value="NONE">Unscored Poll</option>';
 
       lines.forEach(line => {
         const opt = document.createElement('option');
@@ -4202,7 +4529,7 @@
         const text = document.getElementById('custom-choices-text').value;
         choices = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if (choices.length < 2) {
-          return alert("Enter at least two answer options.");
+          return showToast("Enter at least two choices.", "error");
         }
       }
 
@@ -4227,12 +4554,14 @@
         locked: false,
         timerEnd: targetEnd
       });
+      showToast("Question deployed.", "success");
     }
 
     function endHingeSession() {
-      if (confirm("Close question session?")) {
+      showConfirm("Close Question", "Conclude this question and lock responses?", () => {
         roomRef.child('hinge/active').update({ status: 'CLOSED' });
-      }
+        showToast("Question concluded.", "info");
+      });
     }
 
     function renderHingeStatsVisualisation() {
@@ -4277,7 +4606,7 @@
 
     async function awardHingePoints() {
       if (!currentHingeConfig || currentHingeConfig.correctAnswer === 'NONE') {
-        return alert("This question has no correct answer specified.");
+        return showToast("This question has no correct answer configured.", "info");
       }
 
       const correctChoice = currentHingeConfig.correctAnswer;
@@ -4299,10 +4628,87 @@
 
       if (countAwarded > 0) {
         await roomRef.update(updates);
-        alert(`Awarded +${ptsToAward} points to ${countAwarded} student(s).`);
+        showToast(`Awarded +${ptsToAward} points to ${countAwarded} student(s).`, "success");
       } else {
-        alert("No correct responses recorded.");
+        showToast("No correct responses recorded.", "info");
       }
+    }
+
+    // --- SPOTLIGHT CONTROLS ---
+    function openMarkupFromSpotlight() {
+      if (!activeSpotlightClientId) return;
+      const id = activeSpotlightClientId;
+      closeSpotlightModal();
+      openMarkupModal(id);
+    }
+
+    function toggleLockFromSpotlight() {
+      if (activeSpotlightClientId) {
+        toggleStudentIndividualLock(activeSpotlightClientId);
+      }
+    }
+
+    function clearMarkupFromSpotlight() {
+      if (activeSpotlightClientId) {
+        clearSingleStudentMarkup(activeSpotlightClientId);
+      }
+    }
+
+    function renameFromSpotlight() {
+      if (activeSpotlightClientId) {
+        renameStudent(activeSpotlightClientId);
+        const s = teacherRoster.get(activeSpotlightClientId);
+        if (s) {
+          const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
+          document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+        }
+      }
+    }
+
+    function wipeFromSpotlight() {
+      if (activeSpotlightClientId) {
+        wipeSingleStudent(activeSpotlightClientId);
+      }
+    }
+
+    function kickFromSpotlight() {
+      if (activeSpotlightClientId) {
+        const id = activeSpotlightClientId;
+        closeSpotlightModal();
+        kickStudent(id);
+      }
+    }
+
+    async function exhibitDirectly(clientId) {
+      activeSpotlightClientId = clientId;
+      await roomRef.child('controls').update({ requestHighRes: clientId });
+
+      setTimeout(async () => {
+        const hrSnap = await roomRef.child(`highResCanvases/${clientId}`).once('value');
+        const hrData = hrSnap.val();
+        const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
+
+        if (!bestImage) {
+          return showToast("Board is empty.", "info");
+        }
+
+        const s = teacherRoster.get(clientId);
+        const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+        const caption = `Featured: ${getDisplayName(s, idx)}`;
+
+        roomRef.child('controls').update({
+          showcaseImage: bestImage,
+          showcaseCaption: caption,
+          requestHighRes: null
+        });
+        showToast(`Broadcasting ${getDisplayName(s, idx)} to room`, "success");
+      }, 350);
+    }
+
+    async function broadcastCurrentSpotlight() {
+      if (!activeSpotlightClientId) return;
+      exhibitDirectly(activeSpotlightClientId);
+      closeSpotlightModal();
     }
 
     function refreshIcons() {
