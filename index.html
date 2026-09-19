@@ -878,7 +878,30 @@
       cursor: crosshair;
     }
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(2, 11, 26, 0.85); align-items: center; justify-content: center; z-index: 100; }
+    /* Fixed Modal System: Explicit Hidden Defaults */
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(2, 11, 26, 0.85); 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 100; 
+    }
+
+    .leaderboard-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 11, 26, 0.9);
+      display: none !important;
+      align-items: center;
+      justify-content: center;
+      z-index: 160;
+      padding: 20px;
+    }
+    .leaderboard-modal.active {
+      display: flex !important;
+    }
   </style>
 </head>
 <body>
@@ -1564,6 +1587,7 @@
           uploadHighResSnapshot();
         }
 
+        // Showcase Overlay
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -2566,6 +2590,62 @@
     markupCanvas.addEventListener('mousedown', startMarkupDraw);
     markupCanvas.addEventListener('mousemove', drawMarkup);
     markupCanvas.addEventListener('mouseup', stopMarkupDraw);
+
+    // --- LEADERBOARD MODAL HELPERS ---
+    function openLeaderboardModal() {
+      renderLeaderboardUI();
+      document.getElementById('leaderboard-modal').classList.add('active');
+    }
+
+    function closeLeaderboardModal() {
+      document.getElementById('leaderboard-modal').classList.remove('active');
+    }
+
+    function renderLeaderboardUI() {
+      const list = document.getElementById('t-leaderboard-list');
+      if (!list) return;
+
+      const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
+
+      if (entries.length === 0) {
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      entries.forEach((e, idx) => {
+        const row = document.createElement('div');
+        row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
+        
+        const s = teacherRoster.get(e.clientId);
+        const rIdx = Array.from(teacherRoster.keys()).indexOf(e.clientId);
+        const name = s ? getDisplayName(s, rIdx) : (e.seat || 'Student');
+
+        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+
+        row.innerHTML = `
+          <span><strong>${badge}</strong> &nbsp; ${escapeHTML(name)}</span>
+          <span style="font-weight: 800; color: var(--ga-gold);">${e.score} pts</span>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    function toggleBroadcastLeaderboard() {
+      isBroadcastingLeaderboard = !isBroadcastingLeaderboard;
+      roomRef.child('controls').update({
+        broadcastLeaderboard: isBroadcastingLeaderboard
+      });
+    }
+
+    async function resetLeaderboard() {
+      if (confirm("Reset all student scores to 0 for this session?")) {
+        await roomRef.child('leaderboard').remove();
+        if (isBroadcastingLeaderboard) {
+          toggleBroadcastLeaderboard();
+        }
+      }
+    }
 
     // --- PEER REVIEW ENGINE ---
     function openPeerReviewModal() {
@@ -3610,62 +3690,6 @@
       }
     }
 
-    // --- LEADERBOARD BROADCAST TO ALL STUDENTS ---
-    function openLeaderboardModal() {
-      renderLeaderboardUI();
-      document.getElementById('leaderboard-modal').style.display = 'flex';
-    }
-
-    function closeLeaderboardModal() {
-      document.getElementById('leaderboard-modal').style.display = 'none';
-    }
-
-    function renderLeaderboardUI() {
-      const list = document.getElementById('t-leaderboard-list');
-      if (!list) return;
-
-      const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
-
-      if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>`;
-        return;
-      }
-
-      list.innerHTML = '';
-      entries.forEach((e, idx) => {
-        const row = document.createElement('div');
-        row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
-        
-        const s = teacherRoster.get(e.clientId);
-        const rIdx = Array.from(teacherRoster.keys()).indexOf(e.clientId);
-        const name = s ? getDisplayName(s, rIdx) : (e.seat || 'Student');
-
-        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
-
-        row.innerHTML = `
-          <span><strong>${badge}</strong> &nbsp; ${escapeHTML(name)}</span>
-          <span style="font-weight: 800; color: var(--ga-gold);">${e.score} pts</span>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function toggleBroadcastLeaderboard() {
-      isBroadcastingLeaderboard = !isBroadcastingLeaderboard;
-      roomRef.child('controls').update({
-        broadcastLeaderboard: isBroadcastingLeaderboard
-      });
-    }
-
-    async function resetLeaderboard() {
-      if (confirm("Reset all student scores to 0 for this session?")) {
-        await roomRef.child('leaderboard').remove();
-        if (isBroadcastingLeaderboard) {
-          toggleBroadcastLeaderboard();
-        }
-      }
-    }
-
     // --- HIGH-RES SPOTLIGHT & EXHIBIT ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
@@ -3842,6 +3866,14 @@
     function escapeHTML(str) {
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
+
+    // Startup check: explicitly hide any modal overlays on fresh load
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.modal-overlay, .leaderboard-modal, .markup-modal, .studio-modal, .spotlight-modal').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active');
+      });
+    });
   </script>
 </body>
 </html>
