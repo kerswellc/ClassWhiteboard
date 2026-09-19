@@ -4,33 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Digital Whiteboard</title>
-  <!-- Firebase SDKs via CDN -->
+  <!-- Plus Jakarta Sans Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Vector Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  
   <style>
     :root {
-      --ga-navy-deep: #04142d;
-      --ga-navy-panel: #0a2046;
-      --ga-navy-card: #0f2b5c;
-      --ga-navy-border: #183870;
-      --ga-navy-input: #020b1a;
+      --ga-navy-deep: #031024;
+      --ga-navy-panel: #091b38;
+      --ga-navy-card: #0e254c;
+      --ga-navy-border: rgba(255, 255, 255, 0.09);
+      --ga-navy-border-hover: rgba(223, 155, 53, 0.35);
+      --ga-navy-input: #020914;
       --ga-gold: #df9b35;
-      --ga-gold-hover: #c88727;
+      --ga-gold-hover: #c98526;
       --ga-gold-light: #f5b453;
       --ga-white: #ffffff;
-      --ga-text-muted: #8ca5cf;
-      --ga-green: #22c55e;
-      --ga-red: #ef4444;
+      --ga-text-muted: #8da4c4;
+      --ga-green: #10b981;
+      --ga-red: #f43f5e;
       --ga-blue: #3b82f6;
     }
 
     * { box-sizing: border-box; }
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-feature-settings: "cv02", "cv04", "tnum";
       margin: 0; 
       padding: 0 0 16px 0; 
       background: var(--ga-navy-deep); 
       color: var(--ga-white); 
+      -webkit-font-smoothing: antialiased;
     }
 
     .top-bar { 
@@ -39,29 +51,29 @@
       align-items: center; 
       margin-bottom: 16px; 
       background: var(--ga-white); 
-      padding: 8px 16px; 
+      padding: 10px 20px; 
       border-bottom: 3px solid var(--ga-gold); 
-      box-shadow: 0 2px 10px rgba(0,0,0,0.35); 
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25); 
     }
     .brand-container {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
     .brand-logo {
-      height: 44px;
+      height: 42px;
       width: auto;
       display: block;
     }
     .brand-divider {
-      width: 1.5px;
-      height: 28px;
+      width: 1px;
+      height: 24px;
       background: #cbd5e1;
     }
     .brand-title {
       font-weight: 800;
       font-size: 1.15rem;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.01em;
       color: #04142d;
     }
     .brand-title span {
@@ -72,12 +84,15 @@
       background: transparent; 
       color: #04142d; 
       border: 1.5px solid #04142d; 
-      padding: 6px 14px; 
+      padding: 7px 16px; 
       border-radius: 6px; 
       font-size: 0.85rem; 
       cursor: pointer; 
       font-weight: 700;
       transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
     .btn-ghost:hover { 
       background: #04142d; 
@@ -90,30 +105,39 @@
 
     .card { 
       background: var(--ga-navy-panel); 
-      padding: 26px; 
-      border-radius: 8px; 
+      padding: 28px; 
+      border-radius: 10px; 
       max-width: 440px; 
       margin: 30px auto; 
       border: 1px solid var(--ga-navy-border); 
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); 
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45); 
     }
-    h2, h3 { margin-top: 0; color: var(--ga-white); }
+    h2, h3 { 
+      margin-top: 0; 
+      color: var(--ga-white); 
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
     label { 
-      font-size: 0.85rem; 
+      font-size: 0.8rem; 
       font-weight: 600; 
       color: var(--ga-text-muted); 
       display: block; 
       margin-top: 14px; 
       margin-bottom: 6px; 
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
     input, select, textarea { 
       width: 100%; 
-      padding: 10px 12px; 
+      padding: 10px 14px; 
       border-radius: 6px; 
       border: 1px solid var(--ga-navy-border); 
       background: var(--ga-navy-input); 
       color: white; 
-      font-size: 1rem; 
+      font-size: 0.95rem; 
+      font-family: inherit;
+      transition: border-color 0.15s ease;
     }
     input:focus, select:focus, textarea:focus { 
       outline: none; 
@@ -121,28 +145,43 @@
     }
 
     button { 
+      font-family: inherit;
       padding: 8px 14px; 
       border-radius: 6px; 
       border: none; 
       font-weight: 600; 
       cursor: pointer; 
-      font-size: 0.9rem; 
-      transition: all 0.15s ease;
+      font-size: 0.85rem; 
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    button:active {
+      transform: scale(0.98);
     }
     .btn-primary { 
       width: 100%; 
       background: var(--ga-gold); 
       color: #04142d; 
       margin-top: 16px; 
-      padding: 12px; 
+      padding: 11px; 
       font-weight: 700;
       border: none;
     }
     .btn-primary:hover { background: var(--ga-gold-light); }
-    .btn-secondary { background: var(--ga-navy-card); color: var(--ga-white); border: 1px solid var(--ga-navy-border); }
-    .btn-secondary:hover { background: #163c7e; border-color: var(--ga-gold); }
-    .btn-danger { background: #b91c1c; color: white; }
-    .btn-danger:hover { background: #991b1b; }
+    .btn-secondary { 
+      background: var(--ga-navy-card); 
+      color: var(--ga-white); 
+      border: 1px solid var(--ga-navy-border); 
+    }
+    .btn-secondary:hover { 
+      background: #143264; 
+      border-color: var(--ga-navy-border-hover); 
+    }
+    .btn-danger { background: #be123c; color: white; }
+    .btn-danger:hover { background: #9f1239; }
     .btn-gold { background: var(--ga-gold); color: #04142d; font-weight: 700; }
     .btn-gold:hover { background: var(--ga-gold-light); }
 
@@ -153,10 +192,15 @@
       width: 100%; 
       max-width: 1200px; 
       margin: 0 auto; 
-      height: calc(100vh - 80px); 
+      height: calc(100vh - 84px); 
       flex-direction: column; 
     }
-    .board-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .board-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 8px; 
+    }
     
     .tool-bar { 
       display: flex; 
@@ -164,22 +208,34 @@
       align-items: center; 
       background: var(--ga-navy-panel); 
       padding: 6px 12px; 
-      border-radius: 6px; 
+      border-radius: 8px; 
       margin-bottom: 8px; 
       border: 1px solid var(--ga-navy-border); 
       flex-wrap: wrap; 
     }
-    .color-dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; flex-shrink: 0; }
-    .color-dot.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 0 2px var(--ga-gold); }
+    .color-dot { 
+      width: 24px; 
+      height: 24px; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      border: 2px solid transparent; 
+      transition: transform 0.1s; 
+      flex-shrink: 0; 
+    }
+    .color-dot.active { 
+      border-color: white; 
+      transform: scale(1.15); 
+      box-shadow: 0 0 0 2px var(--ga-gold); 
+    }
     
     .color-picker-wrapper {
       position: relative;
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       overflow: hidden;
       cursor: pointer;
-      border: 2px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-navy-border);
       background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
       flex-shrink: 0;
     }
@@ -193,8 +249,24 @@
       cursor: pointer;
     }
 
-    .tool-btn { background: var(--ga-navy-card); color: var(--ga-white); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--ga-navy-border); }
-    .tool-btn.active { background: var(--ga-gold); color: #04142d; font-weight: 700; border-color: var(--ga-gold); }
+    .tool-btn { 
+      background: var(--ga-navy-card); 
+      color: var(--ga-white); 
+      padding: 6px 11px; 
+      border-radius: 6px; 
+      font-size: 0.8rem; 
+      border: 1px solid var(--ga-navy-border); 
+    }
+    .tool-btn.active { 
+      background: var(--ga-gold); 
+      color: #04142d; 
+      font-weight: 700; 
+      border-color: var(--ga-gold); 
+    }
+    .tool-btn i, .tool-btn svg {
+      width: 15px;
+      height: 15px;
+    }
 
     .mode-tab-group {
       display: flex;
@@ -208,8 +280,8 @@
       background: transparent;
       border: none;
       color: var(--ga-text-muted);
-      font-size: 0.78rem;
-      padding: 4px 8px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
       border-radius: 4px;
       font-weight: 700;
       cursor: pointer;
@@ -219,8 +291,23 @@
       color: var(--ga-gold);
     }
 
-    .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid var(--ga-navy-border); }
-    canvas { width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
+    .canvas-container { 
+      position: relative; 
+      flex: 1; 
+      width: 100%; 
+      min-height: 400px; 
+      border-radius: 10px; 
+      overflow: hidden; 
+      background: white; 
+      border: 1px solid var(--ga-navy-border); 
+    }
+    canvas { 
+      width: 100%; 
+      height: 100%; 
+      touch-action: none; 
+      display: block; 
+      cursor: crosshair; 
+    }
     
     #board-markup {
       position: absolute;
@@ -231,19 +318,47 @@
       z-index: 6;
     }
 
-    .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
-    .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
-    .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
+    .lock-overlay { 
+      position: absolute; 
+      inset: 0; 
+      background: rgba(3, 16, 36, 0.94); 
+      display: none; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 10; 
+      color: white; 
+      text-align: center; 
+    }
+    .timer-pill { 
+      background: var(--ga-gold); 
+      color: #04142d; 
+      padding: 4px 12px; 
+      border-radius: 16px; 
+      font-weight: 700; 
+      font-size: 0.8rem; 
+      display: none; 
+      letter-spacing: 0.02em;
+    }
+    .points-pill { 
+      background: #1e3a8a; 
+      color: var(--ga-gold); 
+      border: 1px solid rgba(223, 155, 53, 0.4); 
+      padding: 4px 10px; 
+      border-radius: 16px; 
+      font-weight: 800; 
+      font-size: 0.8rem; 
+    }
 
     /* Student Peer Review Split View */
     .peer-review-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(4, 20, 45, 0.98);
+      background: rgba(3, 16, 36, 0.98);
       display: none;
       flex-direction: column;
       z-index: 100;
-      padding: 14px;
+      padding: 16px;
       overflow: hidden;
       touch-action: auto !important;
       pointer-events: auto !important;
@@ -254,7 +369,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .peer-review-body {
       display: flex;
@@ -265,8 +380,8 @@
     .peer-board-panel {
       flex: 1.6;
       background: #ffffff;
-      border: 2px solid var(--ga-gold);
-      border-radius: 6px;
+      border: 1px solid var(--ga-gold);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -281,11 +396,11 @@
       flex: 1;
       background: var(--ga-navy-panel);
       border: 1px solid var(--ga-navy-border);
-      border-radius: 6px;
-      padding: 14px;
+      border-radius: 8px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       pointer-events: auto !important;
       touch-action: auto !important;
     }
@@ -298,8 +413,8 @@
       color: #ffffff;
       border: 1px solid var(--ga-navy-border);
       border-radius: 6px;
-      padding: 10px;
-      font-size: 1rem;
+      padding: 12px;
+      font-size: 0.95rem;
     }
     .peer-feedback-panel textarea:focus {
       outline: none;
@@ -312,11 +427,11 @@
       top: 14px;
       right: 14px;
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
+      border: 1px solid var(--ga-gold);
       border-radius: 8px;
       padding: 14px 18px;
       max-width: 380px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 35;
       display: none;
     }
@@ -325,7 +440,7 @@
     .hinge-student-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(4, 20, 45, 0.96);
+      background: rgba(3, 16, 36, 0.97);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -336,13 +451,13 @@
     }
     .hinge-question-box {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
+      border: 1px solid var(--ga-gold);
       border-radius: 8px;
       padding: 16px 24px;
       max-width: 800px;
       width: 100%;
       margin-bottom: 24px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .hinge-btn-grid {
       display: grid;
@@ -353,11 +468,11 @@
     }
     .btn-hinge-choice {
       min-height: 80px;
-      padding: 12px 16px;
-      font-size: 1.3rem;
+      padding: 14px 18px;
+      font-size: 1.25rem;
       font-weight: 800;
       background: var(--ga-navy-card);
-      border: 2px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-navy-border);
       color: var(--ga-white);
       border-radius: 8px;
       cursor: pointer;
@@ -376,8 +491,8 @@
       background: var(--ga-gold) !important;
       color: #04142d !important;
       border-color: #ffffff !important;
-      box-shadow: 0 0 20px rgba(223, 155, 53, 0.6);
-      transform: scale(1.03);
+      box-shadow: 0 0 20px rgba(223, 155, 53, 0.5);
+      transform: scale(1.02);
     }
     .btn-hinge-choice:disabled {
       cursor: not-allowed;
@@ -388,7 +503,7 @@
     .student-leaderboard-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(2, 11, 26, 0.96);
+      background: rgba(2, 9, 20, 0.96);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -398,12 +513,12 @@
     }
     .student-leaderboard-box {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
-      border-radius: 8px;
-      max-width: 550px;
+      border: 1px solid var(--ga-gold);
+      border-radius: 10px;
+      max-width: 540px;
       width: 100%;
       padding: 22px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.8);
       max-height: 80vh;
       display: flex;
       flex-direction: column;
@@ -413,7 +528,7 @@
     .showcase-overlay { 
       position: absolute; 
       inset: 0; 
-      background: #020b1a; 
+      background: #020914; 
       display: none; 
       flex-direction: column; 
       align-items: center; 
@@ -423,9 +538,9 @@
     }
     .showcase-header-bar {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      right: 12px;
+      top: 14px;
+      left: 14px;
+      right: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -437,9 +552,9 @@
       color: #04142d;
       padding: 6px 14px;
       border-radius: 6px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 800;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
       pointer-events: auto;
     }
     .showcase-img-wrap {
@@ -451,7 +566,7 @@
       background: #ffffff;
       border-radius: 6px;
       overflow: hidden;
-      border: 3px solid var(--ga-gold);
+      border: 2px solid var(--ga-gold);
     }
     .showcase-img-wrap img {
       width: 100%;
@@ -464,7 +579,7 @@
     .text-modal-overlay { 
       position: absolute; 
       inset: 0; 
-      background: rgba(4, 20, 45, 0.6); 
+      background: rgba(3, 16, 36, 0.6); 
       display: none; 
       align-items: center; 
       justify-content: center; 
@@ -472,23 +587,56 @@
     }
     .text-modal-box {
       background: var(--ga-navy-panel);
-      padding: 18px;
+      padding: 20px;
       border-radius: 8px;
       border: 1px solid var(--ga-gold);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       width: 90%;
       max-width: 360px;
     }
 
     /* Teacher Dashboard */
     #teacher-view { display: none; max-width: 1400px; margin: 0 auto; }
-    .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
-    .room-badge { background: var(--ga-gold); color: #04142d; padding: 6px 14px; border-radius: 6px; font-weight: 700; }
+    .teacher-nav { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-bottom: 1px solid var(--ga-navy-border); 
+      padding-bottom: 14px; 
+      margin-bottom: 14px; 
+      flex-wrap: wrap; 
+      gap: 12px; 
+    }
+    .room-badge { 
+      background: var(--ga-gold); 
+      color: #04142d; 
+      padding: 6px 14px; 
+      border-radius: 6px; 
+      font-weight: 700; 
+      letter-spacing: 0.02em;
+    }
     
-    .action-toolbar { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--ga-navy-border); background: var(--ga-navy-input); color: white; }
+    .action-toolbar { 
+      background: var(--ga-navy-panel); 
+      border-radius: 8px; 
+      padding: 8px 12px; 
+      margin-bottom: 16px; 
+      border: 1px solid var(--ga-navy-border); 
+      display: flex; 
+      align-items: center; 
+      gap: 8px; 
+      flex-wrap: wrap; 
+    }
+    .timer-input { 
+      width: 76px; 
+      padding: 6px 10px; 
+      border-radius: 4px; 
+      border: 1px solid var(--ga-navy-border); 
+      background: var(--ga-navy-input); 
+      color: white; 
+    }
 
-    /* Teacher Expandable Dropdown Menu */
+    /* Dropdown Menus */
     .dropdown-container {
       position: relative;
       display: inline-block;
@@ -499,14 +647,14 @@
       top: calc(100% + 6px);
       left: 0;
       background: var(--ga-navy-panel);
-      border: 1.5px solid var(--ga-gold);
+      border: 1px solid var(--ga-gold);
       border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       z-index: 60;
       min-width: 210px;
       padding: 6px;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
     .dropdown-menu.show {
       display: flex;
@@ -517,24 +665,29 @@
       border: none;
       text-align: left;
       padding: 8px 12px;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
     }
     .dropdown-item:hover {
       background: #14356f;
       color: var(--ga-gold);
     }
+    .dropdown-item i, .dropdown-item svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 1.75px;
+    }
 
-    /* Teacher Live Hinge Stats Panel */
+    /* Live Hinge Panel */
     .hinge-stats-panel {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
+      border: 1px solid var(--ga-gold);
       border-radius: 8px;
       padding: 16px;
       margin-bottom: 16px;
@@ -561,8 +714,8 @@
       position: relative;
     }
     .stat-col.correct-key {
-      border: 2px solid var(--ga-green);
-      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid var(--ga-green);
+      background: rgba(16, 185, 129, 0.08);
     }
     .stat-col-letter {
       font-size: 1.15rem;
@@ -590,29 +743,119 @@
     }
 
     /* Class Roster */
-    .roster-panel { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); }
-    .roster-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: var(--ga-text-muted); }
+    .roster-panel { 
+      background: var(--ga-navy-panel); 
+      border-radius: 8px; 
+      padding: 10px 14px; 
+      margin-bottom: 16px; 
+      border: 1px solid var(--ga-navy-border); 
+    }
+    .roster-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      font-size: 0.8rem; 
+      font-weight: bold; 
+      margin-bottom: 6px; 
+      color: var(--ga-text-muted); 
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
     .roster-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .student-chip { background: var(--ga-navy-input); border: 1px solid var(--ga-navy-border); color: var(--ga-white); padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; gap: 4px; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
+    .student-chip { 
+      background: var(--ga-navy-input); 
+      border: 1px solid var(--ga-navy-border); 
+      color: var(--ga-white); 
+      padding: 4px 10px; 
+      border-radius: 12px; 
+      font-size: 0.75rem; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    }
+    .status-dot { 
+      width: 6px; 
+      height: 6px; 
+      border-radius: 50%; 
+      background: var(--ga-green); 
+      display: inline-block; 
+    }
 
     /* Live Boards Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
-    .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; transition: transform 0.1s ease; }
-    .board-card:hover { border-color: var(--ga-gold); }
-    .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; cursor: zoom-in; }
-    .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); cursor: pointer; }
-    .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; flex-wrap: wrap; }
-    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px; }
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); 
+      gap: 14px; 
+    }
+    .board-card { 
+      background: var(--ga-navy-panel); 
+      border-radius: 8px; 
+      overflow: hidden; 
+      border: 1px solid var(--ga-navy-border); 
+      display: flex; 
+      flex-direction: column; 
+      transition: border-color 0.15s ease, transform 0.15s ease; 
+    }
+    .board-card:hover { 
+      border-color: var(--ga-navy-border-hover); 
+      transform: translateY(-1px);
+    }
+    .board-card img { 
+      width: 100%; 
+      height: 180px; 
+      object-fit: contain; 
+      background: #ffffff; 
+      border-bottom: 1px solid var(--ga-navy-border); 
+      display: block; 
+      cursor: zoom-in; 
+    }
+    .board-placeholder { 
+      width: 100%; 
+      height: 180px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: var(--ga-navy-input); 
+      color: var(--ga-text-muted); 
+      font-size: 0.85rem; 
+      font-style: italic; 
+      border-bottom: 1px solid var(--ga-navy-border); 
+      cursor: pointer; 
+    }
+    .board-meta { 
+      padding: 8px 12px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      font-size: 0.85rem; 
+      gap: 4px; 
+      flex-wrap: wrap; 
+    }
+    .seat-tag { 
+      font-weight: 700; 
+      color: var(--ga-gold); 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      white-space: nowrap; 
+      max-width: 90px; 
+    }
     
-    .meta-actions { display: flex; gap: 3px; flex-wrap: wrap; }
-    .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
+    .meta-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-action-mini { 
+      padding: 4px 7px; 
+      border-radius: 4px; 
+      font-size: 0.72rem; 
+    }
+    .btn-action-mini i, .btn-action-mini svg {
+      width: 12px;
+      height: 12px;
+    }
 
-    /* Zoom / Spotlight Modal */
+    /* Modals & Overlays */
     .spotlight-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 11, 26, 0.94);
+      background: rgba(2, 9, 20, 0.94);
       display: none;
       align-items: center;
       justify-content: center;
@@ -621,15 +864,15 @@
     }
     .spotlight-content {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
-      border-radius: 8px;
+      border: 1px solid var(--ga-gold);
+      border-radius: 10px;
       width: 95vw;
       max-width: 1300px;
       height: 90vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.8);
     }
     .spotlight-header {
       padding: 12px 20px;
@@ -669,11 +912,11 @@
       flex-wrap: wrap;
     }
 
-    /* Teacher Red-Pen Markup & Stamp Modal */
+    /* Red-Pen Markup & Stamp Modal */
     .markup-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 11, 26, 0.95);
+      background: rgba(2, 9, 20, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
@@ -682,15 +925,15 @@
     }
     .markup-content {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
-      border-radius: 8px;
+      border: 1px solid var(--ga-gold);
+      border-radius: 10px;
       width: 95vw;
       max-width: 1200px;
       height: 92vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.85);
     }
     .markup-toolbar {
       background: var(--ga-navy-card);
@@ -703,7 +946,7 @@
     }
     .markup-canvas-wrap {
       flex: 1;
-      background: #475569;
+      background: #334155;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -727,31 +970,31 @@
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      max-width: 500px;
+      max-width: 520px;
       padding: 2px 0;
     }
     .stamp-pill {
       background: var(--ga-navy-input);
-      border: 1px solid var(--ga-gold);
+      border: 1px solid var(--ga-navy-border);
       color: var(--ga-white);
-      padding: 4px 10px;
-      border-radius: 16px;
+      padding: 5px 11px;
+      border-radius: 14px;
       font-size: 0.75rem;
       font-weight: 700;
       white-space: nowrap;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 4px;
-      transition: all 0.1s;
+      gap: 6px;
+      transition: all 0.12s ease;
     }
     .stamp-pill:hover, .stamp-pill.active {
       background: var(--ga-gold);
       color: #04142d;
-      transform: scale(1.05);
+      border-color: var(--ga-gold);
     }
 
-    /* Template & Stamp Management */
+    /* Template Engine Modals */
     .template-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -765,7 +1008,7 @@
       border: 1px solid var(--ga-navy-border);
     }
     .template-card {
-      border: 2px solid var(--ga-navy-border);
+      border: 1px solid var(--ga-navy-border);
       border-radius: 6px;
       padding: 6px;
       cursor: pointer;
@@ -819,13 +1062,12 @@
       border: 1px solid var(--ga-navy-border);
       cursor: pointer;
     }
-    .template-card-btn.del { background: #b91c1c; }
+    .template-card-btn.del { background: #be123c; }
 
-    /* Template Studio Modal */
     .studio-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 11, 26, 0.95);
+      background: rgba(2, 9, 20, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
@@ -834,14 +1076,14 @@
     }
     .studio-box {
       background: var(--ga-navy-panel);
-      border: 2px solid var(--ga-gold);
-      border-radius: 8px;
+      border: 1px solid var(--ga-gold);
+      border-radius: 10px;
       max-width: 980px;
       width: 100%;
       height: 92vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.85);
       overflow: hidden;
     }
     .studio-header {
@@ -874,17 +1116,16 @@
     }
     #studio-canvas {
       background: #ffffff;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       border-radius: 4px;
       cursor: crosshair;
     }
 
-    /* Fixed Modal System: Explicit Hidden Defaults */
     .modal-overlay { 
       display: none; 
       position: fixed; 
       inset: 0; 
-      background: rgba(2, 11, 26, 0.85); 
+      background: rgba(2, 9, 20, 0.85); 
       align-items: center; 
       justify-content: center; 
       z-index: 100; 
@@ -893,7 +1134,7 @@
     .leaderboard-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 11, 26, 0.9);
+      background: rgba(2, 9, 20, 0.9);
       display: none !important;
       align-items: center;
       justify-content: center;
@@ -916,19 +1157,23 @@
       <div class="brand-divider"></div>
       <span class="brand-title">Digital <span>Whiteboard</span></span>
     </div>
-    <button class="btn-ghost" id="teacher-switch-btn" onclick="openTeacherLogin()">Teacher Admin</button>
+    <button class="btn-ghost" id="teacher-switch-btn" onclick="openTeacherLogin()">
+      <i data-lucide="shield-check"></i> Teacher Portal
+    </button>
   </div>
 
   <div class="app-wrapper">
     <!-- 1. ENTRY SCREEN -->
     <div id="join-view" class="card">
       <h2 style="color: var(--ga-gold); margin-bottom: 6px;">Student Session</h2>
-      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter your room code and desk/name.</p>
-      <label>Room Number</label>
+      <p style="margin: 0 0 16px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Enter the room code and your desk or name identifier.</p>
+      <label>Room Code</label>
       <input type="text" id="join-room" placeholder="e.g. 234" autocomplete="off">
-      <label>Your Name / Desk Identifier</label>
-      <input type="text" id="join-seat" placeholder="e.g. Alex" maxlength="16">
-      <button class="btn-primary" onclick="joinAsStudent()">Enter Room</button>
+      <label>Student Identifier</label>
+      <input type="text" id="join-seat" placeholder="e.g. Desk 4 / Alex" maxlength="16">
+      <button class="btn-primary" onclick="joinAsStudent()">
+        <i data-lucide="log-in"></i> Join Session
+      </button>
     </div>
 
     <!-- 2. STUDENT FULL-CANVAS VIEW -->
@@ -937,19 +1182,21 @@
         <div style="display: flex; gap: 8px; align-items: center;">
           <strong id="s-display-seat" style="color: var(--ga-gold);"></strong>
           <span style="color: var(--ga-text-muted); font-size: 0.85rem;" id="s-room-tag"></span>
-          <span class="points-pill" id="s-points-pill">🏆 0 pts</span>
+          <span class="points-pill" id="s-points-pill">0 pts</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <span class="timer-pill" id="s-timer-pill">⏱ 00:00</span>
-          <span id="s-sync-status" style="color: #22c55e; font-size: 0.85rem;">● Connected</span>
+          <span class="timer-pill" id="s-timer-pill">00:00</span>
+          <span id="s-sync-status" style="color: var(--ga-green); font-size: 0.85rem; display: flex; align-items: center; gap: 4px;">
+            <span class="status-dot"></span> Active
+          </span>
         </div>
       </div>
 
       <!-- Segmented Student Toolbar -->
       <div class="tool-bar">
         <div class="mode-tab-group">
-          <button class="mode-tab-btn active" id="mode-tab-basic" onclick="setStudentToolbarMode('basic')">✏️ Basic</button>
-          <button class="mode-tab-btn" id="mode-tab-advanced" onclick="setStudentToolbarMode('advanced')">🛠️ Advanced</button>
+          <button class="mode-tab-btn active" id="mode-tab-basic" onclick="setStudentToolbarMode('basic')">Basic</button>
+          <button class="mode-tab-btn" id="mode-tab-advanced" onclick="setStudentToolbarMode('advanced')">Advanced</button>
         </div>
 
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
@@ -960,53 +1207,75 @@
         <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
         <div class="color-dot" style="background:#9333ea;" onclick="setColor('#9333ea', this)"></div>
 
-        <div class="color-picker-wrapper" title="Custom Colour Picker">
+        <div class="color-picker-wrapper" title="Custom Palette">
           <input type="color" id="student-custom-color" value="#04142d" onchange="setColor(this.value, this.parentElement)">
         </div>
 
-        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">↩</button>
-        <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">↪</button>
+        <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">
+          <i data-lucide="undo-2"></i>
+        </button>
+        <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">
+          <i data-lucide="redo-2"></i>
+        </button>
 
-        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
-        <button class="tool-btn" id="eraser-tool-btn" onclick="setTool('eraser')">🧹 Eraser</button>
+        <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">
+          <i data-lucide="pen-tool"></i> Pen
+        </button>
+        <button class="tool-btn" id="eraser-tool-btn" onclick="setTool('eraser')">
+          <i data-lucide="eraser"></i> Eraser
+        </button>
 
         <div id="student-adv-tools" style="display: none; align-items: center; gap: 6px;">
-          <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">📏 Line</button>
-          <button class="tool-btn" id="arrow-tool-btn" onclick="setTool('arrow')">↗️ Arrow</button>
-          <button class="tool-btn" id="rect-tool-btn" onclick="setTool('rect')">⬜ Box</button>
-          <button class="tool-btn" id="circle-tool-btn" onclick="setTool('circle')">⭕ Circle</button>
-          <button class="tool-btn" id="fill-tool-btn" onclick="setTool('fill')">🪣 Fill</button>
-          <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">🔤 Text</button>
+          <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">
+            <i data-lucide="minus"></i> Line
+          </button>
+          <button class="tool-btn" id="arrow-tool-btn" onclick="setTool('arrow')">
+            <i data-lucide="arrow-up-right"></i> Arrow
+          </button>
+          <button class="tool-btn" id="rect-tool-btn" onclick="setTool('rect')">
+            <i data-lucide="square"></i> Box
+          </button>
+          <button class="tool-btn" id="circle-tool-btn" onclick="setTool('circle')">
+            <i data-lucide="circle"></i> Circle
+          </button>
+          <button class="tool-btn" id="fill-tool-btn" onclick="setTool('fill')">
+            <i data-lucide="paint-bucket"></i> Fill
+          </button>
+          <button class="tool-btn" id="text-tool-btn" onclick="setTool('text')">
+            <i data-lucide="type"></i> Text
+          </button>
         </div>
 
-        <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">Wipe Board</button>
+        <button class="btn-secondary" style="margin-left: auto;" id="s-clear-btn" onclick="clearCanvas()">
+          <i data-lucide="trash-2"></i> Clear Board
+        </button>
       </div>
       
       <div class="canvas-container">
         <canvas id="board"></canvas>
         <canvas id="board-markup"></canvas>
         
-        <!-- Non-Blocking Text Modal -->
+        <!-- Text Modal -->
         <div class="text-modal-overlay" id="s-text-modal">
           <div class="text-modal-box">
-            <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Text (Bold 60px)</h3>
-            <input type="text" id="s-text-input" placeholder="Type text here..." onkeydown="if(event.key==='Enter') confirmCanvasText(); if(event.key==='Escape') closeCanvasTextModal();">
-            <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <h3 style="margin-bottom: 8px; font-size: 1rem; color: var(--ga-gold);">Add Canvas Text</h3>
+            <input type="text" id="s-text-input" placeholder="Type text..." onkeydown="if(event.key==='Enter') confirmCanvasText(); if(event.key==='Escape') closeCanvasTextModal();">
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
               <button class="btn-secondary" style="flex:1;" onclick="closeCanvasTextModal()">Cancel</button>
-              <button class="btn-primary" style="flex:1; margin-top:0;" onclick="confirmCanvasText()">Place Text</button>
+              <button class="btn-primary" style="flex:1; margin-top:0;" onclick="confirmCanvasText()">Apply</button>
             </div>
           </div>
         </div>
 
         <!-- Lock Overlay -->
         <div class="lock-overlay" id="s-lock-overlay">
-          <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
+          <i data-lucide="lock" style="width: 44px; height: 44px; stroke-width: 1.5; margin-bottom: 12px; color: var(--ga-gold);"></i>
           <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Teacher paused input for class discussion.</p>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Input paused for teacher instruction.</p>
         </div>
 
         <!-- Student Showcase Overlay -->
@@ -1022,10 +1291,10 @@
         <!-- Student Hinge Question Overlay -->
         <div class="hinge-student-overlay" id="s-hinge-overlay">
           <div class="hinge-question-box" id="s-hinge-qbox" style="display: none;">
-            <h3 id="s-hinge-qtext" style="color: var(--ga-gold); margin: 0; font-size: 1.3rem;">Question text</h3>
+            <h3 id="s-hinge-qtext" style="color: var(--ga-gold); margin: 0; font-size: 1.25rem;">Question text</h3>
           </div>
           <div style="margin-bottom: 16px;">
-            <span class="timer-pill" id="s-hinge-timer-pill" style="display: inline-block; font-size: 1.1rem; padding: 6px 18px;">⏱ 00:00</span>
+            <span class="timer-pill" id="s-hinge-timer-pill" style="display: inline-block; font-size: 1rem; padding: 6px 18px;">00:00</span>
           </div>
           <div class="hinge-btn-grid" id="s-hinge-grid"></div>
         </div>
@@ -1033,7 +1302,7 @@
         <!-- Student Broadcast Leaderboard Overlay -->
         <div class="student-leaderboard-overlay" id="s-leaderboard-overlay">
           <div class="student-leaderboard-box">
-            <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.4rem;">🏆 Session Leaderboard</h3>
+            <h3 style="margin: 0 0 12px 0; color: var(--ga-gold); text-align: center; font-size: 1.3rem;">Classroom Leaderboard</h3>
             <div class="leaderboard-list" id="s-leaderboard-list"></div>
           </div>
         </div>
@@ -1042,19 +1311,21 @@
         <div class="peer-review-overlay" id="s-peer-overlay">
           <div class="peer-review-header">
             <div>
-              <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review Mode</strong>
-              <span id="s-peer-partner-tag" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Reviewing: Classmate</span>
+              <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review Session</strong>
+              <span id="s-peer-partner-tag" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Assigned Review</span>
             </div>
-            <span class="timer-pill" id="s-peer-timer-pill" style="display: inline-block; font-size: 0.95rem;">⏱ 00:00</span>
+            <span class="timer-pill" id="s-peer-timer-pill" style="display: inline-block; font-size: 0.95rem;">00:00</span>
           </div>
           <div class="peer-review-body">
             <div class="peer-board-panel">
               <img id="s-peer-board-img" src="" alt="Peer Board Snapshot">
             </div>
             <div class="peer-feedback-panel">
-              <label style="margin-top:0; font-size: 0.95rem; color: var(--ga-gold);">Your Feedback for this student:</label>
-              <textarea id="s-peer-feedback-input" placeholder="Give 1 piece of praise and 1 constructive suggestion or correction..."></textarea>
-              <button class="btn-primary" style="margin-top: 0;" onclick="sendPeerFeedback()">Send Feedback</button>
+              <label style="margin-top:0; font-size: 0.85rem; color: var(--ga-gold);">Peer Evaluation & Constructive Feedback</label>
+              <textarea id="s-peer-feedback-input" placeholder="Provide one point of praise and one specific revision suggestion..."></textarea>
+              <button class="btn-primary" style="margin-top: 0;" onclick="sendPeerFeedback()">
+                <i data-lucide="send"></i> Submit Feedback
+              </button>
             </div>
           </div>
         </div>
@@ -1062,7 +1333,9 @@
         <!-- Delivered Feedback Card -->
         <div class="feedback-notice-card" id="s-feedback-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <strong style="color: var(--ga-gold);">💬 Peer Feedback Received</strong>
+            <strong style="color: var(--ga-gold); display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="message-square" style="width: 16px; height: 16px;"></i> Peer Feedback Received
+            </strong>
             <button class="btn-ghost" style="padding: 2px 6px;" onclick="document.getElementById('s-feedback-card').style.display='none'">✕</button>
           </div>
           <p id="s-feedback-text" style="font-size: 0.85rem; margin: 0; color: #ffffff; line-height: 1.4;"></p>
@@ -1075,73 +1348,105 @@
       <div class="teacher-nav">
         <div>
           <h2 style="margin: 0 0 4px 0; color: var(--ga-gold);">Teacher Console</h2>
-          <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">Currently Connected: 0</span>
+          <span id="sub-counter" style="color: var(--ga-text-muted); font-size: 0.85rem;">Active Students: 0</span>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-          <button id="end-showcase-btn" class="btn-gold" style="display: none;" onclick="stopShowcaseBroadcast()">🛑 Stop Showcase</button>
-          <button id="end-peer-btn" class="btn-gold" style="display: none;" onclick="endPeerReviewSession()">🛑 End Peer Review</button>
-          <span class="timer-pill" id="t-timer-pill">⏱ 00:00</span>
+          <button id="end-showcase-btn" class="btn-gold" style="display: none;" onclick="stopShowcaseBroadcast()">
+            <i data-lucide="eye-off"></i> Stop Showcase
+          </button>
+          <button id="end-peer-btn" class="btn-gold" style="display: none;" onclick="endPeerReviewSession()">
+            <i data-lucide="users-round"></i> Conclude Peer Review
+          </button>
+          <span class="timer-pill" id="t-timer-pill">00:00</span>
           <span class="room-badge" id="t-room-tag">Room: ---</span>
-          <button class="btn-danger" onclick="clearTeacherRoom()">Clear Room</button>
+          <button class="btn-danger" onclick="clearTeacherRoom()">
+            <i data-lucide="rotate-ccw"></i> Reset Room
+          </button>
         </div>
       </div>
 
       <div class="action-toolbar">
-        <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
-        <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">🔤 Sort: Order Joined</button>
-        <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
+        <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">
+          <i data-lucide="lock"></i> Lock Boards
+        </button>
+        <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">
+          <i data-lucide="arrow-down-a-z"></i> Sort: Order Joined
+        </button>
+        <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">
+          <i data-lucide="eye-off"></i> Anonymise
+        </button>
 
         <div class="dropdown-container">
-          <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="toggleAssessmentMenu(event)">🎯 Formative Assessment ▾</button>
+          <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="toggleAssessmentMenu(event)">
+            <i data-lucide="sparkles"></i> Formative Tools <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+          </button>
           <div class="dropdown-menu" id="assessment-dropdown">
-            <button class="dropdown-item" onclick="openHingeModal(); closeAssessmentMenu();">🎯 Hinge Questions</button>
-            <button class="dropdown-item" onclick="openPeerReviewModal(); closeAssessmentMenu();">👥 Timed Peer Review</button>
-            <button class="dropdown-item" onclick="openLeaderboardModal(); closeAssessmentMenu();">🏆 Session Leaderboard</button>
-            <button class="dropdown-item" onclick="openTemplateModal(); closeAssessmentMenu();">📋 Template Library & Studio</button>
+            <button class="dropdown-item" onclick="openHingeModal(); closeAssessmentMenu();">
+              <i data-lucide="help-circle"></i> Hinge Questions
+            </button>
+            <button class="dropdown-item" onclick="openPeerReviewModal(); closeAssessmentMenu();">
+              <i data-lucide="users"></i> Timed Peer Review
+            </button>
+            <button class="dropdown-item" onclick="openLeaderboardModal(); closeAssessmentMenu();">
+              <i data-lucide="trophy"></i> Classroom Leaderboard
+            </button>
+            <button class="dropdown-item" onclick="openTemplateModal(); closeAssessmentMenu();">
+              <i data-lucide="layout-template"></i> Template Studio
+            </button>
           </div>
         </div>
 
-        <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
-        <button class="btn-danger" onclick="clearAllRoomMarkups()">🧹 Clear All Markups</button>
-        <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
+        <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">
+          <i data-lucide="x-circle"></i> Remove Template
+        </button>
+        <button class="btn-danger" onclick="clearAllRoomMarkups()">
+          <i data-lucide="eraser"></i> Clear All Markups
+        </button>
+        <button class="btn-danger" onclick="wipeAllStudentBoards()">
+          <i data-lucide="trash-2"></i> Wipe Boards
+        </button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
           <input type="number" id="timer-seconds" class="timer-input" placeholder="Secs" value="60" min="5" max="900">
-          <button class="btn-secondary" onclick="startTimer()">⏱ Start Timer</button>
+          <button class="btn-secondary" onclick="startTimer()">
+            <i data-lucide="clock"></i> Start Timer
+          </button>
         </div>
       </div>
 
-      <!-- Teacher Live Hinge Stats Panel -->
+      <!-- Live Hinge Question Panel -->
       <div class="hinge-stats-panel" id="t-hinge-stats-panel">
         <div class="stats-header">
           <div>
-            <strong style="color: var(--ga-gold); font-size: 1.1rem;">Live Hinge Question Analytics</strong>
-            <span id="t-hinge-status" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">Active</span>
+            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Live Question Analytics</strong>
+            <span id="t-hinge-status" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">In Progress</span>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn-gold btn-action-mini" id="t-award-pts-btn" onclick="awardHingePoints()">⭐ Award Points</button>
-            <button class="btn-secondary btn-action-mini" onclick="endHingeSession()">Close Hinge</button>
+            <button class="btn-gold btn-action-mini" id="t-award-pts-btn" onclick="awardHingePoints()">
+              <i data-lucide="check-check"></i> Award Score
+            </button>
+            <button class="btn-secondary btn-action-mini" onclick="endHingeSession()">Conclude</button>
           </div>
         </div>
         <p id="t-hinge-qdisplay" style="font-size: 0.95rem; margin: 0 0 12px 0; color: #ffffff;"></p>
         <div class="stats-bar-container" id="t-stats-bars"></div>
       </div>
 
-      <!-- Teacher Live Peer Review Tracker -->
+      <!-- Live Peer Review Tracker -->
       <div class="hinge-stats-panel" id="t-peer-status-panel">
         <div class="stats-header">
           <div>
-            <strong style="color: var(--ga-gold); font-size: 1.1rem;">Peer Review in Progress</strong>
-            <span id="t-peer-counter" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">0 / 0 feedback sent</span>
+            <strong style="color: var(--ga-gold); font-size: 1.05rem;">Peer Review Progress</strong>
+            <span id="t-peer-counter" style="margin-left: 10px; font-size: 0.85rem; color: var(--ga-text-muted);">0 / 0 completed</span>
           </div>
-          <button class="btn-danger btn-action-mini" onclick="endPeerReviewSession()">End Review Now</button>
+          <button class="btn-danger btn-action-mini" onclick="endPeerReviewSession()">Conclude Session</button>
         </div>
         <div id="t-peer-roster-status" style="font-size: 0.8rem; color: var(--ga-text-muted); display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
 
       <div class="roster-panel">
         <div class="roster-header">
-          <span>Active Students</span>
+          <span>Active Roster</span>
           <span id="roster-count" style="color: var(--ga-gold);">0 connected</span>
         </div>
         <div class="roster-tags" id="roster-tags">
@@ -1157,40 +1462,52 @@
   <div class="modal-overlay" id="login-modal">
     <div class="card" style="margin: 0; width: 320px;">
       <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Teacher Verification</h3>
-      <label>Room Number</label>
+      <label>Room Code</label>
       <input type="text" id="teacher-target-room" placeholder="e.g. 234">
-      <label>PIN</label>
+      <label>Security PIN</label>
       <input type="password" id="teacher-pin" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') unlockTeacher()">
-      <div style="display: flex; gap: 8px; margin-top: 14px;">
+      <div style="display: flex; gap: 8px; margin-top: 16px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Authenticate</button>
       </div>
     </div>
   </div>
 
-  <!-- PHASE 5: TEACHER RED-PEN MARKUP & STAMP MODAL -->
+  <!-- RED-PEN MARKUP & STAMP MODAL -->
   <div class="markup-modal" id="markup-modal">
     <div class="markup-content">
       <div class="spotlight-header">
-        <h3 id="markup-title" style="margin: 0; color: var(--ga-gold);">Red-Pen Intervention: Student</h3>
+        <h3 id="markup-title" style="margin: 0; color: var(--ga-gold);">Live Intervention</h3>
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeMarkupModal()">✕</button>
       </div>
       
       <div class="markup-toolbar">
-        <button class="tool-btn active" id="m-tool-pen" onclick="setMarkupTool('pen')">🔴 Red Pen</button>
-        <button class="tool-btn" id="m-tool-eraser" onclick="setMarkupTool('eraser')">🧹 Eraser</button>
+        <button class="tool-btn active" id="m-tool-pen" onclick="setMarkupTool('pen')">
+          <i data-lucide="pen-tool"></i> Red Pen
+        </button>
+        <button class="tool-btn" id="m-tool-eraser" onclick="setMarkupTool('eraser')">
+          <i data-lucide="eraser"></i> Eraser
+        </button>
         
-        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
         
-        <span style="font-size: 0.8rem; font-weight: 700; color: var(--ga-text-muted);">Stamps:</span>
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--ga-text-muted); text-transform: uppercase;">Feedback Chips:</span>
         <div class="stamp-chips-scroll" id="markup-stamps-bar"></div>
 
-        <button class="btn-gold btn-action-mini" onclick="openCreateStampPrompt()">➕ New Stamp</button>
-        <button class="btn-secondary btn-action-mini" onclick="exportStampLibrary()">📦 Export Stamps</button>
+        <button class="btn-gold btn-action-mini" onclick="openCreateStampPrompt()">
+          <i data-lucide="plus"></i> New Chip
+        </button>
+        <button class="btn-secondary btn-action-mini" onclick="exportStampLibrary()">
+          <i data-lucide="download"></i> Export
+        </button>
         <input type="file" id="stamp-json-importer" accept=".json" style="display: none;" onchange="handleStampJsonImport(event)">
-        <button class="btn-secondary btn-action-mini" onclick="document.getElementById('stamp-json-importer').click()">📥 Import</button>
+        <button class="btn-secondary btn-action-mini" onclick="document.getElementById('stamp-json-importer').click()">
+          <i data-lucide="upload"></i> Import
+        </button>
 
-        <button class="btn-danger btn-action-mini" style="margin-left: auto;" onclick="clearSingleStudentMarkup(activeMarkupClientId)">🧹 Clear Markup</button>
+        <button class="btn-danger btn-action-mini" style="margin-left: auto;" onclick="clearSingleStudentMarkup(activeMarkupClientId)">
+          <i data-lucide="trash-2"></i> Clear Markup
+        </button>
         <button class="btn-secondary btn-action-mini" onclick="closeMarkupModal()">Done</button>
       </div>
 
@@ -1205,43 +1522,43 @@
   <div class="modal-overlay" id="peer-review-modal">
     <div class="card" style="margin: 0; max-width: 460px; width: 95%;">
       <h3 style="margin-bottom: 6px; color: var(--ga-gold);">Start Timed Peer Review</h3>
-      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Pairs students up randomly to review each other's current boards and provide feedback.</p>
+      <p style="margin: 0 0 14px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Pairs students in a deterministic evaluation cycle to critique current whiteboard work.</p>
       
-      <label>Duration (Seconds)</label>
+      <label>Session Duration (Seconds)</label>
       <input type="number" id="peer-duration-input" value="90" min="20" max="600">
 
-      <div style="margin-top: 14px; display: flex; align-items: center; gap: 8px;">
+      <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
         <input type="checkbox" id="peer-anonymise-check" checked style="width: auto; margin: 0;">
-        <label for="peer-anonymise-check" style="margin: 0; cursor: pointer; color: #ffffff;">Anonymise peer boards (hide names during review)</label>
+        <label for="peer-anonymise-check" style="margin: 0; cursor: pointer; color: #ffffff;">Anonymise peer identifiers during review</label>
       </div>
 
       <div style="display: flex; gap: 8px; margin-top: 20px;">
         <button class="btn-secondary" style="flex:1;" onclick="closePeerReviewModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchPeerReview()">🚀 Pair & Launch</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchPeerReview()">Launch Review</button>
       </div>
     </div>
   </div>
 
-  <!-- HINGE QUESTION LAUNCHER MODAL -->
+  <!-- HINGE QUESTION MODAL -->
   <div class="modal-overlay" id="hinge-modal">
     <div class="card" style="margin: 0; max-width: 520px; width: 95%;">
-      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Launch Hinge Question</h3>
-      <label>Question Prompt (Optional)</label>
-      <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate is this?">
+      <h3 style="margin-bottom: 8px; color: var(--ga-gold);">Deploy Hinge Question</h3>
+      <label>Prompt Description (Optional)</label>
+      <input type="text" id="hinge-prompt-input" placeholder="e.g. Which logic gate completes the circuit?">
       
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Options Type</label>
+          <label>Response Structure</label>
           <select id="hinge-layout-select" onchange="handleHingeLayoutChange()">
             <option value="ABCD">A, B, C, D</option>
             <option value="TF">True / False</option>
-            <option value="CUSTOM">Custom Choices...</option>
+            <option value="CUSTOM">Custom Entries...</option>
           </select>
         </div>
         <div>
-          <label>Correct Answer</label>
+          <label>Key Answer</label>
           <select id="hinge-correct-select">
-            <option value="NONE">Don't Score (Survey)</option>
+            <option value="NONE">Unscored Formative Poll</option>
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
@@ -1251,24 +1568,24 @@
       </div>
 
       <div id="custom-choices-container" style="display: none; margin-top: 10px; background: var(--ga-navy-input); padding: 12px; border-radius: 6px; border: 1px solid var(--ga-navy-border);">
-        <label style="margin-top: 0;">Custom Choices (Enter 2 to 6 answers, 1 per line):</label>
+        <label style="margin-top: 0;">Custom Options (One entry per line):</label>
         <textarea id="custom-choices-text" rows="4" placeholder="AND&#10;OR&#10;XOR&#10;NAND" oninput="populateCustomCorrectDropdown()"></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Duration (Seconds)</label>
+          <label>Timer (Seconds)</label>
           <input type="number" id="hinge-duration-input" value="30" min="5" max="300">
         </div>
         <div>
-          <label>Points to Award</label>
+          <label>Score Weight</label>
           <input type="number" id="hinge-points-input" value="10" min="1" max="100">
         </div>
       </div>
 
-      <div style="display: flex; gap: 8px; margin-top: 18px;">
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeHingeModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchHingeQuestion()">🚀 Start Question</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="launchHingeQuestion()">Start Question</button>
       </div>
     </div>
   </div>
@@ -1281,88 +1598,100 @@
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeLeaderboardModal()">✕</button>
       </div>
       <div class="leaderboard-list" id="t-leaderboard-list">
-        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>
+        <span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded in this session.</span>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap;">
-        <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">📢 Broadcast to Class</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px; flex-wrap: wrap;">
+        <button class="btn-gold btn-action-mini" id="broadcast-lb-btn" onclick="toggleBroadcastLeaderboard()">
+          <i data-lucide="radio"></i> Broadcast to Class
+        </button>
         <button class="btn-danger btn-action-mini" onclick="resetLeaderboard()">Reset Scores</button>
         <button class="btn-secondary" onclick="closeLeaderboardModal()">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- TEMPLATE SELECTION & FILE SHARING MODAL -->
+  <!-- TEMPLATE SELECTION MODAL -->
   <div class="modal-overlay" id="template-modal">
     <div class="card" style="margin: 0; max-width: 600px; width: 95%;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <h3 style="margin: 0; color: var(--ga-gold);">Template Library</h3>
         <div style="display: flex; gap: 6px;">
-          <button class="btn-secondary btn-action-mini" onclick="triggerImportTemplateFile()">📥 Import .JSON</button>
-          <button class="btn-secondary btn-action-mini" onclick="exportTemplateLibrary()">📦 Export Library</button>
-          <button class="btn-gold btn-action-mini" onclick="openStudioModal()">🎨 Studio</button>
+          <button class="btn-secondary btn-action-mini" onclick="triggerImportTemplateFile()">
+            <i data-lucide="upload"></i> Import .JSON
+          </button>
+          <button class="btn-secondary btn-action-mini" onclick="exportTemplateLibrary()">
+            <i data-lucide="download"></i> Export Library
+          </button>
+          <button class="btn-gold btn-action-mini" onclick="openStudioModal()">
+            <i data-lucide="palette"></i> Authoring Studio
+          </button>
         </div>
       </div>
-      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Push diagrams, code cards, or tables onto all student boards.</p>
+      <p style="margin: 4px 0 10px 0; color: var(--ga-text-muted); font-size: 0.85rem;">Distribute structured diagrams, scaffolding cards, or tables to all whiteboards.</p>
       
       <input type="file" id="tpl-json-importer" accept=".json" style="display: none;" onchange="handleTemplateJsonImport(event)">
       <div class="template-grid" id="template-library-grid"></div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
-          <label>Push Placement</label>
+          <label>Placement Structure</label>
           <select id="tpl-position-select">
-            <option value="TOP_LEFT">Top-Left Question Card (38% Scale)</option>
-            <option value="FULL">Full Canvas Background</option>
+            <option value="TOP_LEFT">Corner Question Card (38% Scale)</option>
+            <option value="FULL">Full Canvas Canvas Background</option>
           </select>
         </div>
         <div>
-          <label>Upload From Image File</label>
+          <label>Import Image Source</label>
           <input type="file" id="tpl-file-input" accept="image/*" onchange="handleTemplateUpload(event)" style="padding: 6px 10px; font-size: 0.85rem;">
         </div>
       </div>
 
       <div style="display: flex; gap: 8px; margin-top: 18px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTemplateModal()">Cancel</button>
-        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">🚀 Push to Students</button>
+        <button class="btn-primary" style="flex:1; margin-top:0;" onclick="pushSelectedTemplate()">Distribute to Students</button>
       </div>
     </div>
   </div>
 
-  <!-- TEACHER TEMPLATE STUDIO MODAL -->
+  <!-- TEMPLATE STUDIO MODAL -->
   <div class="studio-modal" id="studio-modal">
     <div class="studio-box">
       <div class="studio-header">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <strong style="color: var(--ga-gold); font-size: 1.1rem;">Template Authoring Studio</strong>
-          <input type="text" id="studio-name-input" placeholder="Template Name (e.g. Logic Circuit)" style="width: 240px; padding: 4px 8px; font-size: 0.9rem;">
+          <strong style="color: var(--ga-gold); font-size: 1.05rem;">Template Authoring Studio</strong>
+          <input type="text" id="studio-name-input" placeholder="Template Label" style="width: 220px; padding: 4px 8px; font-size: 0.85rem;">
         </div>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-gold btn-action-mini" onclick="saveStudioTemplate()">💾 Save to My Templates</button>
+          <button class="btn-gold btn-action-mini" onclick="saveStudioTemplate()">
+            <i data-lucide="save"></i> Save Template
+          </button>
           <button class="btn-secondary btn-action-mini" onclick="closeStudioModal()">Close</button>
         </div>
       </div>
 
       <div class="studio-toolbar">
-        <button class="tool-btn" id="st-undo-btn" onclick="studioUndo()">↩ Undo</button>
-        <button class="tool-btn" id="st-redo-btn" onclick="studioRedo()">↪ Redo</button>
-        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <button class="tool-btn" id="st-undo-btn" onclick="studioUndo()"><i data-lucide="undo-2"></i></button>
+        <button class="tool-btn" id="st-redo-btn" onclick="studioRedo()"><i data-lucide="redo-2"></i></button>
+        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <button class="tool-btn active" id="st-tool-pen" onclick="setStudioTool('pen')">✏️ Pen</button>
-        <button class="tool-btn" id="st-tool-line" onclick="setStudioTool('line')">📏 Line</button>
-        <button class="tool-btn" id="st-tool-arrow" onclick="setStudioTool('arrow')">↗️ Arrow</button>
-        <button class="tool-btn" id="st-tool-rect" onclick="setStudioTool('rect')">⬜ Box</button>
-        <button class="tool-btn" id="st-tool-circle" onclick="setStudioTool('circle')">⭕ Circle</button>
-        <button class="tool-btn" id="st-tool-fill" onclick="setStudioTool('fill')">🪣 Fill</button>
-        <button class="tool-btn" id="st-tool-text" onclick="setStudioTool('text')">🔤 Text</button>
-        <button class="tool-btn" id="st-tool-grid" onclick="stampStudioTablePrompt()">📊 Table</button>
+        <button class="tool-btn active" id="st-tool-pen" onclick="setStudioTool('pen')"><i data-lucide="pen-tool"></i></button>
+        <button class="tool-btn" id="st-tool-line" onclick="setStudioTool('line')"><i data-lucide="minus"></i></button>
+        <button class="tool-btn" id="st-tool-arrow" onclick="setStudioTool('arrow')"><i data-lucide="arrow-up-right"></i></button>
+        <button class="tool-btn" id="st-tool-rect" onclick="setStudioTool('rect')"><i data-lucide="square"></i></button>
+        <button class="tool-btn" id="st-tool-circle" onclick="setStudioTool('circle')"><i data-lucide="circle"></i></button>
+        <button class="tool-btn" id="st-tool-fill" onclick="setStudioTool('fill')"><i data-lucide="paint-bucket"></i></button>
+        <button class="tool-btn" id="st-tool-text" onclick="setStudioTool('text')"><i data-lucide="type"></i></button>
+        <button class="tool-btn" id="st-tool-grid" onclick="stampStudioTablePrompt()"><i data-lucide="table"></i></button>
 
-        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        <div style="width: 1px; height: 18px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <div class="color-picker-wrapper" title="Studio Colour Picker">
+        <div class="color-picker-wrapper" title="Palette Selection">
           <input type="color" id="studio-color-picker" value="#04142d" onchange="studioCurrentColor = this.value;">
         </div>
 
-        <button class="btn-secondary btn-action-mini" style="margin-left: auto;" onclick="clearStudioCanvas()">Wipe Canvas</button>
+        <button class="btn-secondary btn-action-mini" style="margin-left: auto;" onclick="clearStudioCanvas()">
+          <i data-lucide="trash-2"></i> Clear
+        </button>
       </div>
 
       <div class="studio-canvas-wrap">
@@ -1375,20 +1704,34 @@
   <div class="spotlight-modal" id="t-spotlight-modal" onclick="if(event.target === this) closeSpotlightModal()">
     <div class="spotlight-content">
       <div class="spotlight-header">
-        <h3 id="spotlight-title" style="margin: 0; color: var(--ga-gold);">Spotlight: Student</h3>
+        <h3 id="spotlight-title" style="margin: 0; color: var(--ga-gold);">Spotlight View</h3>
         <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeSpotlightModal()">✕</button>
       </div>
       <div class="spotlight-body">
         <img id="spotlight-img" src="" alt="Enlarged Whiteboard">
       </div>
       <div class="spotlight-footer">
-        <button class="btn-gold btn-action-mini" onclick="openMarkupFromSpotlight()">✏️ Markup</button>
-        <button class="btn-gold btn-action-mini" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">📢 Exhibit to Class</button>
-        <button class="btn-secondary btn-action-mini" id="spotlight-lock-btn" onclick="toggleLockFromSpotlight()">🔒 Lock</button>
-        <button class="btn-secondary btn-action-mini" onclick="clearMarkupFromSpotlight()">🧹 Clr Markup</button>
-        <button class="btn-secondary btn-action-mini" onclick="renameFromSpotlight()">Rename</button>
-        <button class="btn-secondary btn-action-mini" onclick="wipeFromSpotlight()">🧹 Wipe</button>
-        <button class="btn-danger btn-action-mini" onclick="kickFromSpotlight()">Kick</button>
+        <button class="btn-gold btn-action-mini" onclick="openMarkupFromSpotlight()">
+          <i data-lucide="pen-tool"></i> Markup
+        </button>
+        <button class="btn-gold btn-action-mini" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">
+          <i data-lucide="presentation"></i> Exhibit
+        </button>
+        <button class="btn-secondary btn-action-mini" id="spotlight-lock-btn" onclick="toggleLockFromSpotlight()">
+          <i data-lucide="lock"></i> Lock
+        </button>
+        <button class="btn-secondary btn-action-mini" onclick="clearMarkupFromSpotlight()">
+          <i data-lucide="eraser"></i> Clear Markup
+        </button>
+        <button class="btn-secondary btn-action-mini" onclick="renameFromSpotlight()">
+          <i data-lucide="edit-3"></i> Rename
+        </button>
+        <button class="btn-secondary btn-action-mini" onclick="wipeFromSpotlight()">
+          <i data-lucide="trash-2"></i> Wipe
+        </button>
+        <button class="btn-danger btn-action-mini" onclick="kickFromSpotlight()">
+          <i data-lucide="user-x"></i> Remove
+        </button>
         <button class="btn-secondary btn-action-mini" onclick="closeSpotlightModal()">Close</button>
       </div>
     </div>
@@ -1440,7 +1783,6 @@
     let markupTool = 'pen';
     let selectedStamp = null;
 
-    // Cache holding active markups for composite preview
     const teacherMarkupCache = new Map();
 
     function generateInstanceClientId() {
@@ -1460,7 +1802,7 @@
       if (activeTimerEndEpoch > 0) {
         if (now < activeTimerEndEpoch) {
           const remaining = Math.ceil((activeTimerEndEpoch - now) / 1000);
-          const formatted = `⏱ ${formatTime(remaining)}`;
+          const formatted = formatTime(remaining);
           if (sPill) { sPill.style.display = 'inline-block'; sPill.innerText = formatted; }
           if (tPill) { tPill.style.display = 'inline-block'; tPill.innerText = formatted; }
           if (sHingePill) sHingePill.innerText = formatted;
@@ -1470,8 +1812,8 @@
           activeTimerEndEpoch = 0;
           if (sPill) sPill.style.display = 'none';
           if (tPill) tPill.style.display = 'none';
-          if (sHingePill) sHingePill.innerText = '⏱ 00:00 (Time Expired - Locked)';
-          if (sPeerPill) sPeerPill.innerText = '⏱ 00:00 (Review Closed)';
+          if (sHingePill) sHingePill.innerText = '00:00 (Locked)';
+          if (sPeerPill) sPeerPill.innerText = '00:00 (Concluded)';
           setStudentHingeLocked(true);
           updateStudentLockState(true);
         }
@@ -1513,16 +1855,17 @@
         basicTab.classList.remove('active');
         advTools.style.display = 'flex';
       }
+      refreshIcons();
     }
 
-    // --- STUDENT LOGIC ---
+    // --- STUDENT ENGINE ---
     function joinAsStudent() {
       const room = document.getElementById('join-room').value.trim().replace(/[^a-zA-Z0-9]/g, '');
       const rawSeat = document.getElementById('join-seat').value.trim();
       const seat = rawSeat.replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
 
       if (!room || !seat) {
-        return alert("Please enter both the Room Number and your Name.");
+        return alert("Please enter both the Room Code and your Identifier.");
       }
 
       activeRoom = room;
@@ -1540,6 +1883,7 @@
 
       connectStudentFirebase();
       window.addEventListener('resize', resizeCanvasPreserve);
+      refreshIcons();
     }
 
     function connectStudentFirebase() {
@@ -1576,7 +1920,6 @@
         });
       });
 
-      // Controls sync
       roomRef.child('controls').on('value', (snapshot) => {
         const ctrl = snapshot.val() || {};
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
@@ -1648,7 +1991,7 @@
         const assignment = snapshot.val();
         currentPeerAssignment = assignment;
         if (assignment) {
-          document.getElementById('s-peer-partner-tag').innerText = `Reviewing: ${assignment.peerName}`;
+          document.getElementById('s-peer-partner-tag').innerText = `Critiquing: ${assignment.peerName}`;
           document.getElementById('s-peer-board-img').src = assignment.peerImage || '';
         }
       });
@@ -1711,7 +2054,7 @@
         currentLeaderboard = snapshot.val() || {};
         const myData = currentLeaderboard[studentClientId];
         const score = (myData && myData.score) ? myData.score : 0;
-        document.getElementById('s-points-pill').innerText = `🏆 ${score} pts`;
+        document.getElementById('s-points-pill').innerText = `${score} pts`;
         if (document.getElementById('s-leaderboard-overlay').style.display === 'flex') {
           renderStudentBroadcastLeaderboard();
         }
@@ -1732,15 +2075,15 @@
         }
 
         if (data.kicked) {
-          alert("You have been removed from this room by the teacher.");
+          alert("Session disconnected by teacher.");
           location.reload();
         }
 
         if (data.individualLock) {
-          document.getElementById('s-lock-msg').innerText = "Your whiteboard has been paused individually by the teacher.";
+          document.getElementById('s-lock-msg').innerText = "Board paused individually by teacher.";
           updateStudentLockState(true);
         } else if (!teacherLockFlag && activeTimerEndEpoch === 0) {
-          document.getElementById('s-lock-msg').innerText = "Teacher paused input for class discussion.";
+          document.getElementById('s-lock-msg').innerText = "Input paused for teacher instruction.";
           updateStudentLockState(false);
         }
       });
@@ -1770,7 +2113,7 @@
         return alert("No peer assigned.");
       }
       const comment = document.getElementById('s-peer-feedback-input').value.trim();
-      if (!comment) return alert("Please write a comment before sending.");
+      if (!comment) return alert("Please enter feedback before submitting.");
 
       await roomRef.child(`peerReview/feedback/${currentPeerAssignment.peerClientId}`).set({
         fromSeat: studentSeat,
@@ -1779,7 +2122,7 @@
       });
 
       await roomRef.child(`peerReview/submitted/${studentClientId}`).set(true);
-      alert("Feedback submitted to your classmate!");
+      alert("Feedback transmitted to classmate.");
     }
 
     function selectHingeAnswer(choice, shouldWrite = true) {
@@ -1806,7 +2149,7 @@
 
       const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
       if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.9rem; font-style: italic;">No scores recorded yet.</span>`;
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet.</span>`;
         return;
       }
 
@@ -1814,7 +2157,7 @@
       entries.forEach((e, idx) => {
         const row = document.createElement('div');
         row.className = `leaderboard-row ${idx === 0 ? 'rank-1' : idx === 1 ? 'rank-2' : idx === 2 ? 'rank-3' : ''}`;
-        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+        const badge = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `#${idx + 1}`;
         const isMe = e.clientId === studentClientId;
 
         row.innerHTML = `
@@ -1861,7 +2204,7 @@
       const text = document.getElementById('s-text-input').value.trim();
       if (text) {
         saveStudentHistoryState();
-        ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+        ctx.font = "bold 60px 'Plus Jakarta Sans', sans-serif";
         ctx.fillStyle = currentColor;
         ctx.fillText(text, pendingTextCoords.x, pendingTextCoords.y);
         queueAutoSync();
@@ -1871,7 +2214,6 @@
 
     function queueAutoSync() {
       if (isBoardLocked || !canvasRef) return;
-
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(sendBoardPayload, 600);
     }
@@ -1951,7 +2293,7 @@
       }
     }
 
-    // --- TEACHER LOGIC ---
+    // --- TEACHER ENGINE ---
     const teacherRoster = new Map();
     const teacherCanvasCache = new Map();
     let currentHingeResponses = {};
@@ -1961,6 +2303,7 @@
       const existingRoom = document.getElementById('join-room').value.trim();
       if (existingRoom) document.getElementById('teacher-target-room').value = existingRoom;
       document.getElementById('teacher-pin').focus();
+      refreshIcons();
     }
 
     function closeTeacherLogin() {
@@ -1973,27 +2316,27 @@
       const enteredPin = document.getElementById('teacher-pin').value.trim();
       const unlockBtn = document.getElementById('unlock-btn');
 
-      if (!room) return alert("Please enter the Room Number.");
+      if (!room) return alert("Please enter the Room Code.");
       if (!enteredPin) return alert("Please enter the PIN.");
 
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "Checking...";
+      unlockBtn.innerText = "Verifying...";
 
       try {
         const snap = await db.ref('admin/pin').once('value');
         const validPin = snap.val();
 
         if (validPin === null || validPin === undefined) {
-          alert("Admin PIN is not configured in Firebase under 'admin/pin'.");
+          alert("Admin PIN unconfigured in database.");
           unlockBtn.disabled = false;
-          unlockBtn.innerText = "Unlock";
+          unlockBtn.innerText = "Authenticate";
           return;
         }
 
         if (String(enteredPin) !== String(validPin).trim()) {
-          alert("Incorrect PIN.");
+          alert("Incorrect security PIN.");
           unlockBtn.disabled = false;
-          unlockBtn.innerText = "Unlock";
+          unlockBtn.innerText = "Authenticate";
           return;
         }
 
@@ -2007,11 +2350,12 @@
         document.getElementById('t-room-tag').innerText = `Room: ${activeRoom}`;
 
         connectTeacherFirebase();
+        refreshIcons();
       } catch (err) {
-        alert("Authentication error. Check network connection or Firebase permissions.");
+        alert("Authentication network error.");
       } finally {
         unlockBtn.disabled = false;
-        unlockBtn.innerText = "Unlock";
+        unlockBtn.innerText = "Authenticate";
       }
     }
 
@@ -2027,7 +2371,6 @@
         updateRosterUI();
         reorderTeacherGrid();
 
-        // Canvas sync
         roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
           const cData = canvasSnap.val();
           const img = cData ? cData.image : null;
@@ -2035,7 +2378,6 @@
           recompositeTeacherCardImage(student.clientId);
         });
 
-        // Markup sync
         roomRef.child(`markup/${student.clientId}`).on('value', (markupSnap) => {
           const mData = markupSnap.val();
           const img = mData ? mData.image : null;
@@ -2086,16 +2428,12 @@
         activeTimerEndEpoch = Number(ctrl.timerEnd) || 0;
 
         const stopBtn = document.getElementById('end-showcase-btn');
-        if (ctrl.showcaseImage) {
-          stopBtn.style.display = 'inline-block';
-        } else {
-          stopBtn.style.display = 'none';
-        }
+        stopBtn.style.display = ctrl.showcaseImage ? 'inline-flex' : 'none';
 
         const stopPeerBtn = document.getElementById('end-peer-btn');
         const peerPanel = document.getElementById('t-peer-status-panel');
         if (ctrl.peerReviewActive) {
-          stopPeerBtn.style.display = 'inline-block';
+          stopPeerBtn.style.display = 'inline-flex';
           peerPanel.style.display = 'block';
         } else {
           stopPeerBtn.style.display = 'none';
@@ -2106,20 +2444,17 @@
         const bcastBtn = document.getElementById('broadcast-lb-btn');
         if (bcastBtn) {
           if (isBroadcastingLeaderboard) {
-            bcastBtn.innerText = "🛑 Stop Broadcasting";
+            bcastBtn.innerHTML = `<i data-lucide="radio-tower"></i> Stop Broadcast`;
             bcastBtn.className = "btn-danger btn-action-mini";
           } else {
-            bcastBtn.innerText = "📢 Broadcast to Class";
+            bcastBtn.innerHTML = `<i data-lucide="radio"></i> Broadcast to Class`;
             bcastBtn.className = "btn-gold btn-action-mini";
           }
+          refreshIcons();
         }
 
         const clearTplBtn = document.getElementById('t-clear-tpl-btn');
-        if (ctrl.templateData) {
-          clearTplBtn.style.display = 'inline-block';
-        } else {
-          clearTplBtn.style.display = 'none';
-        }
+        clearTplBtn.style.display = ctrl.templateData ? 'inline-flex' : 'none';
 
         tickClocksLocally();
       });
@@ -2135,11 +2470,11 @@
         teacherRoster.forEach(s => {
           const isDone = Boolean(submitted[s.clientId]);
           const badge = document.createElement('span');
-          badge.style.padding = '2px 6px';
+          badge.style.padding = '3px 8px';
           badge.style.borderRadius = '4px';
-          badge.style.background = isDone ? '#166534' : 'var(--ga-navy-input)';
-          badge.style.color = isDone ? '#4ade80' : 'var(--ga-text-muted)';
-          badge.innerText = `${s.seat}: ${isDone ? '✓ Done' : 'Writing...'}`;
+          badge.style.background = isDone ? '#064e3b' : 'var(--ga-navy-input)';
+          badge.style.color = isDone ? '#34d399' : 'var(--ga-text-muted)';
+          badge.innerText = `${s.seat}: ${isDone ? 'Completed' : 'Drafting'}`;
           rosterWrap.appendChild(badge);
         });
       });
@@ -2149,7 +2484,7 @@
         const panel = document.getElementById('t-hinge-stats-panel');
         if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') {
           panel.style.display = 'block';
-          document.getElementById('t-hinge-qdisplay').innerText = currentHingeConfig.prompt ? `Q: "${currentHingeConfig.prompt}"` : 'Question active (verbal/screen)';
+          document.getElementById('t-hinge-qdisplay').innerText = currentHingeConfig.prompt ? `Question: "${currentHingeConfig.prompt}"` : 'Question active';
         } else {
           panel.style.display = 'none';
         }
@@ -2177,10 +2512,7 @@
     }
 
     function getDisplayName(student, index) {
-      if (isAnonymised) {
-        return `Student ${index + 1}`;
-      }
-      return student.seat;
+      return isAnonymised ? `Student ${index + 1}` : student.seat;
     }
 
     function upsertStudentCard(student) {
@@ -2192,27 +2524,37 @@
         card.id = `card_${student.clientId}`;
         card.className = 'board-card';
         card.innerHTML = `
-          <div class="board-placeholder" id="ph_${student.clientId}" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">Waiting for student to draw...</div>
+          <div class="board-placeholder" id="ph_${student.clientId}" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">Waiting for student activity...</div>
           <img id="img_${student.clientId}" style="display: none;" alt="Board" onclick="openSpotlightModal('${escapeHTML(student.clientId)}')">
           <div class="board-meta">
             <span class="seat-tag" id="tag_${student.clientId}"></span>
             <div class="meta-actions">
-              <button class="btn-action-mini btn-gold" onclick="openMarkupModal('${escapeHTML(student.clientId)}')">✏️ Markup</button>
-              <button class="btn-action-mini btn-secondary" id="clr_m_btn_${student.clientId}" onclick="clearSingleStudentMarkup('${escapeHTML(student.clientId)}')" style="display: none;">🧹 Clr Markup</button>
-              <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">Exhibit</button>
-              <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">🔒 Lock</button>
+              <button class="btn-action-mini btn-gold" onclick="openMarkupModal('${escapeHTML(student.clientId)}')">
+                <i data-lucide="pen-tool"></i> Markup
+              </button>
+              <button class="btn-action-mini btn-secondary" id="clr_m_btn_${student.clientId}" onclick="clearSingleStudentMarkup('${escapeHTML(student.clientId)}')" style="display: none;">
+                <i data-lucide="eraser"></i> Clear
+              </button>
+              <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">
+                <i data-lucide="presentation"></i> Exhibit
+              </button>
+              <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">
+                <i data-lucide="lock"></i> Lock
+              </button>
               <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
               <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(student.clientId)}')">Wipe</button>
-              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">Kick</button>
+              <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">
+                <i data-lucide="user-x"></i>
+              </button>
             </div>
           </div>
         `;
         grid.appendChild(card);
+        refreshIcons();
       }
       updateCardMeta(student);
     }
 
-    // Composite Student Drawing + Teacher Markup onto a temporary canvas for Preview
     function recompositeTeacherCardImage(clientId, isSpotlight = false) {
       const baseImg = teacherCanvasCache.get(clientId);
       const markupImg = teacherMarkupCache.get(clientId);
@@ -2270,7 +2612,7 @@
     function updateCardMarkupBtnState(clientId, hasMarkup) {
       const btn = document.getElementById(`clr_m_btn_${clientId}`);
       if (btn) {
-        btn.style.display = hasMarkup ? 'inline-block' : 'none';
+        btn.style.display = hasMarkup ? 'inline-flex' : 'none';
       }
     }
 
@@ -2285,12 +2627,13 @@
       const lockBtn = document.getElementById(`lock_btn_${student.clientId}`);
       if (lockBtn) {
         if (student.individualLock) {
-          lockBtn.innerText = "🔓 Unlock";
+          lockBtn.innerHTML = `<i data-lucide="unlock"></i> Unlock`;
           lockBtn.className = "btn-action-mini btn-gold";
         } else {
-          lockBtn.innerText = "🔒 Lock";
+          lockBtn.innerHTML = `<i data-lucide="lock"></i> Lock`;
           lockBtn.className = "btn-action-mini btn-secondary";
         }
+        refreshIcons();
       }
     }
 
@@ -2301,7 +2644,7 @@
 
     function updateRosterUI() {
       const students = Array.from(teacherRoster.values());
-      document.getElementById('sub-counter').innerText = `Currently Connected: ${students.length}`;
+      document.getElementById('sub-counter').innerText = `Active Students: ${students.length}`;
       document.getElementById('roster-count').innerText = `${students.length} connected`;
 
       const rosterEl = document.getElementById('roster-tags');
@@ -2341,14 +2684,15 @@
       const btn = document.getElementById('sort-toggle-btn');
       if (sortMode === 'JOINED') {
         sortMode = 'ALPHA';
-        btn.innerText = "🔤 Sort: A-Z / Seat";
+        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: A-Z / Seat`;
         btn.className = "btn-gold";
       } else {
         sortMode = 'JOINED';
-        btn.innerText = "🔤 Sort: Order Joined";
+        btn.innerHTML = `<i data-lucide="arrow-down-a-z"></i> Sort: Order Joined`;
         btn.className = "btn-secondary";
       }
       reorderTeacherGrid();
+      refreshIcons();
     }
 
     function reorderTeacherGrid() {
@@ -2394,10 +2738,10 @@
       const btn = document.getElementById('anon-toggle-btn');
 
       if (isAnonymised) {
-        btn.innerText = "🕶️ Reveal Names";
+        btn.innerHTML = `<i data-lucide="eye"></i> Reveal Names`;
         btn.className = "btn-gold";
       } else {
-        btn.innerText = "👁️ Anonymise Names";
+        btn.innerHTML = `<i data-lucide="eye-off"></i> Anonymise`;
         btn.className = "btn-secondary";
       }
 
@@ -2412,16 +2756,17 @@
           document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
         }
       }
+      refreshIcons();
     }
 
-    // --- MARKUP MANAGEMENT & ATOMIC CLEARING ---
+    // --- STREAMLINED CHIPS ENGINE ---
     const defaultStamps = [
-      { id: 'st_wd', text: 'Well Done!', emoji: '🌟', color: '#16a34a' },
-      { id: 'st_gw', text: 'Great Work!', emoji: '👍', color: '#10b981' },
-      { id: 'st_cw', text: 'Check Your Work!', emoji: '🎯', color: '#df9b35' },
-      { id: 'st_ta', text: 'Try Again!', emoji: '🔄', color: '#ef4444' },
-      { id: 'st_rq', text: 'Re-read Question', emoji: '💡', color: '#3b82f6' },
-      { id: 'st_er', text: 'Error Found', emoji: '❌', color: '#dc2626' }
+      { id: 'st_wd', text: 'Well Done', icon: 'check-circle-2', color: '#10b981' },
+      { id: 'st_gw', text: 'Great Work', icon: 'thumbs-up', color: '#10b981' },
+      { id: 'st_cw', text: 'Check Work', icon: 'help-circle', color: '#df9b35' },
+      { id: 'st_ta', text: 'Try Again', icon: 'rotate-ccw', color: '#f43f5e' },
+      { id: 'st_rq', text: 'Re-read Prompt', icon: 'book-open', color: '#3b82f6' },
+      { id: 'st_er', text: 'Error Found', icon: 'x-circle', color: '#be123c' }
     ];
 
     function getCustomStamps() {
@@ -2433,9 +2778,9 @@
       }
     }
 
-    function saveCustomStamp(text, emoji, color) {
+    function saveCustomStamp(text, icon, color) {
       const custom = getCustomStamps();
-      custom.push({ id: 'cst_' + Date.now(), text, emoji, color });
+      custom.push({ id: 'cst_' + Date.now(), text, icon: icon || 'tag', color });
       localStorage.setItem('ga_custom_stamps', JSON.stringify(custom));
       renderMarkupStampsToolbar();
     }
@@ -2449,10 +2794,11 @@
         const pill = document.createElement('div');
         pill.className = `stamp-pill ${selectedStamp && selectedStamp.id === st.id ? 'active' : ''}`;
         pill.style.borderColor = st.color;
-        pill.innerHTML = `<span>${st.emoji}</span><span>${escapeHTML(st.text)}</span>`;
+        pill.innerHTML = `<i data-lucide="${st.icon || 'tag'}" style="width:13px; height:13px;"></i><span>${escapeHTML(st.text)}</span>`;
         pill.onclick = () => selectMarkupStamp(st);
         bar.appendChild(pill);
       });
+      refreshIcons();
     }
 
     function selectMarkupStamp(st) {
@@ -2462,22 +2808,21 @@
     }
 
     function openCreateStampPrompt() {
-      const text = prompt("Stamp message (e.g. 'Check calculation'):", "");
+      const text = prompt("Feedback chip label (e.g. 'Missing Semi-colon'):", "");
       if (!text || !text.trim()) return;
-      const emoji = prompt("Stamp icon/emoji (e.g. ⭐, ⚠️, ❌):", "⭐") || "⭐";
-      const color = prompt("Border color hex (e.g. #ef4444):", "#df9b35") || "#df9b35";
-      saveCustomStamp(text.trim(), emoji.trim(), color.trim());
+      const color = prompt("Border highlight color (e.g. #df9b35, #10b981):", "#df9b35") || "#df9b35";
+      saveCustomStamp(text.trim(), 'message-square', color.trim());
     }
 
     function exportStampLibrary() {
       const custom = getCustomStamps();
-      if (custom.length === 0) return alert("No custom stamps to export yet.");
+      if (custom.length === 0) return alert("No custom feedback chips to export.");
       const exportData = { type: "GA_STAMP_LIBRARY", stamps: custom };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `whiteboard-stamps-${Date.now()}.json`;
+      a.download = `whiteboard-feedback-chips-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -2497,10 +2842,10 @@
             });
             localStorage.setItem('ga_custom_stamps', JSON.stringify(current));
             renderMarkupStampsToolbar();
-            alert(`Imported ${parsed.stamps.length} stamps successfully!`);
+            alert(`Imported ${parsed.stamps.length} feedback chips.`);
           }
         } catch (err) {
-          alert("Invalid stamp file.");
+          alert("Invalid chip format.");
         }
       };
       reader.readAsText(file);
@@ -2518,7 +2863,7 @@
 
       activeMarkupClientId = clientId;
       const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-      document.getElementById('markup-title').innerText = `Red-Pen Intervention: ${getDisplayName(s, idx)}`;
+      document.getElementById('markup-title').innerText = `Live Intervention: ${getDisplayName(s, idx)}`;
 
       const underlay = document.getElementById('markup-underlay-img');
       const imgData = teacherCanvasCache.get(clientId);
@@ -2538,6 +2883,7 @@
       setMarkupTool('pen');
 
       roomRef.child('controls').update({ requestHighRes: clientId });
+      refreshIcons();
     }
 
     function closeMarkupModal() {
@@ -2580,11 +2926,11 @@
       mctx.moveTo(coords.x, coords.y);
       if (markupTool === 'eraser') {
         mctx.globalCompositeOperation = 'destination-out';
-        mctx.lineWidth = 26;
+        mctx.lineWidth = 24;
       } else {
         mctx.globalCompositeOperation = 'source-over';
-        mctx.strokeStyle = '#ef4444';
-        mctx.lineWidth = 4;
+        mctx.strokeStyle = '#f43f5e';
+        mctx.lineWidth = 3.5;
         mctx.lineCap = 'round';
         mctx.lineJoin = 'round';
       }
@@ -2608,25 +2954,25 @@
     function stampBadgeOnMarkupCanvas(x, y, stamp) {
       mctx.save();
       mctx.globalCompositeOperation = 'source-over';
-      const text = `${stamp.emoji} ${stamp.text}`;
-      mctx.font = "bold 20px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      const text = stamp.text;
+      mctx.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
       const tw = mctx.measureText(text).width;
-      const ph = 36;
-      const pw = tw + 24;
+      const ph = 32;
+      const pw = tw + 28;
 
-      mctx.fillStyle = '#04142d';
+      mctx.fillStyle = '#031024';
       mctx.strokeStyle = stamp.color || '#df9b35';
-      mctx.lineWidth = 2.5;
+      mctx.lineWidth = 1.8;
       
       const rx = x - pw / 2;
       const ry = y - ph / 2;
       mctx.beginPath();
-      mctx.roundRect(rx, ry, pw, ph, 8);
+      mctx.roundRect(rx, ry, pw, ph, 6);
       mctx.fill();
       mctx.stroke();
 
       mctx.fillStyle = '#ffffff';
-      mctx.fillText(text, rx + 12, ry + 25);
+      mctx.fillText(text, rx + 14, ry + 21);
       mctx.restore();
     }
 
@@ -2658,7 +3004,7 @@
     }
 
     async function clearAllRoomMarkups() {
-      if (confirm("Clear all teacher red-pen annotations and stamps from all whiteboards? (Student drawings will stay intact)")) {
+      if (confirm("Remove all teacher annotations from student boards?")) {
         teacherMarkupCache.clear();
         teacherRoster.forEach(s => {
           updateCardMarkupBtnState(s.clientId, false);
@@ -2688,6 +3034,7 @@
     function openLeaderboardModal() {
       renderLeaderboardUI();
       document.getElementById('leaderboard-modal').classList.add('active');
+      refreshIcons();
     }
 
     function closeLeaderboardModal() {
@@ -2701,7 +3048,7 @@
       const entries = Object.values(currentLeaderboard).sort((a, b) => b.score - a.score);
 
       if (entries.length === 0) {
-        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded yet this session.</span>`;
+        list.innerHTML = `<span style="color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic;">No scores recorded in this session.</span>`;
         return;
       }
 
@@ -2713,8 +3060,7 @@
         const s = teacherRoster.get(e.clientId);
         const rIdx = Array.from(teacherRoster.keys()).indexOf(e.clientId);
         const name = s ? getDisplayName(s, rIdx) : (e.seat || 'Student');
-
-        const badge = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+        const badge = idx === 0 ? '1st' : idx === 1 ? '2nd' : idx === 2 ? '3rd' : `#${idx + 1}`;
 
         row.innerHTML = `
           <span><strong>${badge}</strong> &nbsp; ${escapeHTML(name)}</span>
@@ -2732,7 +3078,7 @@
     }
 
     async function resetLeaderboard() {
-      if (confirm("Reset all student scores to 0 for this session?")) {
+      if (confirm("Reset class session scores to zero?")) {
         await roomRef.child('leaderboard').remove();
         if (isBroadcastingLeaderboard) {
           toggleBroadcastLeaderboard();
@@ -2740,7 +3086,7 @@
       }
     }
 
-    // --- SPOTLIGHT FULLSCREEN MODAL HELPERS ---
+    // --- SPOTLIGHT CONTROLS ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -2754,6 +3100,7 @@
       updateSpotlightLockBtnUI(Boolean(s.individualLock));
       document.getElementById('t-spotlight-modal').style.display = 'flex';
       roomRef.child('controls').update({ requestHighRes: clientId });
+      refreshIcons();
     }
 
     function closeSpotlightModal() {
@@ -2768,12 +3115,13 @@
       const btn = document.getElementById('spotlight-lock-btn');
       if (btn) {
         if (isLocked) {
-          btn.innerText = "🔓 Unlock";
+          btn.innerHTML = `<i data-lucide="unlock"></i> Unlock`;
           btn.className = "btn-gold btn-action-mini";
         } else {
-          btn.innerText = "🔒 Lock";
+          btn.innerHTML = `<i data-lucide="lock"></i> Lock`;
           btn.className = "btn-secondary btn-action-mini";
         }
+        refreshIcons();
       }
     }
 
@@ -2831,12 +3179,12 @@
         const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
 
         if (!bestImage) {
-          return alert("This whiteboard has no drawings to exhibit yet.");
+          return alert("Student board is currently empty.");
         }
 
         const s = teacherRoster.get(clientId);
         const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-        const caption = `Featured: ${getDisplayName(s, idx)}`;
+        const caption = `Exhibited Work: ${getDisplayName(s, idx)}`;
 
         roomRef.child('controls').update({
           showcaseImage: bestImage,
@@ -2870,7 +3218,7 @@
 
     function startTimer() {
       const secs = parseInt(document.getElementById('timer-seconds').value, 10);
-      if (isNaN(secs) || secs <= 0) return alert("Specify valid seconds.");
+      if (isNaN(secs) || secs <= 0) return alert("Specify valid duration.");
 
       teacherLockFlag = false;
       updateLockBtnUI(false);
@@ -2888,16 +3236,17 @@
     function updateLockBtnUI(locked) {
       const btn = document.getElementById('lock-toggle-btn');
       if (locked) {
-        btn.innerText = "🔓 Unlock All Boards";
+        btn.innerHTML = `<i data-lucide="unlock"></i> Unlock Boards`;
         btn.className = "btn-secondary";
       } else {
-        btn.innerText = "🔒 Lock All Boards";
+        btn.innerHTML = `<i data-lucide="lock"></i> Lock Boards`;
         btn.className = "btn-gold";
       }
+      refreshIcons();
     }
 
     function wipeAllStudentBoards() {
-      if (confirm("Wipe all student whiteboards clean? (Active template will remain intact)")) {
+      if (confirm("Wipe all student boards clean? (Active templates will remain intact)")) {
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
         roomRef.child('controls').update({
@@ -2917,7 +3266,7 @@
     function kickStudent(clientId) {
       const s = teacherRoster.get(clientId);
       const name = s ? s.seat : "Student";
-      if (confirm(`Remove ${name} from the session?`)) {
+      if (confirm(`Remove ${name} from the active session?`)) {
         roomRef.child(`students/${clientId}`).update({ kicked: true });
         roomRef.child(`canvases/${clientId}`).remove();
         roomRef.child(`highResCanvases/${clientId}`).remove();
@@ -2941,7 +3290,7 @@
     }
 
     function clearTeacherRoom() {
-      if (confirm("Reset the entire room and remove all student sessions?")) {
+      if (confirm("Reset active room state and disconnect all sessions?")) {
         roomRef.child('students').remove();
         roomRef.child('canvases').remove();
         roomRef.child('highResCanvases').remove();
@@ -2969,6 +3318,7 @@
     // --- PEER REVIEW ENGINE ---
     function openPeerReviewModal() {
       document.getElementById('peer-review-modal').style.display = 'flex';
+      refreshIcons();
     }
 
     function closePeerReviewModal() {
@@ -3026,7 +3376,7 @@
     }
 
     async function endPeerReviewSession() {
-      if (confirm("Conclude Peer Review and restore drawing boards?")) {
+      if (confirm("Conclude evaluation mode and return to individual whiteboards?")) {
         await roomRef.child('controls').update({
           peerReviewActive: false,
           timerEnd: 0
@@ -3034,7 +3384,7 @@
       }
     }
 
-    // --- TEMPLATE LIBRARY, IMPORT & EXPORT ENGINE ---
+    // --- TEMPLATES ---
     const defaultTemplates = [
       { id: 'trace_table', title: 'Trace Table', dataUri: generateTraceTableDataUri() },
       { id: 'coord_grid', title: 'Coordinate Grid', dataUri: generateGridDataUri() },
@@ -3058,7 +3408,7 @@
 
     function deleteCustomTemplate(id, e) {
       e.stopPropagation();
-      if (confirm("Delete this saved template?")) {
+      if (confirm("Delete template entry?")) {
         let current = getSavedTemplates();
         current = current.filter(t => t.id !== id);
         localStorage.setItem('ga_saved_templates', JSON.stringify(current));
@@ -3089,9 +3439,7 @@
 
     function exportTemplateLibrary() {
       const custom = getSavedTemplates();
-      if (custom.length === 0) {
-        return alert("You don't have any custom saved templates to export yet.");
-      }
+      if (custom.length === 0) return alert("No custom templates available to export.");
 
       const exportData = {
         type: "GA_WHITEBOARD_LIBRARY",
@@ -3134,14 +3482,14 @@
               addedCount++;
             });
           } else {
-            return alert("Invalid template file format.");
+            return alert("Unrecognized format.");
           }
 
           localStorage.setItem('ga_saved_templates', JSON.stringify(current));
           renderTemplateLibraryGrid();
-          alert(`Successfully imported ${addedCount} template(s)!`);
+          alert(`Successfully imported ${addedCount} template(s).`);
         } catch (err) {
-          alert("Could not read template file. Please make sure it is a valid .json template.");
+          alert("Invalid template JSON.");
         }
       };
       reader.readAsText(file);
@@ -3151,6 +3499,7 @@
     function openTemplateModal() {
       renderTemplateLibraryGrid();
       document.getElementById('template-modal').style.display = 'flex';
+      refreshIcons();
     }
 
     function closeTemplateModal() {
@@ -3171,8 +3520,10 @@
         const isCustom = t.id.startsWith('custom_');
         const actionBtns = `
           <div class="template-card-actions">
-            <button class="template-card-btn" title="Download Template File" onclick="downloadSingleTemplate('${t.id}', event)">💾</button>
-            ${isCustom ? `<button class="template-card-btn del" title="Delete Template" onclick="deleteCustomTemplate('${t.id}', event)">✕</button>` : ''}
+            <button class="template-card-btn" title="Download" onclick="downloadSingleTemplate('${t.id}', event)">
+              <i data-lucide="download" style="width:10px;height:10px;"></i>
+            </button>
+            ${isCustom ? `<button class="template-card-btn del" title="Delete" onclick="deleteCustomTemplate('${t.id}', event)">✕</button>` : ''}
           </div>
         `;
 
@@ -3183,6 +3534,7 @@
         `;
         grid.appendChild(card);
       });
+      refreshIcons();
     }
 
     function selectTemplate(id) {
@@ -3235,7 +3587,7 @@
     async function pushSelectedTemplate() {
       const all = [...defaultTemplates, ...getSavedTemplates()];
       const tpl = all.find(t => t.id === selectedTemplateId);
-      if (!tpl) return alert("Please select a template.");
+      if (!tpl) return alert("Select a template.");
 
       const position = document.getElementById('tpl-position-select').value;
       closeTemplateModal();
@@ -3247,11 +3599,10 @@
           timestamp: Date.now()
         }
       });
-      alert(`Pushed "${tpl.title}" to all students!`);
     }
 
     async function clearActiveTemplate() {
-      if (confirm("Remove the active background template from all whiteboards?")) {
+      if (confirm("Clear active template across all student whiteboards?")) {
         await roomRef.child('controls').update({ templateData: null });
       }
     }
@@ -3272,10 +3623,10 @@
         x.moveTo(10, r); x.lineTo(590, r);
       }
       x.stroke();
-      x.fillStyle = '#04142d'; x.font = 'bold 18px sans-serif';
-      x.fillText('Line #', 35, 42);
-      x.fillText('Var A', 175, 42);
-      x.fillText('Var B', 305, 42);
+      x.fillStyle = '#04142d'; x.font = "bold 16px 'Plus Jakarta Sans', sans-serif";
+      x.fillText('Step / Line', 35, 42);
+      x.fillText('Variable A', 165, 42);
+      x.fillText('Variable B', 295, 42);
       x.fillText('Output', 455, 42);
       return c.toDataURL('image/jpeg', 0.8);
     }
@@ -3314,9 +3665,9 @@
       x.beginPath();
       x.moveTo(440, 40); x.lineTo(520, 80); x.lineTo(440, 120); x.lineTo(360, 80); x.closePath();
       x.stroke();
-      x.fillStyle = '#04142d'; x.font = 'bold 16px sans-serif';
-      x.fillText('Process', 110, 86);
-      x.fillText('Decision?', 410, 86);
+      x.fillStyle = '#04142d'; x.font = "bold 15px 'Plus Jakarta Sans', sans-serif";
+      x.fillText('Instruction', 105, 86);
+      x.fillText('Condition', 410, 86);
       return c.toDataURL('image/jpeg', 0.8);
     }
 
@@ -3431,7 +3782,7 @@
       };
     }
 
-    // --- STUDENT CANVAS ENGINE WITH UNDO/REDO ---
+    // --- STUDENT CANVAS ENGINE ---
     const canvas = document.getElementById('board');
     const ctx = canvas.getContext('2d');
     let drawing = false;
@@ -3579,7 +3930,7 @@
           ctx.lineWidth = 26;
         } else {
           ctx.strokeStyle = currentColor;
-          ctx.lineWidth = 5;
+          ctx.lineWidth = 4.5;
         }
       }
     }
@@ -3597,7 +3948,7 @@
 
       ctx.putImageData(liveSnapshot, 0, 0);
       ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3.5;
 
       if (currentTool === 'line') {
         ctx.beginPath();
@@ -3662,7 +4013,7 @@
       }
     }
 
-    // --- TEACHER TEMPLATE STUDIO (WITH UNDO/REDO) ---
+    // --- STUDIO ENGINE ---
     const studioCanvas = document.getElementById('studio-canvas');
     const sctx = studioCanvas.getContext('2d');
     let studioTool = 'pen';
@@ -3698,6 +4049,7 @@
       closeTemplateModal();
       document.getElementById('studio-modal').style.display = 'flex';
       clearStudioCanvas();
+      refreshIcons();
     }
 
     function closeStudioModal() {
@@ -3744,10 +4096,10 @@
       }
 
       if (studioTool === 'text') {
-        const text = prompt("Enter text to stamp on template:");
+        const text = prompt("Annotation text:", "");
         if (text) {
           saveStudioHistoryState();
-          sctx.font = "bold 24px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+          sctx.font = "bold 20px 'Plus Jakarta Sans', sans-serif";
           sctx.fillStyle = studioCurrentColor;
           sctx.fillText(text, coords.x, coords.y);
         }
@@ -3804,8 +4156,8 @@
     }
 
     function stampStudioTablePrompt() {
-      const rows = parseInt(prompt("How many table rows? (e.g. 4)", "4"), 10);
-      const cols = parseInt(prompt("How many table columns? (e.g. 3)", "3"), 10);
+      const rows = parseInt(prompt("Table rows:", "4"), 10);
+      const cols = parseInt(prompt("Table columns:", "3"), 10);
       if (!rows || !cols || rows <= 0 || cols <= 0) return;
 
       saveStudioHistoryState();
@@ -3816,7 +4168,7 @@
       const rowH = h / rows;
 
       sctx.strokeStyle = studioCurrentColor;
-      sctx.lineWidth = 2.5;
+      sctx.lineWidth = 2;
       sctx.strokeRect(pad, pad, w, h);
 
       sctx.beginPath();
@@ -3836,17 +4188,17 @@
     studioCanvas.addEventListener('mouseup', stopStudioDraw);
 
     function saveStudioTemplate() {
-      const name = document.getElementById('studio-name-input').value.trim() || 'Custom Template';
+      const name = document.getElementById('studio-name-input').value.trim() || 'Template';
       const dataUri = studioCanvas.toDataURL('image/jpeg', 0.8);
       saveCustomTemplate(name, dataUri);
-      alert(`Template "${name}" saved to library!`);
       closeStudioModal();
     }
 
-    // --- HINGE QUESTION HANDLERS ---
+    // --- HINGE EVALUATION ---
     function openHingeModal() {
       document.getElementById('hinge-modal').style.display = 'flex';
       document.getElementById('hinge-prompt-input').focus();
+      refreshIcons();
     }
 
     function closeHingeModal() {
@@ -3863,7 +4215,7 @@
       } else {
         customBox.style.display = 'none';
         const correctSelect = document.getElementById('hinge-correct-select');
-        correctSelect.innerHTML = '<option value="NONE">Don\'t Score (Survey)</option>';
+        correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
 
         const opts = layout === 'TF' ? ['True', 'False'] : ['A', 'B', 'C', 'D'];
         opts.forEach(o => {
@@ -3881,7 +4233,7 @@
       const correctSelect = document.getElementById('hinge-correct-select');
       
       const currentSelected = correctSelect.value;
-      correctSelect.innerHTML = '<option value="NONE">Don\'t Score (Survey)</option>';
+      correctSelect.innerHTML = '<option value="NONE">Unscored Formative Poll</option>';
 
       lines.forEach(line => {
         const opt = document.createElement('option');
@@ -3906,7 +4258,7 @@
         const text = document.getElementById('custom-choices-text').value;
         choices = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         if (choices.length < 2) {
-          return alert("Please enter at least 2 custom answer choices.");
+          return alert("Enter at least two answer options.");
         }
       }
 
@@ -3934,7 +4286,7 @@
     }
 
     function endHingeSession() {
-      if (confirm("End the current Hinge Question?")) {
+      if (confirm("Close question session?")) {
         roomRef.child('hinge/active').update({ status: 'CLOSED' });
       }
     }
@@ -3970,7 +4322,7 @@
         const col = document.createElement('div');
         col.className = `stat-col ${isCorrect ? 'correct-key' : ''}`;
         col.innerHTML = `
-          <div class="stat-col-letter">${escapeHTML(k)} ${isCorrect ? '✅' : ''}</div>
+          <div class="stat-col-letter">${escapeHTML(k)} ${isCorrect ? '✓' : ''}</div>
           <div class="stat-col-count" style="color: ${isCorrect ? 'var(--ga-green)' : 'var(--ga-gold)'}">${count}</div>
           <div class="stat-col-percent">${pct}% (${count}/${totalAnswers})</div>
           <div class="stat-roster-list">${rosters[k].map(n => escapeHTML(n)).join(', ') || '<em>None</em>'}</div>
@@ -3981,7 +4333,7 @@
 
     async function awardHingePoints() {
       if (!currentHingeConfig || currentHingeConfig.correctAnswer === 'NONE') {
-        return alert("This question does not have a correct answer configured.");
+        return alert("This question has no correct answer specified.");
       }
 
       const correctChoice = currentHingeConfig.correctAnswer;
@@ -4003,200 +4355,16 @@
 
       if (countAwarded > 0) {
         await roomRef.update(updates);
-        alert(`Awarded +${ptsToAward} points to ${countAwarded} student(s)!`);
+        alert(`Awarded +${ptsToAward} points to ${countAwarded} student(s).`);
       } else {
-        alert("No students selected the correct answer.");
+        alert("No correct responses recorded.");
       }
     }
 
-    // --- SPOTLIGHT CONTROLS ---
-    function openMarkupFromSpotlight() {
-      if (!activeSpotlightClientId) return;
-      const id = activeSpotlightClientId;
-      closeSpotlightModal();
-      openMarkupModal(id);
-    }
-
-    function toggleLockFromSpotlight() {
-      if (activeSpotlightClientId) {
-        toggleStudentIndividualLock(activeSpotlightClientId);
+    function refreshIcons() {
+      if (window.lucide) {
+        window.lucide.createIcons();
       }
-    }
-
-    function clearMarkupFromSpotlight() {
-      if (activeSpotlightClientId) {
-        clearSingleStudentMarkup(activeSpotlightClientId);
-      }
-    }
-
-    function renameFromSpotlight() {
-      if (activeSpotlightClientId) {
-        renameStudent(activeSpotlightClientId);
-        const s = teacherRoster.get(activeSpotlightClientId);
-        if (s) {
-          const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
-          document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
-        }
-      }
-    }
-
-    function wipeFromSpotlight() {
-      if (activeSpotlightClientId) {
-        wipeSingleStudent(activeSpotlightClientId);
-      }
-    }
-
-    function kickFromSpotlight() {
-      if (activeSpotlightClientId) {
-        const id = activeSpotlightClientId;
-        closeSpotlightModal();
-        kickStudent(id);
-      }
-    }
-
-    async function exhibitDirectly(clientId) {
-      activeSpotlightClientId = clientId;
-      await roomRef.child('controls').update({ requestHighRes: clientId });
-
-      setTimeout(async () => {
-        const hrSnap = await roomRef.child(`highResCanvases/${clientId}`).once('value');
-        const hrData = hrSnap.val();
-        const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
-
-        if (!bestImage) {
-          return alert("This whiteboard has no drawings to exhibit yet.");
-        }
-
-        const s = teacherRoster.get(clientId);
-        const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-        const caption = `Featured: ${getDisplayName(s, idx)}`;
-
-        roomRef.child('controls').update({
-          showcaseImage: bestImage,
-          showcaseCaption: caption,
-          requestHighRes: null
-        });
-      }, 350);
-    }
-
-    async function broadcastCurrentSpotlight() {
-      if (!activeSpotlightClientId) return;
-      exhibitDirectly(activeSpotlightClientId);
-      closeSpotlightModal();
-    }
-
-    function stopShowcaseBroadcast() {
-      roomRef.child('controls').update({
-        showcaseImage: null,
-        showcaseCaption: null,
-        requestHighRes: null
-      });
-    }
-
-    function toggleLockState() {
-      teacherLockFlag = !teacherLockFlag;
-      roomRef.child('controls').update({
-        locked: teacherLockFlag,
-        timerEnd: 0
-      });
-    }
-
-    function startTimer() {
-      const secs = parseInt(document.getElementById('timer-seconds').value, 10);
-      if (isNaN(secs) || secs <= 0) return alert("Specify valid seconds.");
-
-      teacherLockFlag = false;
-      updateLockBtnUI(false);
-
-      const targetEnd = Date.now() + (secs * 1000);
-      activeTimerEndEpoch = targetEnd;
-      tickClocksLocally();
-
-      roomRef.child('controls').update({
-        locked: false,
-        timerEnd: targetEnd
-      });
-    }
-
-    function updateLockBtnUI(locked) {
-      const btn = document.getElementById('lock-toggle-btn');
-      if (locked) {
-        btn.innerText = "🔓 Unlock All Boards";
-        btn.className = "btn-secondary";
-      } else {
-        btn.innerText = "🔒 Lock All Boards";
-        btn.className = "btn-gold";
-      }
-    }
-
-    function wipeAllStudentBoards() {
-      if (confirm("Wipe all student whiteboards clean? (Active template will remain intact)")) {
-        roomRef.child('canvases').remove();
-        roomRef.child('highResCanvases').remove();
-        roomRef.child('controls').update({
-          wipeAllTimestamp: Date.now()
-        });
-      }
-    }
-
-    function wipeSingleStudent(clientId) {
-      roomRef.child(`canvases/${clientId}`).remove();
-      roomRef.child(`highResCanvases/${clientId}`).remove();
-      roomRef.child(`students/${clientId}`).update({
-        wipeTimestamp: Date.now()
-      });
-    }
-
-    function kickStudent(clientId) {
-      const s = teacherRoster.get(clientId);
-      const name = s ? s.seat : "Student";
-      if (confirm(`Remove ${name} from the session?`)) {
-        roomRef.child(`students/${clientId}`).update({ kicked: true });
-        roomRef.child(`canvases/${clientId}`).remove();
-        roomRef.child(`highResCanvases/${clientId}`).remove();
-        setTimeout(() => {
-          roomRef.child(`students/${clientId}`).remove();
-        }, 300);
-      }
-    }
-
-    function renameStudent(clientId) {
-      const s = teacherRoster.get(clientId);
-      const currentName = s ? s.seat : "";
-      const newSeat = prompt(`Rename ${currentName} to:`, currentName);
-      if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
-        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
-        roomRef.child(`students/${clientId}`).update({
-          seat: cleanName,
-          assignedSeat: cleanName
-        });
-      }
-    }
-
-    function clearTeacherRoom() {
-      if (confirm("Reset the entire room and remove all student sessions?")) {
-        roomRef.child('students').remove();
-        roomRef.child('canvases').remove();
-        roomRef.child('highResCanvases').remove();
-        roomRef.child('hinge').remove();
-        roomRef.child('peerReview').remove();
-        roomRef.child('markup').remove();
-        roomRef.child('controls').set({
-          locked: false,
-          timerEnd: 0,
-          wipeAllTimestamp: Date.now(),
-          showcaseImage: null,
-          showcaseCaption: null,
-          requestHighRes: null,
-          broadcastLeaderboard: false,
-          templateData: null,
-          peerReviewActive: false
-        });
-      }
-    }
-
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -4204,6 +4372,7 @@
         el.style.display = 'none';
         el.classList.remove('active');
       });
+      refreshIcons();
     });
   </script>
 </body>
