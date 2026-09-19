@@ -188,7 +188,6 @@
     .tool-btn { background: var(--ga-navy-card); color: var(--ga-white); padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; border: 1px solid var(--ga-navy-border); }
     .tool-btn.active { background: var(--ga-gold); color: #04142d; font-weight: 700; border-color: var(--ga-gold); }
 
-    /* Student Mode Segmented Tabs */
     .mode-tab-group {
       display: flex;
       background: var(--ga-navy-deep);
@@ -215,6 +214,16 @@
     .canvas-container { position: relative; flex: 1; width: 100%; min-height: 400px; border-radius: 8px; overflow: hidden; background: white; border: 2px solid var(--ga-navy-border); }
     canvas { width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
     
+    /* Phase 5: Student Live Teacher Markup Overlay Canvas */
+    #board-markup {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
     .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
@@ -581,15 +590,15 @@
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
     /* Live Boards Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
     .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; transition: transform 0.1s ease; }
     .board-card:hover { border-color: var(--ga-gold); }
     .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; cursor: zoom-in; }
     .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); cursor: pointer; }
-    .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; }
+    .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; flex-wrap: wrap; }
     .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px; }
     
-    .meta-actions { display: flex; gap: 3px; }
+    .meta-actions { display: flex; gap: 3px; flex-wrap: wrap; }
     .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
 
     /* Zoom / Spotlight Modal */
@@ -652,49 +661,89 @@
       border-top: 1px solid var(--ga-navy-border);
     }
 
-    /* Leaderboard Modal */
-    .leaderboard-modal {
+    /* PHASE 5: Teacher Red-Pen Markup & Stamp Modal */
+    .markup-modal {
       position: fixed;
       inset: 0;
-      background: rgba(2, 11, 26, 0.9);
+      background: rgba(2, 11, 26, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 160;
-      padding: 20px;
+      z-index: 175;
+      padding: 16px;
     }
-    .leaderboard-box {
+    .markup-content {
       background: var(--ga-navy-panel);
       border: 2px solid var(--ga-gold);
       border-radius: 8px;
-      max-width: 550px;
-      width: 100%;
-      padding: 20px;
-      max-height: 80vh;
+      width: 95vw;
+      max-width: 1200px;
+      height: 92vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 50px rgba(0,0,0,0.85);
     }
-    .leaderboard-list {
-      overflow-y: auto;
-      margin: 14px 0;
+    .markup-toolbar {
+      background: var(--ga-navy-card);
+      padding: 8px 14px;
       display: flex;
-      flex-direction: column;
       gap: 8px;
-    }
-    .leaderboard-row {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
-      background: var(--ga-navy-input);
-      border: 1px solid var(--ga-navy-border);
-      border-radius: 6px;
+      border-bottom: 1px solid var(--ga-navy-border);
+      flex-wrap: wrap;
     }
-    .leaderboard-row.rank-1 { border-color: var(--ga-gold); font-weight: 800; color: var(--ga-gold); }
-    .leaderboard-row.rank-2 { border-color: #cbd5e1; }
-    .leaderboard-row.rank-3 { border-color: #b45309; }
+    .markup-canvas-wrap {
+      flex: 1;
+      background: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    #markup-underlay-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    #markup-draw-canvas {
+      position: absolute;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .stamp-chips-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      max-width: 480px;
+      padding: 2px 0;
+    }
+    .stamp-pill {
+      background: var(--ga-navy-input);
+      border: 1px solid var(--ga-gold);
+      color: var(--ga-white);
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.1s;
+    }
+    .stamp-pill:hover, .stamp-pill.active {
+      background: var(--ga-gold);
+      color: #04142d;
+      transform: scale(1.05);
+    }
 
-    /* Template Library Grid */
+    /* Template & Stamp Management */
     .template-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -867,13 +916,11 @@
 
       <!-- Segmented Student Toolbar -->
       <div class="tool-bar">
-        <!-- Segmented Mode Tabs -->
         <div class="mode-tab-group">
           <button class="mode-tab-btn active" id="mode-tab-basic" onclick="setStudentToolbarMode('basic')">✏️ Basic</button>
           <button class="mode-tab-btn" id="mode-tab-advanced" onclick="setStudentToolbarMode('advanced')">🛠️ Advanced</button>
         </div>
 
-        <!-- Palette (Always Available) -->
         <div class="color-dot active" style="background:#000000;" onclick="setColor('#000000', this)"></div>
         <div class="color-dot" style="background:#04142d;" onclick="setColor('#04142d', this)"></div>
         <div class="color-dot" style="background:#df9b35;" onclick="setColor('#df9b35', this)"></div>
@@ -882,24 +929,20 @@
         <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb', this)"></div>
         <div class="color-dot" style="background:#9333ea;" onclick="setColor('#9333ea', this)"></div>
 
-        <!-- Custom Color Picker -->
         <div class="color-picker-wrapper" title="Custom Colour Picker">
           <input type="color" id="student-custom-color" value="#04142d" onchange="setColor(this.value, this.parentElement)">
         </div>
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <!-- Undo & Redo -->
         <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">↩</button>
         <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">↪</button>
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <!-- Core Tools (Basic Mode) -->
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
         <button class="tool-btn" id="eraser-tool-btn" onclick="setTool('eraser')">🧹 Eraser</button>
 
-        <!-- Advanced Vector & Fill Tools (Hidden in Basic Mode) -->
         <div id="student-adv-tools" style="display: none; align-items: center; gap: 6px;">
           <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">📏 Line</button>
           <button class="tool-btn" id="arrow-tool-btn" onclick="setTool('arrow')">↗️ Arrow</button>
@@ -914,6 +957,8 @@
       
       <div class="canvas-container">
         <canvas id="board"></canvas>
+        <!-- Phase 5: Student Live Teacher Markup Overlay -->
+        <canvas id="board-markup"></canvas>
         
         <!-- Non-Blocking Text Modal -->
         <div class="text-modal-overlay" id="s-text-modal">
@@ -934,7 +979,7 @@
           <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Teacher paused input for class discussion.</p>
         </div>
 
-        <!-- Student Showcase Fullscreen Overlay -->
+        <!-- Student Showcase Overlay -->
         <div class="showcase-overlay" id="s-showcase-overlay">
           <div class="showcase-header-bar">
             <span class="showcase-tag" id="s-showcase-caption">Featured Whiteboard</span>
@@ -1011,13 +1056,11 @@
         </div>
       </div>
 
-      <!-- Cleaned & Grouped Action Toolbar -->
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
         <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">🔤 Sort: Order Joined</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
 
-        <!-- Grouped Formative Assessment Menu -->
         <div class="dropdown-container">
           <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="toggleAssessmentMenu(event)">🎯 Formative Assessment ▾</button>
           <div class="dropdown-menu" id="assessment-dropdown">
@@ -1090,6 +1133,42 @@
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button class="btn-secondary" style="flex:1;" onclick="closeTeacherLogin()">Cancel</button>
         <button class="btn-primary" style="flex:1; margin-top:0;" id="unlock-btn" onclick="unlockTeacher()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5: TEACHER RED-PEN MARKUP & STAMP MODAL -->
+  <div class="markup-modal" id="markup-modal">
+    <div class="markup-content">
+      <div class="spotlight-header">
+        <h3 id="markup-title" style="margin: 0; color: var(--ga-gold);">Red-Pen Intervention: Student</h3>
+        <button class="btn-ghost" style="padding: 2px 8px;" onclick="closeMarkupModal()">✕</button>
+      </div>
+      
+      <div class="markup-toolbar">
+        <button class="tool-btn active" id="m-tool-pen" onclick="setMarkupTool('pen')">🔴 Red Pen</button>
+        <button class="tool-btn" id="m-tool-eraser" onclick="setMarkupTool('eraser')">🧹 Eraser</button>
+        
+        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+        
+        <!-- Preset Stamp Selector -->
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--ga-text-muted);">Stamps:</span>
+        <div class="stamp-chips-scroll" id="markup-stamps-bar">
+          <!-- Populated by JS -->
+        </div>
+
+        <button class="btn-gold btn-action-mini" onclick="openCreateStampPrompt()">➕ New Stamp</button>
+        <button class="btn-secondary btn-action-mini" onclick="exportStampLibrary()">📦 Export Stamps</button>
+        <input type="file" id="stamp-json-importer" accept=".json" style="display: none;" onchange="handleStampJsonImport(event)">
+        <button class="btn-secondary btn-action-mini" onclick="document.getElementById('stamp-json-importer').click()">📥 Import</button>
+
+        <button class="btn-danger btn-action-mini" style="margin-left: auto;" onclick="clearCurrentStudentMarkup()">🧹 Clear Markup</button>
+        <button class="btn-secondary btn-action-mini" onclick="closeMarkupModal()">Done</button>
+      </div>
+
+      <div class="markup-canvas-wrap" id="markup-canvas-container">
+        <img id="markup-underlay-img" src="" alt="Student Canvas Underlay">
+        <canvas id="markup-draw-canvas"></canvas>
       </div>
     </div>
   </div>
@@ -1251,7 +1330,6 @@
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
-        <!-- Studio Color Picker -->
         <div class="color-picker-wrapper" title="Studio Colour Picker">
           <input type="color" id="studio-color-picker" value="#04142d" onchange="studioCurrentColor = this.value;">
         </div>
@@ -1323,6 +1401,11 @@
 
     let currentPeerAssignment = null;
     let sortMode = 'JOINED';
+
+    // Phase 5 State
+    let activeMarkupClientId = null;
+    let markupTool = 'pen';
+    let selectedStamp = null;
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -1523,6 +1606,12 @@
         tickClocksLocally();
       });
 
+      // Phase 5: Student Live Markup Listener
+      roomRef.child(`markup/${studentClientId}`).on('value', (snapshot) => {
+        const markupData = snapshot.val();
+        renderStudentTeacherMarkup(markupData);
+      });
+
       // Peer Assignment Listener
       roomRef.child(`peerReview/assignments/${studentClientId}`).on('value', (snapshot) => {
         const assignment = snapshot.val();
@@ -1628,6 +1717,21 @@
           updateStudentLockState(false);
         }
       });
+    }
+
+    // Phase 5: Student Markup Layer Renderer
+    function renderStudentTeacherMarkup(markupData) {
+      const markupCanvas = document.getElementById('board-markup');
+      const mctx = markupCanvas.getContext('2d');
+      mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
+
+      if (!markupData || !markupData.image) return;
+
+      const img = new Image();
+      img.onload = () => {
+        mctx.drawImage(img, 0, 0, markupCanvas.width, markupCanvas.height);
+      };
+      img.src = markupData.image;
     }
 
     async function sendPeerFeedback() {
@@ -1739,6 +1843,11 @@
 
       clearTimeout(streamDebounceTimer);
       streamDebounceTimer = setTimeout(sendBoardPayload, 600);
+    }
+
+    function sendBoardImmediate() {
+      if (isBoardLocked) return;
+      sendBoardPayload();
     }
 
     function sendBoardPayload() {
@@ -1919,12 +2028,12 @@
         removeStudentCard(clientId);
         updateRosterUI();
 
-        if (activeSpotlightClientId === clientId) {
-          closeSpotlightModal();
-        }
+        if (activeSpotlightClientId === clientId) closeSpotlightModal();
+        if (activeMarkupClientId === clientId) closeMarkupModal();
 
         roomRef.child(`canvases/${clientId}`).off();
         roomRef.child(`highResCanvases/${clientId}`).remove();
+        roomRef.child(`markup/${clientId}`).remove();
       });
 
       roomRef.child('controls').on('value', (snapshot) => {
@@ -2017,8 +2126,10 @@
     function handleHighResDelivery(clientId, data) {
       if (!data || !data.image) return;
       if (activeSpotlightClientId === clientId) {
-        const spotlightImg = document.getElementById('spotlight-img');
-        spotlightImg.src = data.image;
+        document.getElementById('spotlight-img').src = data.image;
+      }
+      if (activeMarkupClientId === clientId) {
+        document.getElementById('markup-underlay-img').src = data.image;
       }
     }
 
@@ -2043,6 +2154,7 @@
           <div class="board-meta">
             <span class="seat-tag" id="tag_${student.clientId}"></span>
             <div class="meta-actions">
+              <button class="btn-action-mini btn-gold" onclick="openMarkupModal('${escapeHTML(student.clientId)}')">✏️ Markup</button>
               <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">Exhibit</button>
               <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">🔒 Lock</button>
               <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
@@ -2118,7 +2230,6 @@
       students.forEach(s => updateCardMeta(s));
     }
 
-    // --- TEACHER EXPANDABLE ASSESSMENT DROPDOWN ---
     function toggleAssessmentMenu(e) {
       e.stopPropagation();
       const menu = document.getElementById('assessment-dropdown');
@@ -2130,14 +2241,12 @@
       if (menu) menu.classList.remove('show');
     }
 
-    // Close dropdown when clicking outside
     window.addEventListener('click', (e) => {
       if (!e.target.closest('.dropdown-container')) {
         closeAssessmentMenu();
       }
     });
 
-    // --- TEACHER SORTING ---
     function toggleSortOrder() {
       const btn = document.getElementById('sort-toggle-btn');
       if (sortMode === 'JOINED') {
@@ -2178,7 +2287,6 @@
       cards.forEach(c => grid.appendChild(c));
     }
 
-    // --- INDIVIDUAL STUDENT LOCK ---
     async function toggleStudentIndividualLock(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -2213,7 +2321,261 @@
       }
     }
 
-    // --- PEER REVIEW ENGINE (STALE-CLIENT SAFE) ---
+    // --- PHASE 5: TEACHER RED-PEN MARKUP & STAMP ENGINE ---
+    const defaultStamps = [
+      { id: 'st_wd', text: 'Well Done!', emoji: '🌟', color: '#16a34a' },
+      { id: 'st_ta', text: 'Try Again!', emoji: '🔄', color: '#ef4444' },
+      { id: 'st_cl', text: 'Check Line 3', emoji: '🎯', color: '#df9b35' },
+      { id: 'st_th', text: 'Think Types!', emoji: '💡', color: '#3b82f6' },
+      { id: 'st_sy', text: 'Syntax Error', emoji: '❌', color: '#dc2626' },
+      { id: 'st_gw', text: 'Great Logic', emoji: '👍', color: '#10b981' }
+    ];
+
+    function getCustomStamps() {
+      try {
+        const saved = localStorage.getItem('ga_custom_stamps');
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCustomStamp(text, emoji, color) {
+      const custom = getCustomStamps();
+      custom.push({ id: 'cst_' + Date.now(), text, emoji, color });
+      localStorage.setItem('ga_custom_stamps', JSON.stringify(custom));
+      renderMarkupStampsToolbar();
+    }
+
+    function renderMarkupStampsToolbar() {
+      const bar = document.getElementById('markup-stamps-bar');
+      bar.innerHTML = '';
+
+      const all = [...defaultStamps, ...getCustomStamps()];
+      all.forEach(st => {
+        const pill = document.createElement('div');
+        pill.className = `stamp-pill ${selectedStamp && selectedStamp.id === st.id ? 'active' : ''}`;
+        pill.style.borderColor = st.color;
+        pill.innerHTML = `<span>${st.emoji}</span><span>${escapeHTML(st.text)}</span>`;
+        pill.onclick = () => selectMarkupStamp(st);
+        bar.appendChild(pill);
+      });
+    }
+
+    function selectMarkupStamp(st) {
+      selectedStamp = st;
+      setMarkupTool('stamp');
+      renderMarkupStampsToolbar();
+    }
+
+    function openCreateStampPrompt() {
+      const text = prompt("Stamp message (e.g. 'Missing Semi-colon'):", "");
+      if (!text || !text.trim()) return;
+      const emoji = prompt("Stamp icon/emoji (e.g. ⭐, ⚠️, ❌):", "⭐") || "⭐";
+      const color = prompt("Border color hex (e.g. #ef4444):", "#df9b35") || "#df9b35";
+      saveCustomStamp(text.trim(), emoji.trim(), color.trim());
+    }
+
+    function exportStampLibrary() {
+      const custom = getCustomStamps();
+      if (custom.length === 0) return alert("No custom stamps to export yet.");
+      const exportData = { type: "GA_STAMP_LIBRARY", stamps: custom };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `whiteboard-stamps-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleStampJsonImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.type === "GA_STAMP_LIBRARY" && Array.isArray(parsed.stamps)) {
+            const current = getCustomStamps();
+            parsed.stamps.forEach(s => {
+              s.id = 'cst_' + Date.now() + Math.random().toString(36).substring(2, 6);
+              current.push(s);
+            });
+            localStorage.setItem('ga_custom_stamps', JSON.stringify(current));
+            renderMarkupStampsToolbar();
+            alert(`Imported ${parsed.stamps.length} stamps successfully!`);
+          }
+        } catch (err) {
+          alert("Invalid stamp file.");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    // Markup Canvas Engine
+    const markupCanvas = document.getElementById('markup-draw-canvas');
+    const mctx = markupCanvas.getContext('2d');
+    let markupDrawing = false;
+    let markupDebounceTimer = null;
+
+    function openMarkupModal(clientId) {
+      const s = teacherRoster.get(clientId);
+      if (!s) return;
+
+      activeMarkupClientId = clientId;
+      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+      document.getElementById('markup-title').innerText = `Red-Pen Intervention: ${getDisplayName(s, idx)}`;
+
+      const underlay = document.getElementById('markup-underlay-img');
+      const imgData = teacherCanvasCache.get(clientId);
+
+      underlay.onload = () => {
+        markupCanvas.width = underlay.clientWidth;
+        markupCanvas.height = underlay.clientHeight;
+        markupCanvas.style.width = underlay.clientWidth + 'px';
+        markupCanvas.style.height = underlay.clientHeight + 'px';
+        mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
+        loadExistingStudentMarkup(clientId);
+      };
+
+      underlay.src = imgData || '';
+      document.getElementById('markup-modal').style.display = 'flex';
+      renderMarkupStampsToolbar();
+      setMarkupTool('pen');
+
+      roomRef.child('controls').update({ requestHighRes: clientId });
+    }
+
+    function closeMarkupModal() {
+      activeMarkupClientId = null;
+      document.getElementById('markup-modal').style.display = 'none';
+      if (roomRef) roomRef.child('controls').update({ requestHighRes: null });
+    }
+
+    function setMarkupTool(tool) {
+      markupTool = tool;
+      document.getElementById('m-tool-pen').classList.toggle('active', tool === 'pen');
+      document.getElementById('m-tool-eraser').classList.toggle('active', tool === 'eraser');
+      if (tool !== 'stamp') {
+        selectedStamp = null;
+        renderMarkupStampsToolbar();
+      }
+    }
+
+    function getMarkupCoords(e) {
+      const rect = markupCanvas.getBoundingClientRect();
+      const scaleX = markupCanvas.width / rect.width;
+      const scaleY = markupCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function startMarkupDraw(e) {
+      const coords = getMarkupCoords(e);
+
+      if (markupTool === 'stamp' && selectedStamp) {
+        stampBadgeOnMarkupCanvas(coords.x, coords.y, selectedStamp);
+        queueMarkupSync();
+        return;
+      }
+
+      markupDrawing = true;
+      mctx.beginPath();
+      mctx.moveTo(coords.x, coords.y);
+      if (markupTool === 'eraser') {
+        mctx.globalCompositeOperation = 'destination-out';
+        mctx.lineWidth = 26;
+      } else {
+        mctx.globalCompositeOperation = 'source-over';
+        mctx.strokeStyle = '#ef4444';
+        mctx.lineWidth = 4;
+        mctx.lineCap = 'round';
+        mctx.lineJoin = 'round';
+      }
+    }
+
+    function drawMarkup(e) {
+      if (!markupDrawing || markupTool === 'stamp') return;
+      const coords = getMarkupCoords(e);
+      mctx.lineTo(coords.x, coords.y);
+      mctx.stroke();
+    }
+
+    function stopMarkupDraw() {
+      if (markupDrawing) {
+        markupDrawing = false;
+        mctx.globalCompositeOperation = 'source-over';
+        queueMarkupSync();
+      }
+    }
+
+    function stampBadgeOnMarkupCanvas(x, y, stamp) {
+      mctx.save();
+      mctx.globalCompositeOperation = 'source-over';
+      const text = `${stamp.emoji} ${stamp.text}`;
+      mctx.font = "bold 20px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+      const tw = mctx.measureText(text).width;
+      const ph = 36;
+      const pw = tw + 24;
+
+      // Card Box
+      mctx.fillStyle = '#04142d';
+      mctx.strokeStyle = stamp.color || '#df9b35';
+      mctx.lineWidth = 2.5;
+      
+      const rx = x - pw / 2;
+      const ry = y - ph / 2;
+      mctx.beginPath();
+      mctx.roundRect(rx, ry, pw, ph, 8);
+      mctx.fill();
+      mctx.stroke();
+
+      // Text
+      mctx.fillStyle = '#ffffff';
+      mctx.fillText(text, rx + 12, ry + 25);
+      mctx.restore();
+    }
+
+    function queueMarkupSync() {
+      clearTimeout(markupDebounceTimer);
+      markupDebounceTimer = setTimeout(syncCurrentMarkupToStudent, 400);
+    }
+
+    async function syncCurrentMarkupToStudent() {
+      if (!activeMarkupClientId || !roomRef) return;
+      const dataUri = markupCanvas.toDataURL('image/png'); // Preserve transparent background
+      await roomRef.child(`markup/${activeMarkupClientId}`).set({
+        image: dataUri,
+        updatedAt: Date.now()
+      });
+    }
+
+    async function clearCurrentStudentMarkup() {
+      mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
+      if (activeMarkupClientId && roomRef) {
+        await roomRef.child(`markup/${activeMarkupClientId}`).remove();
+      }
+    }
+
+    async function loadExistingStudentMarkup(clientId) {
+      const snap = await roomRef.child(`markup/${clientId}`).once('value');
+      const val = snap.val();
+      if (val && val.image) {
+        const img = new Image();
+        img.onload = () => mctx.drawImage(img, 0, 0, markupCanvas.width, markupCanvas.height);
+        img.src = val.image;
+      }
+    }
+
+    markupCanvas.addEventListener('mousedown', startMarkupDraw);
+    markupCanvas.addEventListener('mousemove', drawMarkup);
+    markupCanvas.addEventListener('mouseup', stopMarkupDraw);
+
+    // --- PEER REVIEW ENGINE ---
     function openPeerReviewModal() {
       document.getElementById('peer-review-modal').style.display = 'flex';
     }
@@ -2567,7 +2929,6 @@
       return c.toDataURL('image/jpeg', 0.8);
     }
 
-    // --- VECTOR HELPER: ARROWS ---
     function drawArrow(targetCtx, fromx, fromy, tox, toy) {
       const headlen = 16;
       const angle = Math.atan2(toy - fromy, tox - fromx);
@@ -2580,7 +2941,6 @@
       targetCtx.stroke();
     }
 
-    // --- FLOOD FILL (PAINT BUCKET) ALGORITHM ---
     function floodFill(targetCtx, startX, startY, fillHex, width, height) {
       const imgData = targetCtx.getImageData(0, 0, width, height);
       const data = imgData.data;
@@ -2728,6 +3088,11 @@
         const container = canvas.parentElement;
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
+
+        const markupCanvas = document.getElementById('board-markup');
+        markupCanvas.width = container.clientWidth;
+        markupCanvas.height = container.clientHeight;
+
         wipeCanvasLocal();
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -2746,6 +3111,11 @@
 
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
+
+      const markupCanvas = document.getElementById('board-markup');
+      markupCanvas.width = container.clientWidth;
+      markupCanvas.height = container.clientHeight;
+
       wipeCanvasLocal();
       ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
     }
@@ -2872,7 +3242,6 @@
     canvas.addEventListener('touchend', stopDraw);
     canvas.addEventListener('touchmove', draw, { passive: false });
 
-    // Isolation: Prevent canvas touch event listeners from cancelling taps inside peer review
     const peerOverlayEl = document.getElementById('s-peer-overlay');
     ['touchstart', 'touchmove', 'touchend', 'mousedown', 'pointerdown'].forEach(evtName => {
       peerOverlayEl.addEventListener(evtName, (e) => {
@@ -3463,6 +3832,7 @@
         roomRef.child('highResCanvases').remove();
         roomRef.child('hinge').remove();
         roomRef.child('peerReview').remove();
+        roomRef.child('markup').remove();
         roomRef.child('controls').set({
           locked: false,
           timerEnd: 0,
