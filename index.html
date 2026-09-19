@@ -49,9 +49,11 @@
       --ga-navy-card: #081224;
       --ga-navy-input: #000206;
       --ga-border: rgba(255, 255, 255, 0.12);
+      /* Reduced whiteboard glare in dark mode */
+      --canvas-bg: #e2e8f0;
     }
     body.theme-canvas-contrast {
-      --canvas-bg: #091322;
+      --canvas-bg: #091322 !important;
     }
 
     * { box-sizing: border-box; }
@@ -311,7 +313,6 @@
       height: 15px;
     }
 
-    /* Inline Stroke Slider */
     .stroke-slider-container {
       display: inline-flex;
       align-items: center;
@@ -1383,7 +1384,7 @@
       <span class="brand-title">Digital <span>Whiteboard</span></span>
     </div>
     <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="btn-ghost" onclick="toggleAccessDrawer()">
+      <button class="btn-ghost" id="access-trigger-btn" onclick="toggleAccessDrawer(event)">
         <i data-lucide="eye"></i> Display & Readability
       </button>
       <button class="btn-ghost" id="teacher-switch-btn" onclick="openTeacherLogin()">
@@ -1976,13 +1977,13 @@
     </div>
   </div>
 
-  <!-- PHASE 6: READABILITY & DISPLAY DRAWER -->
+  <!-- READABILITY & DISPLAY DRAWER -->
   <div class="access-drawer" id="access-drawer">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-border); padding-bottom: 12px;">
       <h3 style="margin: 0; color: var(--ga-gold); display: flex; align-items: center; gap: 8px;">
         <i data-lucide="eye"></i> Display & Readability
       </h3>
-      <button class="btn-ghost" style="padding: 2px 8px;" onclick="toggleAccessDrawer()">✕</button>
+      <button class="btn-ghost" style="padding: 2px 8px;" onclick="toggleAccessDrawer(event)">✕</button>
     </div>
 
     <!-- 1. OpenDyslexic Toggle -->
@@ -2001,7 +2002,7 @@
     <div class="access-toggle-row">
       <div>
         <strong style="font-size: 0.88rem;">Deep Dark Mode</strong>
-        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: var(--ga-text-muted);">Dim application shell to soften glare</p>
+        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: var(--ga-text-muted);">Dim shell and soften whiteboard surface</p>
       </div>
       <label class="switch-ui">
         <input type="checkbox" id="acc-dark-check" onchange="toggleAppDarkMode(this.checked)">
@@ -2021,7 +2022,7 @@
       </label>
     </div>
 
-    <!-- Teacher Remote Push (Visible only on Teacher console) -->
+    <!-- Teacher Remote Push -->
     <div id="teacher-access-push-box" style="display: none; margin-top: auto; padding-top: 14px; border-top: 1px solid var(--ga-border);">
       <button class="btn-gold" style="width: 100%;" onclick="pushAccessibilityToRoom()">
         <i data-lucide="radio"></i> Push Display Settings to Room
@@ -2091,7 +2092,7 @@
     let markupTool = 'pen';
     let selectedStamp = null;
 
-    // Phase 6 State
+    // Accessibility & Draw states
     let currentStrokeWeight = 5;
     let isCanvasInverted = false;
 
@@ -2101,7 +2102,7 @@
     const teacherHighResCache = new Map();
     let currentHingeResponses = {};
 
-    // --- IN-APP TOAST SYSTEM ---
+    // --- IN-APP TOAST NOTIFICATIONS ---
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
@@ -2119,7 +2120,7 @@
       }, 3500);
     }
 
-    // --- IN-APP DIALOGS ---
+    // --- IN-APP DIALOG SYSTEM ---
     function showConfirm(title, message, onConfirm, confirmText = 'Confirm', isDanger = false) {
       const modal = document.getElementById('dialog-modal');
       const titleEl = document.getElementById('dialog-title');
@@ -2196,12 +2197,35 @@
       cancelBtn.onclick = cleanup;
     }
 
-    // --- ACCESSIBILITY & SEN HANDLERS ---
-    function toggleAccessDrawer() {
+    // --- ACCESSIBILITY & DRAWER ---
+    function toggleAccessDrawer(e) {
+      if (e) e.stopPropagation();
       const drawer = document.getElementById('access-drawer');
       drawer.classList.toggle('open');
       refreshIcons();
     }
+
+    function closeAccessDrawer() {
+      const drawer = document.getElementById('access-drawer');
+      if (drawer) drawer.classList.remove('open');
+    }
+
+    // Dismiss drawer when clicking outside or pressing Escape
+    window.addEventListener('click', (e) => {
+      const drawer = document.getElementById('access-drawer');
+      const trigger = document.getElementById('access-trigger-btn');
+      if (drawer && drawer.classList.contains('open')) {
+        if (!drawer.contains(e.target) && !trigger.contains(e.target)) {
+          closeAccessDrawer();
+        }
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAccessDrawer();
+      }
+    });
 
     function toggleDyslexicFont(enable) {
       document.body.classList.toggle('theme-opendyslexic', enable);
@@ -2212,7 +2236,9 @@
     function toggleAppDarkMode(enable) {
       document.body.classList.toggle('theme-app-dark', enable);
       localStorage.setItem('ga_pref_app_dark', enable ? '1' : '0');
-      showToast(enable ? "Deep Dark Mode active." : "Navy palette restored.", "info");
+      wipeCanvasLocal();
+      queueAutoSync();
+      showToast(enable ? "Dark mode active (whiteboard softened)." : "Standard mode active.", "info");
     }
 
     function toggleCanvasContrast(enable) {
@@ -2221,7 +2247,7 @@
       localStorage.setItem('ga_pref_canvas_inverted', enable ? '1' : '0');
       wipeCanvasLocal();
       queueAutoSync();
-      showToast(enable ? "Inverted board active." : "Whiteboard active.", "info");
+      showToast(enable ? "Inverted slate board active." : "Standard whiteboard active.", "info");
     }
 
     function handleStrokeSliderInput(val) {
@@ -2242,7 +2268,7 @@
         canvasInverted: isInv,
         timestamp: Date.now()
       });
-      showToast("Display preferences pushed to room.", "success");
+      showToast("Display preferences pushed to all students.", "success");
     }
 
     function loadLocalAccessibilityPrefs() {
@@ -2720,7 +2746,7 @@
       exportCanvas.width = 300;
       exportCanvas.height = 180;
       const expCtx = exportCanvas.getContext('2d');
-      expCtx.fillStyle = isCanvasInverted ? '#091322' : '#ffffff';
+      expCtx.fillStyle = isCanvasInverted ? '#091322' : (document.body.classList.contains('theme-app-dark') ? '#e2e8f0' : '#ffffff');
       expCtx.fillRect(0, 0, 300, 180);
       expCtx.drawImage(canvas, 0, 0, 300, 180);
 
@@ -2739,7 +2765,7 @@
       highResCanvas.width = 1200;
       highResCanvas.height = 720;
       const hrCtx = highResCanvas.getContext('2d');
-      hrCtx.fillStyle = isCanvasInverted ? '#091322' : '#ffffff';
+      hrCtx.fillStyle = isCanvasInverted ? '#091322' : (document.body.classList.contains('theme-app-dark') ? '#e2e8f0' : '#ffffff');
       hrCtx.fillRect(0, 0, 1200, 720);
       hrCtx.drawImage(canvas, 0, 0, 1200, 720);
 
@@ -3063,7 +3089,7 @@
       const tctx = tempCanvas.getContext('2d');
       tctx.imageSmoothingEnabled = true;
       tctx.imageSmoothingQuality = 'high';
-      tctx.fillStyle = isCanvasInverted ? '#091322' : '#ffffff';
+      tctx.fillStyle = isCanvasInverted ? '#091322' : (document.body.classList.contains('theme-app-dark') ? '#e2e8f0' : '#ffffff');
       tctx.fillRect(0, 0, renderWidth, renderHeight);
 
       const bImg = new Image();
@@ -4545,7 +4571,7 @@
         ctx.beginPath();
         ctx.moveTo(coords.x, coords.y);
         if (currentTool === 'eraser') {
-          ctx.strokeStyle = isCanvasInverted ? '#091322' : '#ffffff';
+          ctx.strokeStyle = isCanvasInverted ? '#091322' : (document.body.classList.contains('theme-app-dark') ? '#e2e8f0' : '#ffffff');
           ctx.lineWidth = currentStrokeWeight * 5;
         } else {
           ctx.strokeStyle = isCanvasInverted && currentColor === '#000000' ? '#ffffff' : currentColor;
@@ -4622,7 +4648,7 @@
     }
 
     function wipeCanvasLocal() {
-      ctx.fillStyle = isCanvasInverted ? "#091322" : "#ffffff";
+      ctx.fillStyle = isCanvasInverted ? "#091322" : (document.body.classList.contains('theme-app-dark') ? '#e2e8f0' : '#ffffff');
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
       if (activeTemplateImageObj) {
@@ -4987,44 +5013,6 @@
     }
 
     // --- SPOTLIGHT CONTROLS ---
-    function openSpotlightModal(clientId) {
-      const s = teacherRoster.get(clientId);
-      if (!s) return;
-
-      activeSpotlightClientId = clientId;
-      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-
-      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
-      recompositeTeacherCardImage(clientId, true);
-
-      updateSpotlightLockBtnUI(Boolean(s.individualLock));
-      document.getElementById('t-spotlight-modal').style.display = 'flex';
-      roomRef.child('controls').update({ requestHighRes: clientId });
-      refreshIcons();
-    }
-
-    function closeSpotlightModal() {
-      activeSpotlightClientId = null;
-      document.getElementById('t-spotlight-modal').style.display = 'none';
-      if (roomRef) {
-        roomRef.child('controls').update({ requestHighRes: null });
-      }
-    }
-
-    function updateSpotlightLockBtnUI(isLocked) {
-      const btn = document.getElementById('spotlight-lock-btn');
-      if (btn) {
-        if (isLocked) {
-          btn.innerHTML = `<i data-lucide="unlock"></i> Unlock`;
-          btn.className = "btn-gold btn-action-mini";
-        } else {
-          btn.innerHTML = `<i data-lucide="lock"></i> Lock`;
-          btn.className = "btn-secondary btn-action-mini";
-        }
-        refreshIcons();
-      }
-    }
-
     function openMarkupFromSpotlight() {
       if (!activeSpotlightClientId) return;
       const id = activeSpotlightClientId;
