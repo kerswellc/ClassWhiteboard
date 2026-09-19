@@ -485,7 +485,7 @@
     .teacher-nav { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ga-navy-border); padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px; }
     .room-badge { background: var(--ga-gold); color: #04142d; padding: 6px 14px; border-radius: 6px; font-weight: 700; }
     
-    .action-toolbar { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .action-toolbar { background: var(--ga-navy-panel); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; border: 1px solid var(--ga-navy-border); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .timer-input { width: 80px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--ga-navy-border); background: var(--ga-navy-input); color: white; }
 
     /* Teacher Expandable Dropdown Menu */
@@ -597,7 +597,7 @@
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
     /* Live Boards Grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 14px; }
     .board-card { background: var(--ga-navy-panel); border-radius: 8px; overflow: hidden; border: 1px solid var(--ga-navy-border); display: flex; flex-direction: column; transition: transform 0.1s ease; }
     .board-card:hover { border-color: var(--ga-gold); }
     .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; cursor: zoom-in; }
@@ -1102,6 +1102,7 @@
         </div>
 
         <button class="btn-secondary" id="t-clear-tpl-btn" style="display: none;" onclick="clearActiveTemplate()">❌ Remove Template</button>
+        <button class="btn-danger" onclick="clearAllRoomMarkups()">🧹 Clear All Markups</button>
         <button class="btn-danger" onclick="wipeAllStudentBoards()">🧹 Wipe Boards</button>
         
         <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
@@ -1189,7 +1190,7 @@
         <input type="file" id="stamp-json-importer" accept=".json" style="display: none;" onchange="handleStampJsonImport(event)">
         <button class="btn-secondary btn-action-mini" onclick="document.getElementById('stamp-json-importer').click()">📥 Import</button>
 
-        <button class="btn-danger btn-action-mini" style="margin-left: auto;" onclick="clearCurrentStudentMarkup()">🧹 Clear Markup</button>
+        <button class="btn-danger btn-action-mini" style="margin-left: auto;" onclick="clearSingleStudentMarkup(activeMarkupClientId)">🧹 Clear Markup</button>
         <button class="btn-secondary btn-action-mini" onclick="closeMarkupModal()">Done</button>
       </div>
 
@@ -1370,7 +1371,7 @@
     </div>
   </div>
 
-  <!-- ZOOM / SPOTLIGHT MODAL (ENHANCED WITH CARD CONTROLS) -->
+  <!-- ZOOM / SPOTLIGHT MODAL -->
   <div class="spotlight-modal" id="t-spotlight-modal" onclick="if(event.target === this) closeSpotlightModal()">
     <div class="spotlight-content">
       <div class="spotlight-header">
@@ -1381,13 +1382,14 @@
         <img id="spotlight-img" src="" alt="Enlarged Whiteboard">
       </div>
       <div class="spotlight-footer">
-        <button class="btn-gold" onclick="openMarkupFromSpotlight()">✏️ Markup</button>
-        <button class="btn-gold" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">📢 Exhibit to Class</button>
-        <button class="btn-secondary" id="spotlight-lock-btn" onclick="toggleLockFromSpotlight()">🔒 Lock</button>
-        <button class="btn-secondary" onclick="renameFromSpotlight()">Rename</button>
-        <button class="btn-secondary" onclick="wipeFromSpotlight()">🧹 Wipe</button>
-        <button class="btn-danger" onclick="kickFromSpotlight()">Kick</button>
-        <button class="btn-secondary" onclick="closeSpotlightModal()">Close</button>
+        <button class="btn-gold btn-action-mini" onclick="openMarkupFromSpotlight()">✏️ Markup</button>
+        <button class="btn-gold btn-action-mini" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">📢 Exhibit to Class</button>
+        <button class="btn-secondary btn-action-mini" id="spotlight-lock-btn" onclick="toggleLockFromSpotlight()">🔒 Lock</button>
+        <button class="btn-secondary btn-action-mini" onclick="clearMarkupFromSpotlight()">🧹 Clr Markup</button>
+        <button class="btn-secondary btn-action-mini" onclick="renameFromSpotlight()">Rename</button>
+        <button class="btn-secondary btn-action-mini" onclick="wipeFromSpotlight()">🧹 Wipe</button>
+        <button class="btn-danger btn-action-mini" onclick="kickFromSpotlight()">Kick</button>
+        <button class="btn-secondary btn-action-mini" onclick="closeSpotlightModal()">Close</button>
       </div>
     </div>
   </div>
@@ -1438,11 +1440,13 @@
     let markupTool = 'pen';
     let selectedStamp = null;
 
+    // Cache holding active markups for composite preview
+    const teacherMarkupCache = new Map();
+
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 
-    // Local Countdown Clock Engine
     let activeTimerEndEpoch = 0;
     setInterval(tickClocksLocally, 1000);
 
@@ -1593,7 +1597,6 @@
           uploadHighResSnapshot();
         }
 
-        // Showcase Overlay
         const showcaseOverlay = document.getElementById('s-showcase-overlay');
         const showcaseImg = document.getElementById('s-showcase-img');
         const showcaseCap = document.getElementById('s-showcase-caption');
@@ -1607,7 +1610,6 @@
           showcaseImg.removeAttribute('src');
         }
 
-        // Leaderboard Overlay display guard
         const studentLbOverlay = document.getElementById('s-leaderboard-overlay');
         const isStudentActive = document.getElementById('student-draw-view').style.display === 'flex';
         if (ctrl.broadcastLeaderboard && isStudentActive) {
@@ -1637,13 +1639,11 @@
         tickClocksLocally();
       });
 
-      // Live Markup Listener (Fix Applied)
       roomRef.child(`markup/${studentClientId}`).on('value', (snapshot) => {
         const markupData = snapshot.val();
         renderStudentTeacherMarkup(markupData);
       });
 
-      // Peer Assignment Listener
       roomRef.child(`peerReview/assignments/${studentClientId}`).on('value', (snapshot) => {
         const assignment = snapshot.val();
         currentPeerAssignment = assignment;
@@ -1653,7 +1653,6 @@
         }
       });
 
-      // Peer Feedback Receiver
       roomRef.child(`peerReview/feedback/${studentClientId}`).on('value', (snapshot) => {
         const fb = snapshot.val();
         if (fb && fb.comment) {
@@ -1747,12 +1746,10 @@
       });
     }
 
-    // Corrected Markup Layer Sizing & Rendering
     function renderStudentTeacherMarkup(markupData) {
       const markupCanvas = document.getElementById('board-markup');
       const mctx = markupCanvas.getContext('2d');
 
-      // Guarantee dimensions match main canvas
       if (markupCanvas.width !== canvas.width || markupCanvas.height !== canvas.height) {
         markupCanvas.width = canvas.width;
         markupCanvas.height = canvas.height;
@@ -2030,11 +2027,21 @@
         updateRosterUI();
         reorderTeacherGrid();
 
+        // Canvas sync
         roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
           const cData = canvasSnap.val();
           const img = cData ? cData.image : null;
           teacherCanvasCache.set(student.clientId, img);
-          updateCardImage(student.clientId, img);
+          recompositeTeacherCardImage(student.clientId);
+        });
+
+        // Markup sync
+        roomRef.child(`markup/${student.clientId}`).on('value', (markupSnap) => {
+          const mData = markupSnap.val();
+          const img = mData ? mData.image : null;
+          teacherMarkupCache.set(student.clientId, img);
+          recompositeTeacherCardImage(student.clientId);
+          updateCardMarkupBtnState(student.clientId, Boolean(img));
         });
       });
 
@@ -2059,6 +2066,7 @@
         const clientId = snapshot.key;
         teacherRoster.delete(clientId);
         teacherCanvasCache.delete(clientId);
+        teacherMarkupCache.delete(clientId);
         removeStudentCard(clientId);
         updateRosterUI();
 
@@ -2066,6 +2074,7 @@
         if (activeMarkupClientId === clientId) closeMarkupModal();
 
         roomRef.child(`canvases/${clientId}`).off();
+        roomRef.child(`markup/${clientId}`).off();
         roomRef.child(`highResCanvases/${clientId}`).remove();
         roomRef.child(`markup/${clientId}`).remove();
       });
@@ -2160,7 +2169,7 @@
     function handleHighResDelivery(clientId, data) {
       if (!data || !data.image) return;
       if (activeSpotlightClientId === clientId) {
-        document.getElementById('spotlight-img').src = data.image;
+        recompositeTeacherCardImage(clientId, true);
       }
       if (activeMarkupClientId === clientId) {
         document.getElementById('markup-underlay-img').src = data.image;
@@ -2189,6 +2198,7 @@
             <span class="seat-tag" id="tag_${student.clientId}"></span>
             <div class="meta-actions">
               <button class="btn-action-mini btn-gold" onclick="openMarkupModal('${escapeHTML(student.clientId)}')">✏️ Markup</button>
+              <button class="btn-action-mini btn-secondary" id="clr_m_btn_${student.clientId}" onclick="clearSingleStudentMarkup('${escapeHTML(student.clientId)}')" style="display: none;">🧹 Clr Markup</button>
               <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">Exhibit</button>
               <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">🔒 Lock</button>
               <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
@@ -2202,19 +2212,65 @@
       updateCardMeta(student);
     }
 
-    function updateCardImage(clientId, base64Data) {
-      const img = document.getElementById(`img_${clientId}`);
-      const ph = document.getElementById(`ph_${clientId}`);
-      if (!img || !ph) return;
+    // Composite Student Drawing + Teacher Markup onto a temporary canvas for Preview
+    function recompositeTeacherCardImage(clientId, isSpotlight = false) {
+      const baseImg = teacherCanvasCache.get(clientId);
+      const markupImg = teacherMarkupCache.get(clientId);
 
-      if (base64Data) {
-        img.src = base64Data;
-        img.style.display = 'block';
-        ph.style.display = 'none';
-      } else {
-        img.removeAttribute('src');
-        img.style.display = 'none';
-        ph.style.display = 'flex';
+      const imgEl = document.getElementById(`img_${clientId}`);
+      const phEl = document.getElementById(`ph_${clientId}`);
+      const spotlightEl = document.getElementById('spotlight-img');
+
+      if (!baseImg && !markupImg) {
+        if (imgEl && phEl) {
+          imgEl.removeAttribute('src');
+          imgEl.style.display = 'none';
+          phEl.style.display = 'flex';
+        }
+        return;
+      }
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = 600;
+      tempCanvas.height = 360;
+      const tctx = tempCanvas.getContext('2d');
+      tctx.fillStyle = '#ffffff';
+      tctx.fillRect(0, 0, 600, 360);
+
+      const bImg = new Image();
+      bImg.onload = () => {
+        tctx.drawImage(bImg, 0, 0, 600, 360);
+        if (markupImg) {
+          const mImg = new Image();
+          mImg.onload = () => {
+            tctx.drawImage(mImg, 0, 0, 600, 360);
+            applyCompositedData();
+          };
+          mImg.src = markupImg;
+        } else {
+          applyCompositedData();
+        }
+      };
+
+      function applyCompositedData() {
+        const compositeData = tempCanvas.toDataURL('image/jpeg', 0.6);
+        if (imgEl && phEl) {
+          imgEl.src = compositeData;
+          imgEl.style.display = 'block';
+          phEl.style.display = 'none';
+        }
+        if (activeSpotlightClientId === clientId) {
+          spotlightEl.src = compositeData;
+        }
+      }
+
+      bImg.src = baseImg || '';
+    }
+
+    function updateCardMarkupBtnState(clientId, hasMarkup) {
+      const btn = document.getElementById(`clr_m_btn_${clientId}`);
+      if (btn) {
+        btn.style.display = hasMarkup ? 'inline-block' : 'none';
       }
     }
 
@@ -2328,7 +2384,6 @@
       await roomRef.child(`students/${clientId}`).update({
         individualLock: newLockState
       });
-      // Update spotlight lock button if active
       if (activeSpotlightClientId === clientId) {
         updateSpotlightLockBtnUI(newLockState);
       }
@@ -2359,7 +2414,7 @@
       }
     }
 
-    // --- STREAMLINED GENERAL FORMATIVE STAMPS ---
+    // --- MARKUP MANAGEMENT & ATOMIC CLEARING ---
     const defaultStamps = [
       { id: 'st_wd', text: 'Well Done!', emoji: '🌟', color: '#16a34a' },
       { id: 'st_gw', text: 'Great Work!', emoji: '👍', color: '#10b981' },
@@ -2452,7 +2507,6 @@
       e.target.value = '';
     }
 
-    // Markup Canvas Engine
     const markupCanvas = document.getElementById('markup-draw-canvas');
     const mctx = markupCanvas.getContext('2d');
     let markupDrawing = false;
@@ -2590,10 +2644,29 @@
       });
     }
 
-    async function clearCurrentStudentMarkup() {
-      mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
-      if (activeMarkupClientId && roomRef) {
-        await roomRef.child(`markup/${activeMarkupClientId}`).remove();
+    async function clearSingleStudentMarkup(clientId) {
+      if (!clientId) return;
+      if (activeMarkupClientId === clientId) {
+        mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
+      }
+      teacherMarkupCache.delete(clientId);
+      updateCardMarkupBtnState(clientId, false);
+      recompositeTeacherCardImage(clientId);
+      if (roomRef) {
+        await roomRef.child(`markup/${clientId}`).remove();
+      }
+    }
+
+    async function clearAllRoomMarkups() {
+      if (confirm("Clear all teacher red-pen annotations and stamps from all whiteboards? (Student drawings will stay intact)")) {
+        teacherMarkupCache.clear();
+        teacherRoster.forEach(s => {
+          updateCardMarkupBtnState(s.clientId, false);
+          recompositeTeacherCardImage(s.clientId);
+        });
+        if (roomRef) {
+          await roomRef.child('markup').remove();
+        }
       }
     }
 
@@ -2665,6 +2738,232 @@
           toggleBroadcastLeaderboard();
         }
       }
+    }
+
+    // --- SPOTLIGHT FULLSCREEN MODAL HELPERS ---
+    function openSpotlightModal(clientId) {
+      const s = teacherRoster.get(clientId);
+      if (!s) return;
+
+      activeSpotlightClientId = clientId;
+      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+
+      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+      recompositeTeacherCardImage(clientId, true);
+
+      updateSpotlightLockBtnUI(Boolean(s.individualLock));
+      document.getElementById('t-spotlight-modal').style.display = 'flex';
+      roomRef.child('controls').update({ requestHighRes: clientId });
+    }
+
+    function closeSpotlightModal() {
+      activeSpotlightClientId = null;
+      document.getElementById('t-spotlight-modal').style.display = 'none';
+      if (roomRef) {
+        roomRef.child('controls').update({ requestHighRes: null });
+      }
+    }
+
+    function updateSpotlightLockBtnUI(isLocked) {
+      const btn = document.getElementById('spotlight-lock-btn');
+      if (btn) {
+        if (isLocked) {
+          btn.innerText = "🔓 Unlock";
+          btn.className = "btn-gold btn-action-mini";
+        } else {
+          btn.innerText = "🔒 Lock";
+          btn.className = "btn-secondary btn-action-mini";
+        }
+      }
+    }
+
+    function openMarkupFromSpotlight() {
+      if (!activeSpotlightClientId) return;
+      const id = activeSpotlightClientId;
+      closeSpotlightModal();
+      openMarkupModal(id);
+    }
+
+    function toggleLockFromSpotlight() {
+      if (activeSpotlightClientId) {
+        toggleStudentIndividualLock(activeSpotlightClientId);
+      }
+    }
+
+    function clearMarkupFromSpotlight() {
+      if (activeSpotlightClientId) {
+        clearSingleStudentMarkup(activeSpotlightClientId);
+      }
+    }
+
+    function renameFromSpotlight() {
+      if (activeSpotlightClientId) {
+        renameStudent(activeSpotlightClientId);
+        const s = teacherRoster.get(activeSpotlightClientId);
+        if (s) {
+          const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
+          document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+        }
+      }
+    }
+
+    function wipeFromSpotlight() {
+      if (activeSpotlightClientId) {
+        wipeSingleStudent(activeSpotlightClientId);
+      }
+    }
+
+    function kickFromSpotlight() {
+      if (activeSpotlightClientId) {
+        const id = activeSpotlightClientId;
+        closeSpotlightModal();
+        kickStudent(id);
+      }
+    }
+
+    async function exhibitDirectly(clientId) {
+      activeSpotlightClientId = clientId;
+      await roomRef.child('controls').update({ requestHighRes: clientId });
+
+      setTimeout(async () => {
+        const hrSnap = await roomRef.child(`highResCanvases/${clientId}`).once('value');
+        const hrData = hrSnap.val();
+        const bestImage = (hrData && hrData.image) ? hrData.image : teacherCanvasCache.get(clientId);
+
+        if (!bestImage) {
+          return alert("This whiteboard has no drawings to exhibit yet.");
+        }
+
+        const s = teacherRoster.get(clientId);
+        const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
+        const caption = `Featured: ${getDisplayName(s, idx)}`;
+
+        roomRef.child('controls').update({
+          showcaseImage: bestImage,
+          showcaseCaption: caption,
+          requestHighRes: null
+        });
+      }, 350);
+    }
+
+    async function broadcastCurrentSpotlight() {
+      if (!activeSpotlightClientId) return;
+      exhibitDirectly(activeSpotlightClientId);
+      closeSpotlightModal();
+    }
+
+    function stopShowcaseBroadcast() {
+      roomRef.child('controls').update({
+        showcaseImage: null,
+        showcaseCaption: null,
+        requestHighRes: null
+      });
+    }
+
+    function toggleLockState() {
+      teacherLockFlag = !teacherLockFlag;
+      roomRef.child('controls').update({
+        locked: teacherLockFlag,
+        timerEnd: 0
+      });
+    }
+
+    function startTimer() {
+      const secs = parseInt(document.getElementById('timer-seconds').value, 10);
+      if (isNaN(secs) || secs <= 0) return alert("Specify valid seconds.");
+
+      teacherLockFlag = false;
+      updateLockBtnUI(false);
+
+      const targetEnd = Date.now() + (secs * 1000);
+      activeTimerEndEpoch = targetEnd;
+      tickClocksLocally();
+
+      roomRef.child('controls').update({
+        locked: false,
+        timerEnd: targetEnd
+      });
+    }
+
+    function updateLockBtnUI(locked) {
+      const btn = document.getElementById('lock-toggle-btn');
+      if (locked) {
+        btn.innerText = "🔓 Unlock All Boards";
+        btn.className = "btn-secondary";
+      } else {
+        btn.innerText = "🔒 Lock All Boards";
+        btn.className = "btn-gold";
+      }
+    }
+
+    function wipeAllStudentBoards() {
+      if (confirm("Wipe all student whiteboards clean? (Active template will remain intact)")) {
+        roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
+        roomRef.child('controls').update({
+          wipeAllTimestamp: Date.now()
+        });
+      }
+    }
+
+    function wipeSingleStudent(clientId) {
+      roomRef.child(`canvases/${clientId}`).remove();
+      roomRef.child(`highResCanvases/${clientId}`).remove();
+      roomRef.child(`students/${clientId}`).update({
+        wipeTimestamp: Date.now()
+      });
+    }
+
+    function kickStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const name = s ? s.seat : "Student";
+      if (confirm(`Remove ${name} from the session?`)) {
+        roomRef.child(`students/${clientId}`).update({ kicked: true });
+        roomRef.child(`canvases/${clientId}`).remove();
+        roomRef.child(`highResCanvases/${clientId}`).remove();
+        setTimeout(() => {
+          roomRef.child(`students/${clientId}`).remove();
+        }, 300);
+      }
+    }
+
+    function renameStudent(clientId) {
+      const s = teacherRoster.get(clientId);
+      const currentName = s ? s.seat : "";
+      const newSeat = prompt(`Rename ${currentName} to:`, currentName);
+      if (newSeat && newSeat.trim() !== "" && newSeat !== currentName) {
+        const cleanName = newSeat.trim().replace(/[^a-zA-Z0-9 _-]/g, '').substring(0, 16);
+        roomRef.child(`students/${clientId}`).update({
+          seat: cleanName,
+          assignedSeat: cleanName
+        });
+      }
+    }
+
+    function clearTeacherRoom() {
+      if (confirm("Reset the entire room and remove all student sessions?")) {
+        roomRef.child('students').remove();
+        roomRef.child('canvases').remove();
+        roomRef.child('highResCanvases').remove();
+        roomRef.child('hinge').remove();
+        roomRef.child('peerReview').remove();
+        roomRef.child('markup').remove();
+        roomRef.child('controls').set({
+          locked: false,
+          timerEnd: 0,
+          wipeAllTimestamp: Date.now(),
+          showcaseImage: null,
+          showcaseCaption: null,
+          requestHighRes: null,
+          broadcastLeaderboard: false,
+          templateData: null,
+          peerReviewActive: false
+        });
+      }
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
     // --- PEER REVIEW ENGINE ---
@@ -3710,52 +4009,7 @@
       }
     }
 
-    // --- SPOTLIGHT FULLSCREEN MODAL HELPERS ---
-    function openSpotlightModal(clientId) {
-      const s = teacherRoster.get(clientId);
-      if (!s) return;
-
-      activeSpotlightClientId = clientId;
-      const idx = Array.from(teacherRoster.keys()).indexOf(clientId);
-      const lowResImg = teacherCanvasCache.get(clientId);
-
-      document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
-      const spotlightImg = document.getElementById('spotlight-img');
-
-      if (lowResImg) {
-        spotlightImg.src = lowResImg;
-        spotlightImg.style.display = 'block';
-      } else {
-        spotlightImg.removeAttribute('src');
-        spotlightImg.style.display = 'none';
-      }
-
-      updateSpotlightLockBtnUI(Boolean(s.individualLock));
-      document.getElementById('t-spotlight-modal').style.display = 'flex';
-      roomRef.child('controls').update({ requestHighRes: clientId });
-    }
-
-    function closeSpotlightModal() {
-      activeSpotlightClientId = null;
-      document.getElementById('t-spotlight-modal').style.display = 'none';
-      if (roomRef) {
-        roomRef.child('controls').update({ requestHighRes: null });
-      }
-    }
-
-    function updateSpotlightLockBtnUI(isLocked) {
-      const btn = document.getElementById('spotlight-lock-btn');
-      if (btn) {
-        if (isLocked) {
-          btn.innerText = "🔓 Unlock";
-          btn.className = "btn-gold";
-        } else {
-          btn.innerText = "🔒 Lock";
-          btn.className = "btn-secondary";
-        }
-      }
-    }
-
+    // --- SPOTLIGHT CONTROLS ---
     function openMarkupFromSpotlight() {
       if (!activeSpotlightClientId) return;
       const id = activeSpotlightClientId;
@@ -3766,6 +4020,12 @@
     function toggleLockFromSpotlight() {
       if (activeSpotlightClientId) {
         toggleStudentIndividualLock(activeSpotlightClientId);
+      }
+    }
+
+    function clearMarkupFromSpotlight() {
+      if (activeSpotlightClientId) {
+        clearSingleStudentMarkup(activeSpotlightClientId);
       }
     }
 
@@ -3939,7 +4199,6 @@
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
-    // Startup check: explicitly hide modal overlays on load
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.modal-overlay, .leaderboard-modal, .markup-modal, .studio-modal, .spotlight-modal').forEach(el => {
         el.style.display = 'none';
