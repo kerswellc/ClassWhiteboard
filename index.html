@@ -228,7 +228,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 5;
+      z-index: 6;
     }
 
     .lock-overlay { position: absolute; inset: 0; background: rgba(4, 20, 45, 0.94); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; color: white; text-align: center; }
@@ -659,13 +659,14 @@
       display: block;
     }
     .spotlight-footer {
-      padding: 12px 20px;
+      padding: 10px 16px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       justify-content: flex-end;
       align-items: center;
       background: var(--ga-navy-card);
       border-top: 1px solid var(--ga-navy-border);
+      flex-wrap: wrap;
     }
 
     /* Teacher Red-Pen Markup & Stamp Modal */
@@ -726,7 +727,7 @@
       display: flex;
       gap: 6px;
       overflow-x: auto;
-      max-width: 480px;
+      max-width: 500px;
       padding: 2px 0;
     }
     .stamp-pill {
@@ -1369,7 +1370,7 @@
     </div>
   </div>
 
-  <!-- ZOOM / SPOTLIGHT MODAL -->
+  <!-- ZOOM / SPOTLIGHT MODAL (ENHANCED WITH CARD CONTROLS) -->
   <div class="spotlight-modal" id="t-spotlight-modal" onclick="if(event.target === this) closeSpotlightModal()">
     <div class="spotlight-content">
       <div class="spotlight-header">
@@ -1380,7 +1381,12 @@
         <img id="spotlight-img" src="" alt="Enlarged Whiteboard">
       </div>
       <div class="spotlight-footer">
+        <button class="btn-gold" onclick="openMarkupFromSpotlight()">✏️ Markup</button>
         <button class="btn-gold" id="spotlight-exhibit-btn" onclick="broadcastCurrentSpotlight()">📢 Exhibit to Class</button>
+        <button class="btn-secondary" id="spotlight-lock-btn" onclick="toggleLockFromSpotlight()">🔒 Lock</button>
+        <button class="btn-secondary" onclick="renameFromSpotlight()">Rename</button>
+        <button class="btn-secondary" onclick="wipeFromSpotlight()">🧹 Wipe</button>
+        <button class="btn-danger" onclick="kickFromSpotlight()">Kick</button>
         <button class="btn-secondary" onclick="closeSpotlightModal()">Close</button>
       </div>
     </div>
@@ -1631,11 +1637,13 @@
         tickClocksLocally();
       });
 
+      // Live Markup Listener (Fix Applied)
       roomRef.child(`markup/${studentClientId}`).on('value', (snapshot) => {
         const markupData = snapshot.val();
         renderStudentTeacherMarkup(markupData);
       });
 
+      // Peer Assignment Listener
       roomRef.child(`peerReview/assignments/${studentClientId}`).on('value', (snapshot) => {
         const assignment = snapshot.val();
         currentPeerAssignment = assignment;
@@ -1645,6 +1653,7 @@
         }
       });
 
+      // Peer Feedback Receiver
       roomRef.child(`peerReview/feedback/${studentClientId}`).on('value', (snapshot) => {
         const fb = snapshot.val();
         if (fb && fb.comment) {
@@ -1738,9 +1747,16 @@
       });
     }
 
+    // Corrected Markup Layer Sizing & Rendering
     function renderStudentTeacherMarkup(markupData) {
       const markupCanvas = document.getElementById('board-markup');
       const mctx = markupCanvas.getContext('2d');
+
+      // Guarantee dimensions match main canvas
+      if (markupCanvas.width !== canvas.width || markupCanvas.height !== canvas.height) {
+        markupCanvas.width = canvas.width;
+        markupCanvas.height = canvas.height;
+      }
       mctx.clearRect(0, 0, markupCanvas.width, markupCanvas.height);
 
       if (!markupData || !markupData.image) return;
@@ -2312,6 +2328,10 @@
       await roomRef.child(`students/${clientId}`).update({
         individualLock: newLockState
       });
+      // Update spotlight lock button if active
+      if (activeSpotlightClientId === clientId) {
+        updateSpotlightLockBtnUI(newLockState);
+      }
     }
 
     function toggleAnonymiseNames() {
@@ -2339,14 +2359,14 @@
       }
     }
 
-    // --- PHASE 5: TEACHER RED-PEN MARKUP & STAMP ENGINE ---
+    // --- STREAMLINED GENERAL FORMATIVE STAMPS ---
     const defaultStamps = [
       { id: 'st_wd', text: 'Well Done!', emoji: '🌟', color: '#16a34a' },
+      { id: 'st_gw', text: 'Great Work!', emoji: '👍', color: '#10b981' },
+      { id: 'st_cw', text: 'Check Your Work!', emoji: '🎯', color: '#df9b35' },
       { id: 'st_ta', text: 'Try Again!', emoji: '🔄', color: '#ef4444' },
-      { id: 'st_cl', text: 'Check Line 3', emoji: '🎯', color: '#df9b35' },
-      { id: 'st_th', text: 'Think Types!', emoji: '💡', color: '#3b82f6' },
-      { id: 'st_sy', text: 'Syntax Error', emoji: '❌', color: '#dc2626' },
-      { id: 'st_gw', text: 'Great Logic', emoji: '👍', color: '#10b981' }
+      { id: 'st_rq', text: 'Re-read Question', emoji: '💡', color: '#3b82f6' },
+      { id: 'st_er', text: 'Error Found', emoji: '❌', color: '#dc2626' }
     ];
 
     function getCustomStamps() {
@@ -2387,7 +2407,7 @@
     }
 
     function openCreateStampPrompt() {
-      const text = prompt("Stamp message (e.g. 'Missing Semi-colon'):", "");
+      const text = prompt("Stamp message (e.g. 'Check calculation'):", "");
       if (!text || !text.trim()) return;
       const emoji = prompt("Stamp icon/emoji (e.g. ⭐, ⚠️, ❌):", "⭐") || "⭐";
       const color = prompt("Border color hex (e.g. #ef4444):", "#df9b35") || "#df9b35";
@@ -2558,7 +2578,7 @@
 
     function queueMarkupSync() {
       clearTimeout(markupDebounceTimer);
-      markupDebounceTimer = setTimeout(syncCurrentMarkupToStudent, 400);
+      markupDebounceTimer = setTimeout(syncCurrentMarkupToStudent, 350);
     }
 
     async function syncCurrentMarkupToStudent() {
@@ -3690,7 +3710,7 @@
       }
     }
 
-    // --- HIGH-RES SPOTLIGHT & EXHIBIT ---
+    // --- SPOTLIGHT FULLSCREEN MODAL HELPERS ---
     function openSpotlightModal(clientId) {
       const s = teacherRoster.get(clientId);
       if (!s) return;
@@ -3710,6 +3730,7 @@
         spotlightImg.style.display = 'none';
       }
 
+      updateSpotlightLockBtnUI(Boolean(s.individualLock));
       document.getElementById('t-spotlight-modal').style.display = 'flex';
       roomRef.child('controls').update({ requestHighRes: clientId });
     }
@@ -3719,6 +3740,57 @@
       document.getElementById('t-spotlight-modal').style.display = 'none';
       if (roomRef) {
         roomRef.child('controls').update({ requestHighRes: null });
+      }
+    }
+
+    function updateSpotlightLockBtnUI(isLocked) {
+      const btn = document.getElementById('spotlight-lock-btn');
+      if (btn) {
+        if (isLocked) {
+          btn.innerText = "🔓 Unlock";
+          btn.className = "btn-gold";
+        } else {
+          btn.innerText = "🔒 Lock";
+          btn.className = "btn-secondary";
+        }
+      }
+    }
+
+    function openMarkupFromSpotlight() {
+      if (!activeSpotlightClientId) return;
+      const id = activeSpotlightClientId;
+      closeSpotlightModal();
+      openMarkupModal(id);
+    }
+
+    function toggleLockFromSpotlight() {
+      if (activeSpotlightClientId) {
+        toggleStudentIndividualLock(activeSpotlightClientId);
+      }
+    }
+
+    function renameFromSpotlight() {
+      if (activeSpotlightClientId) {
+        renameStudent(activeSpotlightClientId);
+        const s = teacherRoster.get(activeSpotlightClientId);
+        if (s) {
+          const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
+          document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
+        }
+      }
+    }
+
+    function wipeFromSpotlight() {
+      if (activeSpotlightClientId) {
+        wipeSingleStudent(activeSpotlightClientId);
+      }
+    }
+
+    function kickFromSpotlight() {
+      if (activeSpotlightClientId) {
+        const id = activeSpotlightClientId;
+        closeSpotlightModal();
+        kickStudent(id);
       }
     }
 
@@ -3867,7 +3939,7 @@
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
     }
 
-    // Startup check: explicitly hide any modal overlays on fresh load
+    // Startup check: explicitly hide modal overlays on load
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.modal-overlay, .leaderboard-modal, .markup-modal, .studio-modal, .spotlight-modal').forEach(el => {
         el.style.display = 'none';
