@@ -196,16 +196,20 @@
     .timer-pill { background: var(--ga-gold); color: #04142d; padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: none; }
     .points-pill { background: #1e3a8a; color: var(--ga-gold); border: 1px solid var(--ga-gold); padding: 4px 10px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; }
 
-    /* Student Peer Review Split View */
+    /* Student Peer Review Split View (Touch & Focus Isolated) */
     .peer-review-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(4, 20, 45, 0.97);
+      background: rgba(4, 20, 45, 0.98);
       display: none;
       flex-direction: column;
-      z-index: 42;
+      z-index: 100;
       padding: 14px;
       overflow: hidden;
+      touch-action: auto !important;
+      pointer-events: auto !important;
+      user-select: auto !important;
+      -webkit-user-select: auto !important;
     }
     .peer-review-header {
       display: flex;
@@ -243,6 +247,24 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      pointer-events: auto !important;
+      touch-action: auto !important;
+    }
+    .peer-feedback-panel textarea {
+      touch-action: auto !important;
+      pointer-events: auto !important;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      background: var(--ga-navy-input);
+      color: #ffffff;
+      border: 1px solid var(--ga-navy-border);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 1rem;
+    }
+    .peer-feedback-panel textarea:focus {
+      outline: none;
+      border-color: var(--ga-gold);
     }
 
     /* Student Peer Feedback Delivery Notification */
@@ -499,9 +521,9 @@
     .board-card img { width: 100%; height: 180px; object-fit: contain; background: #ffffff; border-bottom: 1px solid var(--ga-navy-border); display: block; cursor: zoom-in; }
     .board-placeholder { width: 100%; height: 180px; display: flex; align-items: center; justify-content: center; background: var(--ga-navy-input); color: var(--ga-text-muted); font-size: 0.85rem; font-style: italic; border-bottom: 1px solid var(--ga-navy-border); cursor: pointer; }
     .board-meta { padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; gap: 4px; }
-    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100px; }
+    .seat-tag { font-weight: 600; color: var(--ga-gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px; }
     
-    .meta-actions { display: flex; gap: 4px; }
+    .meta-actions { display: flex; gap: 3px; }
     .btn-action-mini { padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; }
 
     /* Zoom / Spotlight Modal */
@@ -794,6 +816,12 @@
 
         <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
 
+        <!-- Undo & Redo -->
+        <button class="tool-btn" id="s-undo-btn" title="Undo (Ctrl+Z)" onclick="studentUndo()">↩ Undo</button>
+        <button class="tool-btn" id="s-redo-btn" title="Redo (Ctrl+Y)" onclick="studentRedo()">↪ Redo</button>
+
+        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+
         <!-- Drawing & Vector Tools -->
         <button class="tool-btn active" id="pen-tool-btn" onclick="setTool('pen')">✏️ Pen</button>
         <button class="tool-btn" id="line-tool-btn" onclick="setTool('line')">📏 Line</button>
@@ -823,10 +851,11 @@
           </div>
         </div>
 
+        <!-- Lock Overlay -->
         <div class="lock-overlay" id="s-lock-overlay">
           <span style="font-size: 2.5rem; margin-bottom: 6px;">🔒</span>
           <h3 style="margin: 0 0 4px 0; color: var(--ga-gold);">Board Locked</h3>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);">Teacher paused input for class discussion.</p>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--ga-text-muted);" id="s-lock-msg">Teacher paused input for class discussion.</p>
         </div>
 
         <!-- Student Showcase Fullscreen Overlay -->
@@ -858,7 +887,7 @@
           </div>
         </div>
 
-        <!-- Student Peer Review Split-Screen Overlay -->
+        <!-- Student Peer Review Split-Screen Overlay (Event-Isolated) -->
         <div class="peer-review-overlay" id="s-peer-overlay">
           <div class="peer-review-header">
             <div>
@@ -873,7 +902,7 @@
             </div>
             <div class="peer-feedback-panel">
               <label style="margin-top:0; font-size: 0.95rem; color: var(--ga-gold);">Your Feedback for this student:</label>
-              <textarea id="s-peer-feedback-input" style="flex: 1; resize: none;" placeholder="Give 1 piece of praise and 1 constructive suggestion or correction..."></textarea>
+              <textarea id="s-peer-feedback-input" placeholder="Give 1 piece of praise and 1 constructive suggestion or correction..."></textarea>
               <button class="btn-primary" style="margin-top: 0;" onclick="sendPeerFeedback()">Send Feedback</button>
             </div>
           </div>
@@ -908,6 +937,7 @@
 
       <div class="action-toolbar">
         <button id="lock-toggle-btn" class="btn-gold" onclick="toggleLockState()">🔒 Lock All Boards</button>
+        <button id="sort-toggle-btn" class="btn-secondary" onclick="toggleSortOrder()">🔤 Sort: Order Joined</button>
         <button id="anon-toggle-btn" class="btn-secondary" onclick="toggleAnonymiseNames()">👁️ Anonymise Names</button>
         <button class="btn-secondary" onclick="openHingeModal()">🎯 Hinge Question</button>
         <button class="btn-primary" style="width: auto; margin-top: 0; padding: 8px 14px;" onclick="openPeerReviewModal()">👥 Peer Review</button>
@@ -1121,6 +1151,10 @@
       </div>
 
       <div class="studio-toolbar">
+        <button class="tool-btn" id="st-undo-btn" onclick="studioUndo()">↩ Undo</button>
+        <button class="tool-btn" id="st-redo-btn" onclick="studioRedo()">↪ Redo</button>
+        <div style="width: 1px; height: 20px; background: var(--ga-navy-border); margin: 0 4px;"></div>
+
         <button class="tool-btn active" id="st-tool-pen" onclick="setStudioTool('pen')">✏️ Pen</button>
         <button class="tool-btn" id="st-tool-line" onclick="setStudioTool('line')">📏 Line</button>
         <button class="tool-btn" id="st-tool-arrow" onclick="setStudioTool('arrow')">↗️ Arrow</button>
@@ -1203,6 +1237,7 @@
     let selectedTemplateId = 'trace_table';
 
     let currentPeerAssignment = null;
+    let sortMode = 'JOINED'; // 'JOINED' or 'ALPHA'
 
     function generateInstanceClientId() {
       return 'ga_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -1294,6 +1329,10 @@
       canvasRef.onDisconnect().remove();
       roomRef.child(`highResCanvases/${studentClientId}`).onDisconnect().remove();
 
+      setInterval(() => {
+        if (studentRef) studentRef.child('lastSeen').set(Date.now());
+      }, 15000);
+
       roomRef.child('students').once('value', (snapshot) => {
         const students = snapshot.val() || {};
         let count = 0;
@@ -1310,7 +1349,8 @@
         studentRef.set({
           clientId: studentClientId,
           seat: studentSeat,
-          lastSeen: Date.now()
+          lastSeen: Date.now(),
+          individualLock: false
         });
       });
 
@@ -1368,7 +1408,6 @@
           wipeCanvasLocal();
         }
 
-        // Peer Review Session Sync
         const peerOverlay = document.getElementById('s-peer-overlay');
         if (ctrl.peerReviewActive) {
           peerOverlay.style.display = 'flex';
@@ -1456,6 +1495,7 @@
         }
       });
 
+      // Individual lock listener
       studentRef.on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -1473,6 +1513,14 @@
         if (data.kicked) {
           alert("You have been removed from this room by the teacher.");
           location.reload();
+        }
+
+        if (data.individualLock) {
+          document.getElementById('s-lock-msg').innerText = "Your whiteboard has been paused individually by the teacher.";
+          updateStudentLockState(true);
+        } else if (!teacherLockFlag && activeTimerEndEpoch === 0) {
+          document.getElementById('s-lock-msg').innerText = "Teacher paused input for class discussion.";
+          updateStudentLockState(false);
         }
       });
     }
@@ -1572,6 +1620,7 @@
       }
       const text = document.getElementById('s-text-input').value.trim();
       if (text) {
+        saveStudentHistoryState();
         ctx.font = "bold 60px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
         ctx.fillStyle = currentColor;
         ctx.fillText(text, pendingTextCoords.x, pendingTextCoords.y);
@@ -1736,6 +1785,7 @@
         teacherRoster.set(student.clientId, student);
         upsertStudentCard(student);
         updateRosterUI();
+        reorderTeacherGrid();
 
         roomRef.child(`canvases/${student.clientId}`).on('value', (canvasSnap) => {
           const cData = canvasSnap.val();
@@ -1759,6 +1809,7 @@
         teacherRoster.set(student.clientId, student);
         updateCardMeta(student);
         updateRosterUI();
+        if (sortMode === 'ALPHA') reorderTeacherGrid();
       });
 
       roomRef.child('students').on('child_removed', (snapshot) => {
@@ -1893,6 +1944,7 @@
             <span class="seat-tag" id="tag_${student.clientId}"></span>
             <div class="meta-actions">
               <button class="btn-action-mini btn-gold" onclick="exhibitDirectly('${escapeHTML(student.clientId)}')">Exhibit</button>
+              <button class="btn-action-mini btn-secondary" id="lock_btn_${student.clientId}" onclick="toggleStudentIndividualLock('${escapeHTML(student.clientId)}')">🔒 Lock</button>
               <button class="btn-action-mini btn-secondary" onclick="renameStudent('${escapeHTML(student.clientId)}')">Rename</button>
               <button class="btn-action-mini btn-secondary" onclick="wipeSingleStudent('${escapeHTML(student.clientId)}')">Wipe</button>
               <button class="btn-action-mini btn-danger" onclick="kickStudent('${escapeHTML(student.clientId)}')">Kick</button>
@@ -1928,6 +1980,16 @@
         tag.innerText = name;
         tag.title = name;
       }
+      const lockBtn = document.getElementById(`lock_btn_${student.clientId}`);
+      if (lockBtn) {
+        if (student.individualLock) {
+          lockBtn.innerText = "🔓 Unlock";
+          lockBtn.className = "btn-action-mini btn-gold";
+        } else {
+          lockBtn.innerText = "🔒 Lock";
+          lockBtn.className = "btn-action-mini btn-secondary";
+        }
+      }
     }
 
     function removeStudentCard(clientId) {
@@ -1956,6 +2018,57 @@
       students.forEach(s => updateCardMeta(s));
     }
 
+    // --- TEACHER SORTING ---
+    function toggleSortOrder() {
+      const btn = document.getElementById('sort-toggle-btn');
+      if (sortMode === 'JOINED') {
+        sortMode = 'ALPHA';
+        btn.innerText = "🔤 Sort: A-Z / Seat";
+        btn.className = "btn-gold";
+      } else {
+        sortMode = 'JOINED';
+        btn.innerText = "🔤 Sort: Order Joined";
+        btn.className = "btn-secondary";
+      }
+      reorderTeacherGrid();
+    }
+
+    function reorderTeacherGrid() {
+      const grid = document.getElementById('teacher-grid');
+      const cards = Array.from(grid.children);
+
+      if (sortMode === 'ALPHA') {
+        cards.sort((a, b) => {
+          const idA = a.id.replace('card_', '');
+          const idB = b.id.replace('card_', '');
+          const sA = teacherRoster.get(idA);
+          const sB = teacherRoster.get(idB);
+          const nameA = sA ? sA.seat : '';
+          const nameB = sB ? sB.seat : '';
+          return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+        });
+      } else {
+        const orderKeys = Array.from(teacherRoster.keys());
+        cards.sort((a, b) => {
+          const idA = a.id.replace('card_', '');
+          const idB = b.id.replace('card_', '');
+          return orderKeys.indexOf(idA) - orderKeys.indexOf(idB);
+        });
+      }
+
+      cards.forEach(c => grid.appendChild(c));
+    }
+
+    // --- INDIVIDUAL STUDENT LOCK ---
+    async function toggleStudentIndividualLock(clientId) {
+      const s = teacherRoster.get(clientId);
+      if (!s) return;
+      const newLockState = !Boolean(s.individualLock);
+      await roomRef.child(`students/${clientId}`).update({
+        individualLock: newLockState
+      });
+    }
+
     function toggleAnonymiseNames() {
       isAnonymised = !isAnonymised;
       const btn = document.getElementById('anon-toggle-btn');
@@ -1978,62 +2091,6 @@
           const idx = Array.from(teacherRoster.keys()).indexOf(activeSpotlightClientId);
           document.getElementById('spotlight-title').innerText = `Spotlight: ${getDisplayName(s, idx)}`;
         }
-      }
-    }
-
-    // --- PEER REVIEW ENGINE ---
-    function openPeerReviewModal() {
-      document.getElementById('peer-review-modal').style.display = 'flex';
-    }
-
-    function closePeerReviewModal() {
-      document.getElementById('peer-review-modal').style.display = 'none';
-    }
-
-    async function launchPeerReview() {
-      const students = Array.from(teacherRoster.values());
-      if (students.length < 2) {
-        return alert("At least 2 connected students are required for Peer Review.");
-      }
-
-      const durationSecs = parseInt(document.getElementById('peer-duration-input').value, 10) || 90;
-      const anonymise = document.getElementById('peer-anonymise-check').checked;
-      closePeerReviewModal();
-
-      const shuffled = [...students].sort(() => Math.random() - 0.5);
-      const assignments = {};
-
-      for (let i = 0; i < shuffled.length; i++) {
-        const reviewer = shuffled[i];
-        const reviewedPeer = shuffled[(i + 1) % shuffled.length];
-        const peerImage = teacherCanvasCache.get(reviewedPeer.clientId) || null;
-
-        assignments[reviewer.clientId] = {
-          peerClientId: reviewedPeer.clientId,
-          peerName: anonymise ? "Anonymous Classmate" : reviewedPeer.seat,
-          peerImage: peerImage
-        };
-      }
-
-      const targetEnd = Date.now() + (durationSecs * 1000);
-      activeTimerEndEpoch = targetEnd;
-      tickClocksLocally();
-
-      await roomRef.child('peerReview/submitted').remove();
-      await roomRef.child('peerReview/assignments').set(assignments);
-      await roomRef.child('controls').update({
-        peerReviewActive: true,
-        locked: false,
-        timerEnd: targetEnd
-      });
-    }
-
-    async function endPeerReviewSession() {
-      if (confirm("Conclude Peer Review and restore drawing boards?")) {
-        await roomRef.child('controls').update({
-          peerReviewActive: false,
-          timerEnd: 0
-        });
       }
     }
 
@@ -2323,7 +2380,342 @@
       return c.toDataURL('image/jpeg', 0.8);
     }
 
-    // --- TEACHER TEMPLATE STUDIO ENGINE ---
+    // --- VECTOR HELPER: ARROWS ---
+    function drawArrow(targetCtx, fromx, fromy, tox, toy) {
+      const headlen = 16;
+      const angle = Math.atan2(toy - fromy, tox - fromx);
+      targetCtx.beginPath();
+      targetCtx.moveTo(fromx, fromy);
+      targetCtx.lineTo(tox, toy);
+      targetCtx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+      targetCtx.moveTo(tox, toy);
+      targetCtx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+      targetCtx.stroke();
+    }
+
+    // --- FLOOD FILL (PAINT BUCKET) ALGORITHM ---
+    function floodFill(targetCtx, startX, startY, fillHex, width, height) {
+      const imgData = targetCtx.getImageData(0, 0, width, height);
+      const data = imgData.data;
+
+      const fillRgb = hexToRgb(fillHex);
+      const startIdx = (startY * width + startX) * 4;
+
+      const startR = data[startIdx];
+      const startG = data[startIdx + 1];
+      const startB = data[startIdx + 2];
+      const startA = data[startIdx + 3];
+
+      if (colorsMatch(startR, startG, startB, startA, fillRgb.r, fillRgb.g, fillRgb.b, 255)) {
+        return;
+      }
+
+      const pixelStack = [[startX, startY]];
+      const seen = new Uint8Array(width * height);
+
+      while (pixelStack.length > 0) {
+        const [x, y] = pixelStack.pop();
+        let currentY = y;
+        let pixelIdx = (currentY * width + x) * 4;
+
+        while (currentY >= 0 && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
+          currentY--;
+          pixelIdx -= width * 4;
+        }
+
+        pixelIdx += width * 4;
+        currentY++;
+
+        let reachLeft = false;
+        let reachRight = false;
+
+        while (currentY < height && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
+          const flatCoord = currentY * width + x;
+          if (seen[flatCoord]) break;
+          seen[flatCoord] = 1;
+
+          data[pixelIdx] = fillRgb.r;
+          data[pixelIdx + 1] = fillRgb.g;
+          data[pixelIdx + 2] = fillRgb.b;
+          data[pixelIdx + 3] = 255;
+
+          if (x > 0) {
+            if (matchStartColor(pixelIdx - 4, data, startR, startG, startB, startA)) {
+              if (!reachLeft) {
+                pixelStack.push([x - 1, currentY]);
+                reachLeft = true;
+              }
+            } else if (reachLeft) {
+              reachLeft = false;
+            }
+          }
+
+          if (x < width - 1) {
+            if (matchStartColor(pixelIdx + 4, data, startR, startG, startB, startA)) {
+              if (!reachRight) {
+                pixelStack.push([x + 1, currentY]);
+                reachRight = true;
+              }
+            } else if (reachRight) {
+              reachRight = false;
+            }
+          }
+
+          currentY++;
+          pixelIdx += width * 4;
+        }
+      }
+
+      targetCtx.putImageData(imgData, 0, 0);
+    }
+
+    function matchStartColor(idx, data, r, g, b, a) {
+      return (
+        Math.abs(data[idx] - r) <= 28 &&
+        Math.abs(data[idx + 1] - g) <= 28 &&
+        Math.abs(data[idx + 2] - b) <= 28 &&
+        Math.abs(data[idx + 3] - a) <= 28
+      );
+    }
+
+    function colorsMatch(r1, g1, b1, a1, r2, g2, b2, a2) {
+      return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
+    }
+
+    function hexToRgb(hex) {
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255
+      };
+    }
+
+    // --- STUDENT CANVAS ENGINE WITH UNDO/REDO ---
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let currentColor = '#000000';
+    let currentTool = 'pen';
+    let startCoords = { x: 0, y: 0 };
+    let liveSnapshot = null;
+
+    const studentUndoStack = [];
+    const studentRedoStack = [];
+
+    function saveStudentHistoryState() {
+      if (studentUndoStack.length >= 20) studentUndoStack.shift();
+      studentUndoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      studentRedoStack.length = 0;
+    }
+
+    function studentUndo() {
+      if (isOperationBlocked() || studentUndoStack.length === 0) return;
+      studentRedoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      const prev = studentUndoStack.pop();
+      ctx.putImageData(prev, 0, 0);
+      queueAutoSync();
+    }
+
+    function studentRedo() {
+      if (isOperationBlocked() || studentRedoStack.length === 0) return;
+      studentUndoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      const next = studentRedoStack.pop();
+      ctx.putImageData(next, 0, 0);
+      queueAutoSync();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) studentRedo();
+        else studentUndo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        studentRedo();
+      }
+    });
+
+    function setupCanvas() {
+      setTimeout(() => {
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        wipeCanvasLocal();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+      }, 50);
+    }
+
+    function resizeCanvasPreserve() {
+      const container = canvas.parentElement;
+      if (!container || container.clientWidth === 0) return;
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(canvas, 0, 0);
+
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      wipeCanvasLocal();
+      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+    }
+
+    function setColor(color, element) {
+      currentColor = color;
+      document.querySelectorAll('#student-draw-view .color-dot').forEach(d => d.classList.remove('active'));
+      if (element && element.classList.contains('color-dot')) {
+        element.classList.add('active');
+      }
+      if (currentTool === 'eraser') {
+        setTool('pen');
+      }
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.querySelectorAll('#student-draw-view .tool-btn').forEach(b => {
+        if (b.id.includes('-tool-btn')) b.classList.remove('active');
+      });
+      const activeBtn = document.getElementById(`${tool}-tool-btn`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function isOperationBlocked() {
+      if (isBoardLocked) return true;
+      if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') return true;
+      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
+        updateStudentLockState(true);
+        return true;
+      }
+      return false;
+    }
+
+    function startDraw(e) {
+      if (isOperationBlocked()) return;
+      const coords = getCoords(e);
+      startCoords = coords;
+
+      if (currentTool === 'fill') {
+        e.preventDefault();
+        saveStudentHistoryState();
+        floodFill(ctx, Math.round(coords.x), Math.round(coords.y), currentColor, canvas.width, canvas.height);
+        queueAutoSync();
+        return;
+      }
+
+      if (currentTool === 'text') {
+        e.preventDefault();
+        openCanvasTextModal(coords.x, coords.y);
+        return;
+      }
+
+      saveStudentHistoryState();
+      drawing = true;
+      liveSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      if (currentTool === 'pen' || currentTool === 'eraser') {
+        ctx.beginPath();
+        ctx.moveTo(coords.x, coords.y);
+        if (currentTool === 'eraser') {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 26;
+        } else {
+          ctx.strokeStyle = currentColor;
+          ctx.lineWidth = 5;
+        }
+      }
+    }
+
+    function draw(e) {
+      if (!drawing || isOperationBlocked() || currentTool === 'text' || currentTool === 'fill') return;
+      e.preventDefault();
+      const coords = getCoords(e);
+
+      if (currentTool === 'pen' || currentTool === 'eraser') {
+        ctx.lineTo(coords.x, coords.y);
+        ctx.stroke();
+        return;
+      }
+
+      ctx.putImageData(liveSnapshot, 0, 0);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 4;
+
+      if (currentTool === 'line') {
+        ctx.beginPath();
+        ctx.moveTo(startCoords.x, startCoords.y);
+        ctx.lineTo(coords.x, coords.y);
+        ctx.stroke();
+      } else if (currentTool === 'arrow') {
+        drawArrow(ctx, startCoords.x, startCoords.y, coords.x, coords.y);
+      } else if (currentTool === 'rect') {
+        const w = coords.x - startCoords.x;
+        const h = coords.y - startCoords.y;
+        ctx.strokeRect(startCoords.x, startCoords.y, w, h);
+      } else if (currentTool === 'circle') {
+        const radius = Math.hypot(coords.x - startCoords.x, coords.y - startCoords.y);
+        ctx.beginPath();
+        ctx.arc(startCoords.x, startCoords.y, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
+    }
+
+    function stopDraw() {
+      if (drawing) {
+        drawing = false;
+        ctx.beginPath();
+        queueAutoSync();
+      }
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchend', stopDraw);
+    canvas.addEventListener('touchmove', draw, { passive: false });
+
+    // Isolation: Prevent canvas touch event listeners from cancelling taps inside peer review
+    const peerOverlayEl = document.getElementById('s-peer-overlay');
+    ['touchstart', 'touchmove', 'touchend', 'mousedown', 'pointerdown'].forEach(evtName => {
+      peerOverlayEl.addEventListener(evtName, (e) => {
+        e.stopPropagation();
+      }, { passive: true });
+    });
+
+    const feedbackTextarea = document.getElementById('s-peer-feedback-input');
+    feedbackTextarea.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      feedbackTextarea.focus();
+    });
+
+    function clearCanvas() {
+      if (isOperationBlocked()) return;
+      saveStudentHistoryState();
+      wipeCanvasLocal();
+      queueAutoSync();
+    }
+
+    function wipeCanvasLocal() {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      if (activeTemplateImageObj) {
+        renderTemplateToCanvas();
+      }
+    }
+
+    // --- TEACHER TEMPLATE STUDIO (WITH UNDO/REDO) ---
     const studioCanvas = document.getElementById('studio-canvas');
     const sctx = studioCanvas.getContext('2d');
     let studioTool = 'pen';
@@ -2331,6 +2723,29 @@
     let studioDrawing = false;
     let studioStartCoords = { x: 0, y: 0 };
     let studioSnapshot = null;
+
+    const studioUndoStack = [];
+    const studioRedoStack = [];
+
+    function saveStudioHistoryState() {
+      if (studioUndoStack.length >= 20) studioUndoStack.shift();
+      studioUndoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
+      studioRedoStack.length = 0;
+    }
+
+    function studioUndo() {
+      if (studioUndoStack.length === 0) return;
+      studioRedoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
+      const prev = studioUndoStack.pop();
+      sctx.putImageData(prev, 0, 0);
+    }
+
+    function studioRedo() {
+      if (studioRedoStack.length === 0) return;
+      studioUndoStack.push(sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height));
+      const next = studioRedoStack.pop();
+      sctx.putImageData(next, 0, 0);
+    }
 
     function openStudioModal() {
       closeTemplateModal();
@@ -2348,11 +2763,15 @@
       sctx.fillRect(0, 0, studioCanvas.width, studioCanvas.height);
       sctx.lineCap = 'round';
       sctx.lineJoin = 'round';
+      studioUndoStack.length = 0;
+      studioRedoStack.length = 0;
     }
 
     function setStudioTool(tool) {
       studioTool = tool;
-      document.querySelectorAll('.studio-toolbar .tool-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.studio-toolbar .tool-btn').forEach(b => {
+        if (b.id.startsWith('st-tool-')) b.classList.remove('active');
+      });
       const activeBtn = document.getElementById(`st-tool-${tool}`);
       if (activeBtn) activeBtn.classList.add('active');
     }
@@ -2372,6 +2791,7 @@
       studioStartCoords = coords;
 
       if (studioTool === 'fill') {
+        saveStudioHistoryState();
         floodFill(sctx, Math.round(coords.x), Math.round(coords.y), studioCurrentColor, studioCanvas.width, studioCanvas.height);
         return;
       }
@@ -2379,6 +2799,7 @@
       if (studioTool === 'text') {
         const text = prompt("Enter text to stamp on template:");
         if (text) {
+          saveStudioHistoryState();
           sctx.font = "bold 24px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
           sctx.fillStyle = studioCurrentColor;
           sctx.fillText(text, coords.x, coords.y);
@@ -2386,6 +2807,7 @@
         return;
       }
 
+      saveStudioHistoryState();
       studioDrawing = true;
       studioSnapshot = sctx.getImageData(0, 0, studioCanvas.width, studioCanvas.height);
 
@@ -2439,6 +2861,7 @@
       const cols = parseInt(prompt("How many table columns? (e.g. 3)", "3"), 10);
       if (!rows || !cols || rows <= 0 || cols <= 0) return;
 
+      saveStudioHistoryState();
       const pad = 40;
       const w = studioCanvas.width - (pad * 2);
       const h = studioCanvas.height - (pad * 2);
@@ -2869,289 +3292,6 @@
 
     function escapeHTML(str) {
       return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-    }
-
-    // --- VECTOR HELPER: ARROWS ---
-    function drawArrow(targetCtx, fromx, fromy, tox, toy) {
-      const headlen = 16;
-      const angle = Math.atan2(toy - fromy, tox - fromx);
-      targetCtx.beginPath();
-      targetCtx.moveTo(fromx, fromy);
-      targetCtx.lineTo(tox, toy);
-      targetCtx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
-      targetCtx.moveTo(tox, toy);
-      targetCtx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
-      targetCtx.stroke();
-    }
-
-    // --- FLOOD FILL (PAINT BUCKET) ALGORITHM ---
-    function floodFill(targetCtx, startX, startY, fillHex, width, height) {
-      const imgData = targetCtx.getImageData(0, 0, width, height);
-      const data = imgData.data;
-
-      const fillRgb = hexToRgb(fillHex);
-      const startIdx = (startY * width + startX) * 4;
-
-      const startR = data[startIdx];
-      const startG = data[startIdx + 1];
-      const startB = data[startIdx + 2];
-      const startA = data[startIdx + 3];
-
-      if (colorsMatch(startR, startG, startB, startA, fillRgb.r, fillRgb.g, fillRgb.b, 255)) {
-        return;
-      }
-
-      const pixelStack = [[startX, startY]];
-      const seen = new Uint8Array(width * height);
-
-      while (pixelStack.length > 0) {
-        const [x, y] = pixelStack.pop();
-        let currentY = y;
-        let pixelIdx = (currentY * width + x) * 4;
-
-        while (currentY >= 0 && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
-          currentY--;
-          pixelIdx -= width * 4;
-        }
-
-        pixelIdx += width * 4;
-        currentY++;
-
-        let reachLeft = false;
-        let reachRight = false;
-
-        while (currentY < height && matchStartColor(pixelIdx, data, startR, startG, startB, startA)) {
-          const flatCoord = currentY * width + x;
-          if (seen[flatCoord]) break;
-          seen[flatCoord] = 1;
-
-          data[pixelIdx] = fillRgb.r;
-          data[pixelIdx + 1] = fillRgb.g;
-          data[pixelIdx + 2] = fillRgb.b;
-          data[pixelIdx + 3] = 255;
-
-          if (x > 0) {
-            if (matchStartColor(pixelIdx - 4, data, startR, startG, startB, startA)) {
-              if (!reachLeft) {
-                pixelStack.push([x - 1, currentY]);
-                reachLeft = true;
-              }
-            } else if (reachLeft) {
-              reachLeft = false;
-            }
-          }
-
-          if (x < width - 1) {
-            if (matchStartColor(pixelIdx + 4, data, startR, startG, startB, startA)) {
-              if (!reachRight) {
-                pixelStack.push([x + 1, currentY]);
-                reachRight = true;
-              }
-            } else if (reachRight) {
-              reachRight = false;
-            }
-          }
-
-          currentY++;
-          pixelIdx += width * 4;
-        }
-      }
-
-      targetCtx.putImageData(imgData, 0, 0);
-    }
-
-    function matchStartColor(idx, data, r, g, b, a) {
-      return (
-        Math.abs(data[idx] - r) <= 28 &&
-        Math.abs(data[idx + 1] - g) <= 28 &&
-        Math.abs(data[idx + 2] - b) <= 28 &&
-        Math.abs(data[idx + 3] - a) <= 28
-      );
-    }
-
-    function colorsMatch(r1, g1, b1, a1, r2, g2, b2, a2) {
-      return r1 === r2 && g1 === g2 && b1 === b2 && a1 === a2;
-    }
-
-    function hexToRgb(hex) {
-      let c = hex.replace('#', '');
-      if (c.length === 3) c = c.split('').map(x => x + x).join('');
-      const num = parseInt(c, 16);
-      return {
-        r: (num >> 16) & 255,
-        g: (num >> 8) & 255,
-        b: num & 255
-      };
-    }
-
-    // --- STUDENT CANVAS ENGINE ---
-    const canvas = document.getElementById('board');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
-    let currentColor = '#000000';
-    let currentTool = 'pen';
-    let startCoords = { x: 0, y: 0 };
-    let liveSnapshot = null;
-
-    function setupCanvas() {
-      setTimeout(() => {
-        const container = canvas.parentElement;
-        canvas.width = container.clientWidth;
-        canvas.height = container.clientHeight;
-        wipeCanvasLocal();
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-      }, 50);
-    }
-
-    function resizeCanvasPreserve() {
-      const container = canvas.parentElement;
-      if (!container || container.clientWidth === 0) return;
-
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(canvas, 0, 0);
-
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
-      wipeCanvasLocal();
-      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
-    }
-
-    function setColor(color, element) {
-      currentColor = color;
-      document.querySelectorAll('#student-draw-view .color-dot').forEach(d => d.classList.remove('active'));
-      if (element && element.classList.contains('color-dot')) {
-        element.classList.add('active');
-      }
-      if (currentTool === 'eraser') {
-        setTool('pen');
-      }
-    }
-
-    function setTool(tool) {
-      currentTool = tool;
-      document.querySelectorAll('#student-draw-view .tool-btn').forEach(b => b.classList.remove('active'));
-      const activeBtn = document.getElementById(`${tool}-tool-btn`);
-      if (activeBtn) activeBtn.classList.add('active');
-    }
-
-    function getCoords(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    }
-
-    function isOperationBlocked() {
-      if (isBoardLocked) return true;
-      if (currentHingeConfig && currentHingeConfig.status === 'ACTIVE') return true;
-      if (activeTimerEndEpoch > 0 && Date.now() >= activeTimerEndEpoch) {
-        updateStudentLockState(true);
-        return true;
-      }
-      return false;
-    }
-
-    function startDraw(e) {
-      if (isOperationBlocked()) return;
-      const coords = getCoords(e);
-      startCoords = coords;
-
-      if (currentTool === 'fill') {
-        e.preventDefault();
-        floodFill(ctx, Math.round(coords.x), Math.round(coords.y), currentColor, canvas.width, canvas.height);
-        queueAutoSync();
-        return;
-      }
-
-      if (currentTool === 'text') {
-        e.preventDefault();
-        openCanvasTextModal(coords.x, coords.y);
-        return;
-      }
-
-      drawing = true;
-      liveSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-      if (currentTool === 'pen' || currentTool === 'eraser') {
-        ctx.beginPath();
-        ctx.moveTo(coords.x, coords.y);
-        if (currentTool === 'eraser') {
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 26;
-        } else {
-          ctx.strokeStyle = currentColor;
-          ctx.lineWidth = 5;
-        }
-      }
-    }
-
-    function draw(e) {
-      if (!drawing || isOperationBlocked() || currentTool === 'text' || currentTool === 'fill') return;
-      e.preventDefault();
-      const coords = getCoords(e);
-
-      if (currentTool === 'pen' || currentTool === 'eraser') {
-        ctx.lineTo(coords.x, coords.y);
-        ctx.stroke();
-        return;
-      }
-
-      // Vector Preview
-      ctx.putImageData(liveSnapshot, 0, 0);
-      ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 4;
-
-      if (currentTool === 'line') {
-        ctx.beginPath();
-        ctx.moveTo(startCoords.x, startCoords.y);
-        ctx.lineTo(coords.x, coords.y);
-        ctx.stroke();
-      } else if (currentTool === 'arrow') {
-        drawArrow(ctx, startCoords.x, startCoords.y, coords.x, coords.y);
-      } else if (currentTool === 'rect') {
-        const w = coords.x - startCoords.x;
-        const h = coords.y - startCoords.y;
-        ctx.strokeRect(startCoords.x, startCoords.y, w, h);
-      } else if (currentTool === 'circle') {
-        const radius = Math.hypot(coords.x - startCoords.x, coords.y - startCoords.y);
-        ctx.beginPath();
-        ctx.arc(startCoords.x, startCoords.y, radius, 0, 2 * Math.PI);
-        ctx.stroke();
-      }
-    }
-
-    function stopDraw() {
-      if (drawing) {
-        drawing = false;
-        ctx.beginPath();
-        queueAutoSync();
-      }
-    }
-
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mouseup', stopDraw);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('touchstart', startDraw, { passive: false });
-    canvas.addEventListener('touchend', stopDraw);
-    canvas.addEventListener('touchmove', draw, { passive: false });
-
-    function clearCanvas() {
-      if (isOperationBlocked()) return;
-      wipeCanvasLocal();
-      queueAutoSync();
-    }
-
-    function wipeCanvasLocal() {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      if (activeTemplateImageObj) {
-        renderTemplateToCanvas();
-      }
     }
   </script>
 </body>
